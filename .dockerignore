@@ -1,0 +1,9 @@
+.artifacts
+.github
+bin
+ci
+data
+docker
+Dockerfile
+docker-compose
+.*
