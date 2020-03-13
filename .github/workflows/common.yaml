@@ -15,7 +15,7 @@ jobs:
     name: unit-tests
     runs-on: ubuntu-latest
     env:
-      GOPATH: /home/runner/work/insolar/mainnet/go
+      GOPATH: /home/runner/work/mainnet/mainnet/go
     steps:
       - name: checkout code
         uses: actions/checkout@master
@@ -44,27 +44,26 @@ jobs:
       - name: checkout code
         uses: actions/checkout@master
         with:
-          path: go/src/github.com/insolar/mainnet
+          path: go/src/github.com/insolar/insolar
       - name: set up go ${{env.GO_VERSION}}
         uses: actions/setup-go@v1
         with:
           go-version: ${{env.GO_VERSION}}
       - name: add bin to path
         run: echo "::add-path::${{env.GOPATH}}/bin"
-      - name: test_prepare_1
-        run: make pre-build
-        working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
-      - name: test_prepare_2
-        run: make build
-        working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
+      - name: test_prepare
+        run: |
+          go mod download
+          make pre-build build
+        working-directory: ${{env.GOPATH}}/src/github.com/insolar/insolar
       - name: test_slow
         run: make test_slow
-        working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
+        working-directory: ${{env.GOPATH}}/src/github.com/insolar/insolar
   codegen:
     name: codegen
     runs-on: ubuntu-latest
     env:
-      GOPATH: /home/runner/work/insolar/mainnet/go
+      GOPATH: /home/runner/work/mainnet/mainnet/go
     steps:
       - name: checkout code
         uses: actions/checkout@master
@@ -87,7 +86,7 @@ jobs:
     name: coverage
     runs-on: ubuntu-latest
     env:
-      GOPATH: /home/runner/work/insolar/mainnet/go
+      GOPATH: /home/runner/work/mainnet/mainnet/go
     steps:
       - name: checkout code
         uses: actions/checkout@master
