@@ -66,10 +66,10 @@ clean: ## run all cleanup tasks
 
 .PHONY: install-build-tools
 install-build-tools: ## install insolar tools for platform
-	GOFLAGS='' go get github.com/insolar/insolar/cmd/pulsard
-	GOFLAGS='' go get github.com/insolar/insolar/cmd/pulsewatcher
-	GOFLAGS='' go get github.com/insolar/insolar/cmd/keeperd
-	GOFLAGS='' go get github.com/insolar/insolar/cmd/insgocc
+	GO111MODULE=off go get github.com/insolar/insolar/cmd/pulsard
+	GO111MODULE=off go get github.com/insolar/insolar/cmd/pulsewatcher
+	GO111MODULE=off go get github.com/insolar/insolar/cmd/keeperd
+	GO111MODULE=off go get github.com/insolar/insolar/cmd/insgocc
 	./scripts/build/ls-tools.go | xargs -tI % go install -v %
 
 .PHONY: install-deps
@@ -212,7 +212,7 @@ regen-builtin: ## regenerate builtin contracts code
 
 .PHONY: build-track
 build-track: ## get logs event tracker tool
-	GOFLAGS='' go get github.com/insolar/insolar/scripts/cmd/track
+	 GO111MODULE=off go get github.com/insolar/insolar/scripts/cmd/track
 
 .PHONY: docker_base_build
 docker_base_build: ## build base image with source dependencies and compiled binaries
