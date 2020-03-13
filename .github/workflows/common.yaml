@@ -53,7 +53,7 @@ jobs:
         run: echo "::add-path::${{env.GOPATH}}/bin"
       - name: test_prepare_1
         run: make pre-build
-        working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
+        working-directory: /home/runner/work/insolar/insolar/go/src/github.com/insolar/mainnet
       - name: test_prepare_2
         run: make build
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
