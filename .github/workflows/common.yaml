@@ -52,9 +52,13 @@ jobs:
       - name: add bin to path
         run: echo "::add-path::${{env.GOPATH}}/bin"
       - name: test_prepare
-        run: |
-           go mod download
-           make pre-build build 
+        run: go mod download
+        working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
+      - name: test_prepare
+        run: make pre-build
+        working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
+      - name: test_prepare
+        run: make build
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
       - name: test_slow
         run: make test_slow
