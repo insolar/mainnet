@@ -4,8 +4,6 @@ on:
     branches:
       - master
   pull_request:
-  schedule:
-    - cron: '0 2,4,6 * * *'
 env:
   GO_VERSION: 1.12.15
   CI_GOMAXPROCS: 0
@@ -15,7 +13,7 @@ jobs:
     name: unit-tests
     runs-on: ubuntu-latest
     env:
-      GOPATH: /home/runner/work/insolar/mainnet/go
+      GOPATH: /home/runner/work/mainnet/mainnet/go
     steps:
       - name: checkout code
         uses: actions/checkout@master
@@ -39,7 +37,7 @@ jobs:
     name: slow-tests
     runs-on: ubuntu-latest
     env:
-      GOPATH: /home/runner/work/insolar/mainnet/go
+      GOPATH: /home/runner/work/mainnet/mainnet/go
     steps:
       - name: checkout code
         uses: actions/checkout@master
@@ -53,8 +51,8 @@ jobs:
         run: echo "::add-path::${{env.GOPATH}}/bin"
       - name: test_prepare
         run: |
-           go mod download
-           make pre-build build 
+          go mod download
+          make pre-build build
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
       - name: test_slow
         run: make test_slow
@@ -63,7 +61,7 @@ jobs:
     name: codegen
     runs-on: ubuntu-latest
     env:
-      GOPATH: /home/runner/work/insolar/mainnet/go
+      GOPATH: /home/runner/work/mainnet/mainnet/go
     steps:
       - name: checkout code
         uses: actions/checkout@master
@@ -86,7 +84,7 @@ jobs:
     name: coverage
     runs-on: ubuntu-latest
     env:
-      GOPATH: /home/runner/work/insolar/mainnet/go
+      GOPATH: /home/runner/work/mainnet/mainnet/go
     steps:
       - name: checkout code
         uses: actions/checkout@master
