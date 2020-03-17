@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     name: func-tests-badger
     env:
-      GOPATH: ${{github.workspace}}/go
+      GOPATH: /home/runner/work/mainnet/mainnet/go
     steps:
       - name: checkout code
         uses: actions/checkout@master
