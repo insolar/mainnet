@@ -15,14 +15,13 @@ import (
 	"math/big"
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/insolar/insolar/applicationbase/testutils/testrequest"
 	"github.com/insolar/insolar/applicationbase/testutils/testresponse"
 	"github.com/insolar/insolar/insolar/secrets"
+
 	"github.com/insolar/mainnet/application/genesisrefs"
 
-	"github.com/insolar/insolar/api"
 	"github.com/insolar/insolar/api/requester"
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
 
@@ -269,40 +268,41 @@ func newUserWithKeys() (*AppUser, error) {
 	}, nil
 }
 
-func waitUntilRequestProcessed(
-	customFunction func() api.CallMethodReply,
-	functionTimeout time.Duration,
-	timeoutBetweenAttempts time.Duration,
-	attempts int) (*api.CallMethodReply, error) {
-
-	var lastErr error
-	for i := 0; i < attempts; i++ {
-		reply, err := waitForFunction(customFunction, functionTimeout)
-		if err == nil {
-			return reply, nil
-		}
-		lastErr = err
-		time.Sleep(timeoutBetweenAttempts)
-	}
-	return nil, errors.New("Timeout was exceeded. " + lastErr.Error())
-}
-
-func waitForFunction(customFunction func() api.CallMethodReply, functionTimeout time.Duration) (*api.CallMethodReply, error) {
-	ch := make(chan api.CallMethodReply, 1)
-	go func() {
-		ch <- customFunction()
-	}()
-
-	select {
-	case result := <-ch:
-		if result.Error != nil {
-			return nil, errors.New(result.Error.Error())
-		}
-		return &result, nil
-	case <-time.After(functionTimeout):
-		return nil, errors.New("timeout was exceeded")
-	}
-}
+//
+// func waitUntilRequestProcessed(
+// 	customFunction func() api.CallMethodReply,
+// 	functionTimeout time.Duration,
+// 	timeoutBetweenAttempts time.Duration,
+// 	attempts int) (*api.CallMethodReply, error) {
+//
+// 	var lastErr error
+// 	for i := 0; i < attempts; i++ {
+// 		reply, err := waitForFunction(customFunction, functionTimeout)
+// 		if err == nil {
+// 			return reply, nil
+// 		}
+// 		lastErr = err
+// 		time.Sleep(timeoutBetweenAttempts)
+// 	}
+// 	return nil, errors.New("Timeout was exceeded. " + lastErr.Error())
+// }
+//
+// func waitForFunction(customFunction func() api.CallMethodReply, functionTimeout time.Duration) (*api.CallMethodReply, error) {
+// 	ch := make(chan api.CallMethodReply, 1)
+// 	go func() {
+// 		ch <- customFunction()
+// 	}()
+//
+// 	select {
+// 	case result := <-ch:
+// 		if result.Error != nil {
+// 			return nil, errors.New(result.Error.Error())
+// 		}
+// 		return &result, nil
+// 	case <-time.After(functionTimeout):
+// 		return nil, errors.New("timeout was exceeded")
+// 	}
+// }
 
 func setMigrationDaemonsRef() error {
 	for i, mDaemon := range MigrationDaemons {
