@@ -94,7 +94,9 @@ github.com/insolar/go-actors/actor
 github.com/insolar/go-actors/actor/errors
 github.com/insolar/go-actors/actor/system
 github.com/insolar/go-actors/actor/mailbox
-# github.com/insolar/insolar v1.4.1-0.20200313094950-841096d9c6f2
+# github.com/insolar/insconfig v0.0.0-20200227134411-011eca6dc866
+github.com/insolar/insconfig
+# github.com/insolar/insolar v1.4.2-0.20200320114101-c59253849d55
 github.com/insolar/insolar/insolar
 github.com/insolar/insolar/applicationbase/bootstrap
 github.com/insolar/insolar/insolar/secrets
@@ -114,7 +116,6 @@ github.com/insolar/insolar/keystore
 github.com/insolar/insolar/platformpolicy
 github.com/insolar/insolar/version
 github.com/insolar/insolar/log/logadapter
-github.com/insolar/insolar/api
 github.com/insolar/insolar/applicationbase/testutils/launchnet
 github.com/insolar/insolar/applicationbase/testutils/testrequest
 github.com/insolar/insolar/applicationbase/testutils/testresponse
@@ -122,6 +123,7 @@ github.com/insolar/insolar/applicationbase/genesisrefs
 github.com/insolar/insolar/logicrunner/preprocessor
 github.com/insolar/insolar/applicationbase/genesis
 github.com/insolar/insolar/pulse
+github.com/insolar/insolar/api
 github.com/insolar/insolar/certificate
 github.com/insolar/insolar/logicrunner/builtin
 github.com/insolar/insolar/server
@@ -147,6 +149,13 @@ github.com/insolar/insolar/platformpolicy/internal/sign
 github.com/insolar/insolar/log/inssyslog
 github.com/insolar/insolar/log/logmetrics
 github.com/insolar/insolar/log/logoutput
+github.com/insolar/insolar/applicationbase/builtin/contract/nodedomain
+github.com/insolar/insolar/applicationbase/builtin/contract/noderecord
+github.com/insolar/insolar/insolar/store
+github.com/insolar/insolar/ledger/artifact
+github.com/insolar/insolar/ledger/drop
+github.com/insolar/insolar/ledger/object
+github.com/insolar/insolar/network/consensus/common/cryptkit
 github.com/insolar/insolar/api/instrumenter
 github.com/insolar/insolar/api/seedmanager
 github.com/insolar/insolar/applicationbase/extractor
@@ -155,13 +164,6 @@ github.com/insolar/insolar/insolar/jet
 github.com/insolar/insolar/insolar/reply
 github.com/insolar/insolar/logicrunner/goplugin/goplugintestutils
 github.com/insolar/insolar/network
-github.com/insolar/insolar/applicationbase/builtin/contract/nodedomain
-github.com/insolar/insolar/applicationbase/builtin/contract/noderecord
-github.com/insolar/insolar/insolar/store
-github.com/insolar/insolar/ledger/artifact
-github.com/insolar/insolar/ledger/drop
-github.com/insolar/insolar/ledger/object
-github.com/insolar/insolar/network/consensus/common/cryptkit
 github.com/insolar/insolar/applicationbase/builtin
 github.com/insolar/insolar/server/internal/heavy
 github.com/insolar/insolar/server/internal/light
@@ -169,12 +171,12 @@ github.com/insolar/insolar/server/internal/virtual
 github.com/insolar/insolar/insolar/bus/meta
 github.com/insolar/insolar/insolar/flow/internal/pulse
 github.com/insolar/insolar/network/consensus/common/args
+github.com/insolar/insolar/applicationbase/builtin/proxy/noderecord
 github.com/insolar/insolar/network/consensus/gcpv2/api/member
 github.com/insolar/insolar/network/hostnetwork/host
 github.com/insolar/insolar/network/hostnetwork/packet
 github.com/insolar/insolar/network/hostnetwork/packet/types
 github.com/insolar/insolar/network/node
-github.com/insolar/insolar/applicationbase/builtin/proxy/noderecord
 github.com/insolar/insolar/contractrequester
 github.com/insolar/insolar/cryptography
 github.com/insolar/insolar/insolar/jetcoordinator
@@ -324,7 +326,7 @@ github.com/opentracing/opentracing-go/log
 github.com/opentracing/opentracing-go/ext
 # github.com/pelletier/go-toml v1.4.0
 github.com/pelletier/go-toml
-# github.com/pkg/errors v0.8.1
+# github.com/pkg/errors v0.9.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
@@ -357,14 +359,16 @@ github.com/spf13/cast
 github.com/spf13/cobra
 # github.com/spf13/jwalterweatherman v1.1.0
 github.com/spf13/jwalterweatherman
-# github.com/spf13/pflag v1.0.3
+# github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
-# github.com/spf13/viper v1.4.0
+# github.com/spf13/viper v1.6.2
 github.com/spf13/viper
 # github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/require
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/suite
+# github.com/subosito/gotenv v1.2.0
+github.com/subosito/gotenv
 # github.com/tylerb/gls v0.0.0-20150407001822-e606233f194d
 github.com/tylerb/gls
 # github.com/uber/jaeger-client-go v2.19.0+incompatible
@@ -500,5 +504,7 @@ google.golang.org/grpc/credentials/internal
 google.golang.org/grpc/binarylog/grpc_binarylog_v1
 google.golang.org/grpc/internal/syscall
 google.golang.org/grpc/reflection/grpc_reflection_v1alpha
-# gopkg.in/yaml.v2 v2.2.7
+# gopkg.in/ini.v1 v1.51.0
+gopkg.in/ini.v1
+# gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2

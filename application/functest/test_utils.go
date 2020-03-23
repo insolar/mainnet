@@ -3,7 +3,7 @@
 // This material is licensed under the Insolar License version 1.0,
 // available at https://github.com/insolar/mainnet/blob/master/LICENSE.md.
 
-// +build appfunctest
+// +build functest
 
 package functest
 
@@ -21,7 +21,6 @@ import (
 	"github.com/insolar/insolar/applicationbase/testutils/testresponse"
 	"github.com/insolar/insolar/insolar/secrets"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
-
 	"github.com/insolar/mainnet/application/genesisrefs"
 
 	"github.com/insolar/insolar/api/requester"

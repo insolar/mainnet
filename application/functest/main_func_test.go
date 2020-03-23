@@ -3,7 +3,7 @@
 // This material is licensed under the Insolar License version 1.0,
 // available at https://github.com/insolar/mainnet/blob/master/LICENSE.md.
 
-// +build appfunctest
+// +build functest
 
 package functest
 
@@ -37,6 +37,6 @@ func TestMain(m *testing.M) {
 		AppPath,
 		SetInfo,
 		AfterSetup,
-		"-gwn",
+		"-gw",
 	))
 }
