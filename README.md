@@ -1,4 +1,4 @@
-[<img src="https://insolar.io/st/github-readme-banner.png">](http://insolar.io/?utm_source=Github)
+[<img src="https://github.com/insolar/doc-pics/raw/master/st/github-readme-banner.png">](http://insolar.io/?utm_source=Github)
 
 Mainnet application for [Insolar platform](https://github.com/insolar/insolar).
 
@@ -69,14 +69,14 @@ If you have any additional questions, join our [developers chat](https://t.me/In
 
 Our social media:
 
-[<img src="https://insolar.io/st/ico-social-facebook.png" width="36" height="36">](https://facebook.com/insolario)
-[<img src="https://insolar.io/st/ico-social-twitter.png" width="36" height="36">](https://twitter.com/insolario)
-[<img src="https://insolar.io/st/ico-social-medium.png" width="36" height="36">](https://medium.com/insolar)
-[<img src="https://insolar.io/st/ico-social-youtube.png" width="36" height="36">](https://youtube.com/insolar)
-[<img src="https://insolar.io/st/ico-social-reddit.png" width="36" height="36">](https://www.reddit.com/r/insolar/)
-[<img src="https://insolar.io/st/ico-social-linkedin.png" width="36" height="36">](https://www.linkedin.com/company/insolario/)
-[<img src="https://insolar.io/st/ico-social-instagram.png" width="36" height="36">](https://instagram.com/insolario)
-[<img src="https://insolar.io/st/ico-social-telegram.png" width="36" height="36">](https://t.me/InsolarAnnouncements)
+[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-facebook.png" width="36" height="36">](https://facebook.com/insolario)
+[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-twitter.png" width="36" height="36">](https://twitter.com/insolario)
+[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-medium.png" width="36" height="36">](https://medium.com/insolar)
+[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-youtube.png" width="36" height="36">](https://youtube.com/insolar)
+[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-reddit.png" width="36" height="36">](https://www.reddit.com/r/insolar/)
+[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-linkedin.png" width="36" height="36">](https://www.linkedin.com/company/insolario/)
+[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-instagram.png" width="36" height="36">](https://instagram.com/insolario)
+[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-telegram.png" width="36" height="36">](https://t.me/InsolarAnnouncements)
 
 # License
 
