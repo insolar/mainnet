@@ -96,7 +96,7 @@ github.com/insolar/go-actors/actor/system
 github.com/insolar/go-actors/actor/mailbox
 # github.com/insolar/insconfig v0.0.0-20200227134411-011eca6dc866
 github.com/insolar/insconfig
-# github.com/insolar/insolar v1.4.2-0.20200320114101-c59253849d55
+# github.com/insolar/insolar v1.4.2-0.20200323102804-6a5a89f0824e
 github.com/insolar/insolar/insolar
 github.com/insolar/insolar/applicationbase/bootstrap
 github.com/insolar/insolar/insolar/secrets
@@ -159,10 +159,8 @@ github.com/insolar/insolar/network/consensus/common/cryptkit
 github.com/insolar/insolar/api/instrumenter
 github.com/insolar/insolar/api/seedmanager
 github.com/insolar/insolar/applicationbase/extractor
-github.com/insolar/insolar/insolar/api
 github.com/insolar/insolar/insolar/jet
 github.com/insolar/insolar/insolar/reply
-github.com/insolar/insolar/logicrunner/goplugin/goplugintestutils
 github.com/insolar/insolar/network
 github.com/insolar/insolar/applicationbase/builtin
 github.com/insolar/insolar/server/internal/heavy
@@ -202,6 +200,7 @@ github.com/insolar/insolar/network/consensus/common/capacity
 github.com/insolar/insolar/network/consensus/adapters/candidate
 github.com/insolar/insolar/network/node/internal/node
 github.com/insolar/insolar/contractrequester/metrics
+github.com/insolar/insolar/insolar/api
 github.com/insolar/insolar/utils/entropy
 github.com/insolar/insolar/ledger/heavy/proc
 github.com/insolar/insolar/instrumentation/pprof
@@ -219,7 +218,6 @@ github.com/insolar/insolar/instrumentation/introspector/pubsubwrap
 github.com/insolar/insolar/insolar/flow/internal/thread
 github.com/insolar/insolar/insolar/backoff
 github.com/insolar/insolar/logicrunner/executionregistry
-github.com/insolar/insolar/logicrunner/goplugin
 github.com/insolar/insolar/logicrunner/requestresult
 github.com/insolar/insolar/logicrunner/shutdown
 github.com/insolar/insolar/logicrunner/writecontroller
