@@ -44,7 +44,12 @@ LDFLAGS += -X github.com/insolar/mainnet/version.GitHash=${BUILD_HASH}
 INSGOCC=insgocc
 
 .PHONY: all
-all: clean pre-build build ## cleanup, install deps, (re)generate all code and build all binaries
+all: submodule clean pre-build build ## cleanup, install deps, (re)generate all code and build all binaries
+
+.PHONY: submodule
+submodule: ## init git submodule
+	git submodule init
+	git submodule update
 
 .PHONY: lint
 lint: ci-lint ## alias for ci-lint
@@ -118,7 +123,7 @@ test_unit: ## run all unit tests
 
 .PHONY: functest
 functest: ## run functest FUNCTEST_COUNT times
-	CGO_ENABLED=1 $(GOTEST) -test.v $(TEST_ARGS) -tags "functest bloattest" ./application/functest -count=$(FUNCTEST_COUNT)
+	CGO_ENABLED=1 $(GOTEST) -test.v $(TEST_ARGS) -tags "appfunctest" ./application/functest -count=$(FUNCTEST_COUNT)
 
 .PNONY: functest_race
 functest_race: ## run functest 10 times with -race flag

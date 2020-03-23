@@ -27,8 +27,8 @@ jobs:
         run: echo "::add-path::${{env.GOPATH}}/bin"
       - name: test_prepare
         run: |
-           go mod download
-           make pre-build build
+          go mod download
+          make pre-build build
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
       - name: test_unit
         run: make test_unit
@@ -75,10 +75,10 @@ jobs:
         run: echo "::add-path::${{env.GOPATH}}/bin"
       - name: codegen
         run: |
-           go clean -modcache
-           make install-deps
-           make pre-build
-           git diff --exit-code
+          go clean -modcache
+          make install-deps
+          make pre-build
+          git diff --exit-code
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
   coverage:
     name: coverage
@@ -98,10 +98,10 @@ jobs:
         run: echo "::add-path::${{env.GOPATH}}/bin"
       - name: generate codecov
         run: |
-           make ci-test-with-coverage
-           content=`cat coverage.txt | ./scripts/dev/cover-filter.sh` 
-           echo "$content" | tee $GITHUB_WORKSPACE/coverage.txt
-           cat ./coverage.txt | wc 
+          make ci-test-with-coverage
+          content=`cat coverage.txt | ./scripts/dev/cover-filter.sh`
+          echo "$content" | tee $GITHUB_WORKSPACE/coverage.txt
+          cat ./coverage.txt | wc
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
       - uses: codecov/codecov-action@v1
         with:
@@ -110,17 +110,11 @@ jobs:
           yml:  ./codecov.yml
           fail_ci_if_error: true
   func-tests-badger:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     name: func-tests-badger
     env:
-      GOPATH: ${{github.workspace}}/go
+      GOPATH: /home/runner/work/mainnet/mainnet/go
     steps:
-      - name: cleanup
-        run: |
-          docker rm -f $(docker ps -aq) || sleep 1
-          docker rmi -f $(docker images -aq) || sleep 1
-          docker volume rm -f $(docker volume ls -q) || sleep 1
-          sudo rm -rf $GITHUB_WORKSPACE/*
       - name: checkout code
         uses: actions/checkout@master
         with:
@@ -137,6 +131,9 @@ jobs:
           make submodule
           make build
           make functest
+      - name: slack
+        if: failure()
+        run: curl -s ${{secrets.SLACK_URL}} -d '{"text":"Func-tests-badger failed for https://github.com/'$GITHUB_REPOSITORY'/pull/'$(echo $GITHUB_REF | cut -d '/' -f3)'\nHave a look! @'$GITHUB_ACTOR'"}'
       - name: archive_logs
         if: failure()
         run: |
@@ -147,17 +144,11 @@ jobs:
           name: logs-badger
           path: logs-badger.tar.gz
   func-tests-pgsql:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     name: func-tests-pgsql
     env:
-      GOPATH: ${{github.workspace}}/go
+      GOPATH: /home/runner/work/mainnet/mainnet/go
     steps:
-      - name: cleanup
-        run: |
-          docker rm -f $(docker ps -aq) || sleep 1
-          docker rmi -f $(docker images -aq) || sleep 1
-          docker volume rm -f $(docker volume ls -q) || sleep 1
-          sudo rm -rf $GITHUB_WORKSPACE/*
       - name: checkout code
         uses: actions/checkout@master
         with:
@@ -176,6 +167,9 @@ jobs:
           make submodule
           make build
           make functest
+      - name: slack
+        if: failure()
+        run: curl -s ${{secrets.SLACK_URL}} -d '{"text":"Func-tests-postgresql failed for https://github.com/'$GITHUB_REPOSITORY'/pull/'$(echo $GITHUB_REF | cut -d '/' -f3)'\nHave a look! @'$GITHUB_ACTOR'"}'
       - name: archive_logs
         if: failure()
         run: |

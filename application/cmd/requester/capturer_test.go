@@ -1,12 +1,13 @@
 //  Copyright 2020 Insolar Network Ltd.
 //  All rights reserved.
 //  This material is licensed under the Insolar License version 1.0,
-//  available at https://github.com/insolar/insolar/blob/master/LICENSE.md.
+//  available at https://github.com/insolar/mainnet/blob/master/LICENSE.md.
 
 package main
 
 import (
-	"bytes"
+	"bufio"
+	"io"
 	"os"
 	"time"
 )
@@ -18,27 +19,32 @@ type Capturer struct {
 }
 
 // CaptureStdout captures stdout.
-func CaptureStdout(f func()) (string, error) {
+func CaptureStdout(f func(), d time.Duration) (string, error) {
 	capturer := &Capturer{captureStdout: true}
-	return capturer.capture(f)
+	return capturer.capture(f, d)
 }
 
 // CaptureStderr captures stderr.
-func CaptureStderr(f func()) (string, error) {
+func CaptureStderr(f func(), d time.Duration) (string, error) {
 	capturer := &Capturer{captureStderr: true}
-	return capturer.capture(f)
+	return capturer.capture(f, d)
 }
 
 // CaptureOutput captures stdout and stderr.
-func CaptureOutput(f func()) (string, error) {
+func CaptureOutput(f func(), d time.Duration) (string, error) {
 	capturer := &Capturer{captureStdout: true, captureStderr: true}
-	return capturer.capture(f)
+	return capturer.capture(f, d)
 }
 
-func (capturer *Capturer) capture(fn func()) (string, error) {
+func (capturer *Capturer) capture(fn func(), duration time.Duration) (string, error) {
 	r, w, err := os.Pipe()
 	if err != nil {
-		panic(err.Error())
+		return "", err
+	}
+
+	err = r.SetReadDeadline(time.Now().Add(duration))
+	if err != nil {
+		return "", err
 	}
 
 	if capturer.captureStdout {
@@ -59,20 +65,28 @@ func (capturer *Capturer) capture(fn func()) (string, error) {
 
 	defer w.Close()
 
-	var buf bytes.Buffer
-	var retErr error
-	go func() {
-		defer r.Close()
-		_, e := buf.ReadFrom(r)
-		if e != nil {
-			retErr = err
-			return
-		}
-	}()
-
 	fn()
 
-	// here we need sleep because not of all pipes closed
-	time.Sleep(time.Millisecond * 10)
-	return buf.String(), retErr
+	getPipeResultFunction := func() interface{} {
+		defer r.Close()
+		reader := bufio.NewReader(r)
+		line, _, e := reader.ReadLine()
+		if e == io.EOF {
+			return result{string(line), nil}
+		} else if e != nil {
+			return result{"", e}
+		}
+		return result{string(line), e}
+	}
+
+	res, err := waitForFunction(getPipeResultFunction, duration*2)
+	if err != nil {
+		return "", err
+	}
+	return res.(result).str, res.(result).err
+}
+
+type result struct {
+	str string
+	err error
 }

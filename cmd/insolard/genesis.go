@@ -11,17 +11,18 @@ import (
 	"io/ioutil"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/insolar/insolar/applicationbase/genesis"
-	"github.com/insolar/insolar/configuration"
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/log"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/insolar/insolar/pulse"
+
 	"github.com/insolar/mainnet/application"
 	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/insolar/mainnet/application/genesisrefs"
 	"github.com/insolar/mainnet/application/genesisrefs/contracts"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -43,18 +44,7 @@ const (
 	FoundationVestingStep     = 0
 )
 
-func initStates(configPath, genesisConfigPath string) ([]genesis.ContractState, error) {
-	cfgHolder := configuration.NewHolder()
-	var err error
-	if len(configPath) != 0 {
-		err = cfgHolder.LoadFromFile(configPath)
-	} else {
-		err = cfgHolder.Load()
-	}
-	if err != nil {
-		log.Fatalf("failed to load configuration: %v", err.Error())
-	}
-
+func initStates(genesisConfigPath string) ([]genesis.ContractState, error) {
 	b, err := ioutil.ReadFile(genesisConfigPath)
 	if err != nil {
 		log.Fatalf("failed to load genesis configuration from file: %v", genesisConfigPath)
