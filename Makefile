@@ -1,6 +1,7 @@
 export GO111MODULE ?= on
 export GOSUMDB ?= sum.golang.org
 export GOFLAGS ?= -mod=vendor
+export GOBIN = ${PWD}/bin
 
 BIN_DIR ?= bin
 ARTIFACTS_DIR ?= .artifacts
@@ -41,7 +42,7 @@ LDFLAGS += -X github.com/insolar/mainnet/version.BuildDate=${BUILD_DATE}
 LDFLAGS += -X github.com/insolar/mainnet/version.BuildTime=${BUILD_TIME}
 LDFLAGS += -X github.com/insolar/mainnet/version.GitHash=${BUILD_HASH}
 
-INSGOCC=insgocc
+INSGOCC=./bin/insgocc
 
 .PHONY: all
 all: submodule clean pre-build build ## cleanup, install deps, (re)generate all code and build all binaries
@@ -71,10 +72,6 @@ clean: ## run all cleanup tasks
 
 .PHONY: install-build-tools
 install-build-tools: ## install insolar tools for platform
-	GO111MODULE=off go get github.com/insolar/insolar/cmd/pulsard
-	GO111MODULE=off go get github.com/insolar/insolar/cmd/pulsewatcher
-	GO111MODULE=off go get github.com/insolar/insolar/cmd/keeperd
-	GO111MODULE=off go get github.com/insolar/insolar/cmd/insgocc
 	./scripts/build/ls-tools.go | xargs -tI % go install -v %
 
 .PHONY: install-deps
