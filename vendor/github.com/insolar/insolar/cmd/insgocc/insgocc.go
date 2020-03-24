@@ -75,8 +75,6 @@ func (r *machineTypeFlag) Set(arg string) error {
 	switch arg {
 	case "":
 		fallthrough
-	case "go":
-		fallthrough
 	case "builtin":
 		r.num = insolar.MachineTypeBuiltin
 	default:
@@ -180,7 +178,7 @@ func main() {
 	var reference string
 	output := newOutputFlag("-")
 	proxyOut := newOutputFlag("")
-	machineType := newMachineTypeFlag("go")
+	machineType := newMachineTypeFlag("builtin")
 	var panicIsLogicalError bool
 
 	var cmdProxy = &cobra.Command{
