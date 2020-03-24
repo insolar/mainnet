@@ -8,7 +8,7 @@ package appfoundation
 // VestingType type of vesting process
 type VestingType int
 
-//go:generate stringer -type=VestingType
+//go:generate ../../bin/stringer -type=VestingType
 const (
 	DefaultVesting VestingType = iota
 	Vesting1
