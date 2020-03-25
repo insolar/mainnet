@@ -132,6 +132,8 @@ github.com/insolar/insconfig v0.0.0-20200227134411-011eca6dc866 h1:821agB4jwkceJ
 github.com/insolar/insconfig v0.0.0-20200227134411-011eca6dc866/go.mod h1:zB9bawcGFKS4hwXcu6yH4rYH06EZnGlFfhl0+KMKM9k=
 github.com/insolar/insolar v1.4.2-0.20200324153833-b85c89c9d6fc h1:kuIsSKvlWuDMy+3/Q31afs358JwSMrLEUZGpvYNdL9g=
 github.com/insolar/insolar v1.4.2-0.20200324153833-b85c89c9d6fc/go.mod h1:iwS3PSVWjMylelo6rGQcurmKalXy4AbBAqL2Zw6Olew=
+github.com/insolar/insolar v1.4.2-0.20200325133340-cd4565b24b7b h1:uAxSBDxMBpQNOqeQTbDMM52vsev6rz7g4tsFURb0Pzs=
+github.com/insolar/insolar v1.4.2-0.20200325133340-cd4565b24b7b/go.mod h1:iwS3PSVWjMylelo6rGQcurmKalXy4AbBAqL2Zw6Olew=
 github.com/insolar/rpc v1.2.2-0.20190812143745-c27e1d218f1f h1:ULc0JNaPBjv2yxucU06zkqoXtDgX5Xokb4Dv3iJAcsE=
 github.com/insolar/rpc v1.2.2-0.20190812143745-c27e1d218f1f/go.mod h1:BZcTsPtQu8QG8RqqQdAnuNAG8n6TOrdNxIHro0h99Ik=
 github.com/insolar/x-crypto v0.0.0-20191031140942-75fab8a325f6 h1:WS4a7qw+P1pcnviyxyMTA/aR+T51wJok1IC9rJkHrTg=
