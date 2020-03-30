@@ -29,6 +29,6 @@ COPY --from=build /go/src/github.com/insolar/mainnet/application/api/spec/api-ex
 # add script and configs required for network bootstrap
 ADD scripts/kube/bootstrap/* /app/bootstrap/
 COPY --from=build \
-    /go/src/github.com/insolar/mainnet/application/bin/insolar \
+    /go/src/github.com/insolar/mainnet/bin/insolar \
     /go/src/github.com/insolar/mainnet/bin/insolard \
     /usr/local/bin/
