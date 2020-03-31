@@ -96,7 +96,7 @@ github.com/insolar/go-actors/actor/system
 github.com/insolar/go-actors/actor/mailbox
 # github.com/insolar/insconfig v0.0.0-20200227134411-011eca6dc866
 github.com/insolar/insconfig
-# github.com/insolar/insolar v1.4.2-0.20200325133340-cd4565b24b7b
+# github.com/insolar/insolar v1.5.0
 github.com/insolar/insolar/cmd/insgocc
 github.com/insolar/insolar/cmd/keeperd
 github.com/insolar/insolar/cmd/pulsard
@@ -270,7 +270,7 @@ github.com/insolar/insolar/network/consensus/common/consensuskit
 github.com/insolar/insolar/network/consensus/gcpv2/phasebundle/announce
 github.com/insolar/insolar/network/consensus/common/lazyhead
 github.com/insolar/insolar/network/consensus/gcpv2/phasebundle/stats
-# github.com/insolar/rpc v1.2.2-0.20190812143745-c27e1d218f1f
+# github.com/insolar/rpc v1.2.2-0.20200331123021-db57b8833f82
 github.com/insolar/rpc/v2
 github.com/insolar/rpc/v2/json2
 # github.com/insolar/x-crypto v0.0.0-20191031140942-75fab8a325f6

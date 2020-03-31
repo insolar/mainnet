@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	github.com/google/gops v0.3.6
-	github.com/insolar/insolar v1.4.2-0.20200325133340-cd4565b24b7b
+	github.com/insolar/insolar v1.5.0
 	github.com/insolar/x-crypto v0.0.0-20191031140942-75fab8a325f6
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v0.0.5
