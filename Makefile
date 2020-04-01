@@ -244,5 +244,5 @@ docker_clean: ## removes intermediate docker image layers w/o tags (beware: it c
 	docker image prune -f
 
 .PHONY: help
-help: ## display help
+help: ## display help to make
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
