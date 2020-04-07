@@ -36,11 +36,11 @@ DOCKER_BASE_IMAGE_TAG ?= $(BUILD_VERSION)
 DOCKER_IMAGE_TAG ?= $(DOCKER_BASE_IMAGE_TAG)
 
 GOPATH ?= `go env GOPATH`
-LDFLAGS += -X github.com/insolar/mainnet/version.Version=${BUILD_VERSION}
-LDFLAGS += -X github.com/insolar/mainnet/version.BuildNumber=${BUILD_NUMBER}
-LDFLAGS += -X github.com/insolar/mainnet/version.BuildDate=${BUILD_DATE}
-LDFLAGS += -X github.com/insolar/mainnet/version.BuildTime=${BUILD_TIME}
-LDFLAGS += -X github.com/insolar/mainnet/version.GitHash=${BUILD_HASH}
+LDFLAGS += -X github.com/insolar/insolar/version.Version=${BUILD_VERSION}
+LDFLAGS += -X github.com/insolar/insolar/version.BuildNumber=${BUILD_NUMBER}
+LDFLAGS += -X github.com/insolar/insolar/version.BuildDate=${BUILD_DATE}
+LDFLAGS += -X github.com/insolar/insolar/version.BuildTime=${BUILD_TIME}
+LDFLAGS += -X github.com/insolar/insolar/version.GitHash=${BUILD_HASH}
 
 INSGOCC=./bin/insgocc
 
