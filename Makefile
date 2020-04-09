@@ -218,15 +218,15 @@ build-track: ## get logs event tracker tool
 
 .PHONY: docker_base_build
 docker_base_build: ## build base image with source dependencies and compiled binaries
-	docker build -t mainnet-base:$(DOCKER_BASE_IMAGE_TAG) \
+	docker build -t insolar/mainnet-base:$(DOCKER_BASE_IMAGE_TAG) \
 		--build-arg BUILD_DATE="$(BUILD_DATE)" \
 		--build-arg BUILD_TIME="$(BUILD_TIME)" \
 		--build-arg BUILD_NUMBER="$(BUILD_NUMBER)" \
 		--build-arg BUILD_HASH="$(BUILD_HASH)" \
 		--build-arg BUILD_VERSION="$(BUILD_VERSION)" \
-		-f docker/Dockerfile .
-	docker tag insolar-base:$(DOCKER_BASE_IMAGE_TAG) mainnet-base:latest
-	docker images "mainnet-base"
+		-f ./scripts/kube/bootstrap/Dockerfile .
+	docker tag insolar/mainnet-base:$(DOCKER_BASE_IMAGE_TAG) insolar/mainnet-base:latest
+	docker images "insolar/mainnet-base"
 
 .PHONY: docker_build
 docker_build: ## build image with binaries and files required for kubernetes deployment.
