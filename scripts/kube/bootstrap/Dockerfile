@@ -2,8 +2,8 @@
 ARG GOLANG_VERSION=1.12
 FROM golang:${GOLANG_VERSION}
 
-ADD . /go/src/github.com/insolar/insolar
-WORKDIR /go/src/github.com/insolar/insolar
+ADD . /go/src/github.com/insolar/mainnet
+WORKDIR /go/src/github.com/insolar/mainnet
 
 # pass build variables as arguments to avoid adding .git directory
 ARG BUILD_NUMBER
