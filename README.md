@@ -1,4 +1,7 @@
+<h1 align="center"> Insolar MainNet </h1> <br>
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/github-readme-banner.png">](http://insolar.io/?utm_source=Github)
+
+# Introduction
 
 Mainnet application for [Insolar platform](https://github.com/insolar/insolar).
 
