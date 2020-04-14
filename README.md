@@ -1,8 +1,8 @@
-<h1 align="center"> Insolar MainNet </h1>
-
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/github-readme-banner.png">](http://insolar.io/?utm_source=Github)
 
-# Introduction 
+# Insolar MainNet
+
+## Introduction 
 Insolar MainNet is the application that implements smart contracts logic for Insolar MainNet. 
 
 This application works ontop of [Insolar platform](https://github.com/insolar/insolar) and allows you to:
@@ -18,12 +18,12 @@ This application works ontop of [Insolar platform](https://github.com/insolar/in
 * Receive XNS from Insolar MainNet users
 
 
-# Quick start
+## Quick start
 
 You can test Insolar Mainnet locally. 
 To do that, you need to install and deploy it as described below.
 
-## Install
+### Install
 
 1. Install the latest 1.12 version of the [Golang programming tools](https://golang.org/doc/install#install). 
    Make sure the `$GOPATH` environment variable is set.
@@ -46,7 +46,7 @@ To do that, you need to install and deploy it as described below.
    make
    ```
 
-## Deploy locally
+### Deploy locally
 
 1. Run the launcher:
 
@@ -68,7 +68,7 @@ To do that, you need to install and deploy it as described below.
      * `-c`: Number of concurrent threads in which requests are sent.
      * `-r`: Number of transfer requests to be sent in each thread.
 
-# Contribute!
+## Contribute!
 
 Feel free to submit issues, fork the repository and send pull requests! 
 
@@ -82,13 +82,14 @@ When submitting an issue, **include a complete test function** that reproduces i
 
 Thank you for your intention to contribute to the Insolar Mainnet project. As a company developing open-source code, we highly appreciate external contributions to our project.
 
-# Contacts
+## Contacts
 
 If you have any additional questions, join our [developers chat on Telegram](https://t.me/InsolarTech).
 
 Our social media:
 
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-facebook.png" width="36" height="36">](https://facebook.com/insolario)
+
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-twitter.png" width="36" height="36">](https://twitter.com/insolario)
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-medium.png" width="36" height="36">](https://medium.com/insolar)
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-youtube.png" width="36" height="36">](https://youtube.com/insolar)
@@ -97,6 +98,6 @@ Our social media:
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-instagram.png" width="36" height="36">](https://instagram.com/insolario)
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-telegram.png" width="36" height="36">](https://t.me/InsolarAnnouncements)
 
-# License
+## License
 
 This project is licensed under the terms of the [Insolar License 1.0](LICENSE.md).
