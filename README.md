@@ -1,8 +1,9 @@
 <h1 align="center"> Insolar MainNet </h1> <br>
+
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/github-readme-banner.png">](http://insolar.io/?utm_source=Github)
 
 # Introduction 
-MainNet Application implements smart contracts logic for Insolar MainNet. 
+Insolar MainNet is the application that implements smart contracts logic for Insolar MainNet. 
 
 This application works ontop of [Insolar platform](https://github.com/insolar/insolar) and allows you to:
 
@@ -19,7 +20,7 @@ This application works ontop of [Insolar platform](https://github.com/insolar/in
 
 # Quick start
 
-You can test Mainnet Application locally. 
+You can test Insolar Mainnet locally. 
 To do that, you need to install and deploy it as described below.
 
 ## Install
@@ -79,7 +80,7 @@ To make the process smooth for both reviewers and contributors, familiarize your
 
 When submitting an issue, **include a complete test function** that reproduces it.
 
-Thank you for your intention to contribute to the Mainnet Application project. As a company developing open-source code, we highly appreciate external contributions to our project.
+Thank you for your intention to contribute to the Insolar Mainnet project. As a company developing open-source code, we highly appreciate external contributions to our project.
 
 # Contacts
 
