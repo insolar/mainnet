@@ -91,14 +91,8 @@ This is if you have a specific version of go packahe installed.
    ```
 
 ### Deploy locally
-
-1. Go to the directory with the binary files
-
-   ```
-   cd $GOPATH/src/github.com/insolar/mainnet/bin
-   ```
-
-2. Run the launcher:
+ 
+1. In the directory where you downloaded the Mainnet package to, run the launcher:
 
    ```
    insolar-scripts/insolard/launchnet.sh -g
@@ -109,7 +103,7 @@ This is if you have a specific version of go packahe installed.
    The default number of nodes is 5.<br>
    You can vary this number by commenting/uncommenting nodes in the `discovery_nodes` section in `scripts/insolard/bootstrap_template.yaml`.
 
-3. When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark:
+3. When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in another terminal tab/window:
      ```
      bin/benchmark -c=4 -r=25 -k=.artifacts/launchnet/configs/
      ```
