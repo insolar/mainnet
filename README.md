@@ -23,11 +23,11 @@ This application works ontop of [Insolar platform](https://github.com/insolar/in
 You can test Insolar Mainnet locally. 
 To do that, you need to install and deploy it as described below.
 
-#### Prerequisites
+### Prerequisites
 
 Install Golang programming tools **v1.12**:
 
-##### Fresh installation
+#### Fresh Go installation
 
 * Linux and Windows: install the tools from [goland.org](https://golang.org/doc/install#install). Set set [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).<br>
 
@@ -35,11 +35,15 @@ Install Golang programming tools **v1.12**:
 `brew install go@1.12`<br>
 Set set [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).<br>
 
-##### Multiple versions of Go on Linux
+#### Multiple versions of Go on Windows
+
+If you already have another version installed and want to keep it, you can [install Go 1.12 via go get](https://golang.org/doc/install#extra_versions).
+
+#### Multiple versions of Go on Linux
 
 If you already have another version installed and want to keep it, you can [install Go 1.12 via go get](https://golang.org/doc/install#extra_versions) or [use GVM](https://github.com/moovweb/gvm).
 
-##### Multiple versions of Go on macOS
+#### Multiple versions of Go on macOS
 
 If you're a macOS user and installed a Go version from golang.org, then address Linux instructions above.
 
