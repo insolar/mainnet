@@ -1,4 +1,4 @@
-<h1 align="center"> Insolar MainNet </h1> <br>
+<h1 align="center"> Insolar MainNet </h1>
 
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/github-readme-banner.png">](http://insolar.io/?utm_source=Github)
 
