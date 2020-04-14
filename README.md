@@ -2,17 +2,30 @@
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/github-readme-banner.png">](http://insolar.io/?utm_source=Github)
 
 # Introduction 
+MainNet Application implements smart contracts logic for Insolar MainNet. 
 
+This application works ontop of [Insolar platform](https://github.com/insolar/insolar) and allows you to:
 
-Mainnet application for [Insolar platform](https://github.com/insolar/insolar).
+* Create Insolar wallet
+
+* Migrate INS onto Insolar exchanging INS to XNS 1:1 where INS is Ethereum ERC-20 token and XNS is Insolar native token.
+
+* Deposit migrated tokens into the wallet
+
+* Transfer XNS to Insolar MainNet users
+
+* Receive XNS from Insolar MainNet users
+
 
 # Quick start
 
-To test Mainnet locally, install it and deploy as described below.
+You can test Mainnet Application locally. 
+To do that, you need to install and deploy it as described below.
 
 ## Install
 
-1. Install the latest 1.12 version of the [Golang programming tools](https://golang.org/doc/install#install). Make sure the `$GOPATH` environment variable is set.
+1. Install the latest 1.12 version of the [Golang programming tools](https://golang.org/doc/install#install). 
+   Make sure the `$GOPATH` environment variable is set.
 
 2. Download the Mainnet package:
 
@@ -26,7 +39,7 @@ To test Mainnet locally, install it and deploy as described below.
    cd $GOPATH/src/github.com/insolar/mainnet
    ```
 
-4. Install dependencies and build binaries:
+4. Install dependencies and build binaries using [the makefile](https://github.com/insolar/mainnet/blob/master/Makefile) that automates this process:
 
    ```
    make
@@ -40,8 +53,9 @@ To test Mainnet locally, install it and deploy as described below.
    insolar-scripts/insolard/launchnet.sh -g
    ```
 
-   It generates bootstrap data, starts a pulse watcher, and launches a number of nodes. In local setup, the "nodes" are simply services listening on different ports.
-   The default number of nodes is 5, you can uncomment more in `scripts/insolard/bootstrap_template.yaml`.
+   The launcher generates te necessary bootstrap data, starts a pulse watcher, and launches a number of nodes. 
+   In a local setup, the "nodes" are simply services listening on different ports.
+   The default number of nodes is 5. You can vary this number by commenting/uncommenting nodes in the `discovery_nodes` section in `scripts/insolard/bootstrap_template.yaml`.
 
 2. When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark:
      ```
@@ -57,19 +71,19 @@ To test Mainnet locally, install it and deploy as described below.
 
 Feel free to submit issues, fork the repository and send pull requests! 
 
-To make the process smooth for both reviewers and contributors, familiarize yourself with the list of guidelines:
+To make the process smooth for both reviewers and contributors, familiarize yourself with the following guidelines:
 
 1. [Open source contributor guide](https://github.com/freeCodeCamp/how-to-contribute-to-open-source).
 2. [Style guide: Effective Go](https://golang.org/doc/effective_go.html).
 3. [List of shorthands for Go code review comments](https://github.com/golang/go/wiki/CodeReviewComments).
 
-When submitting an issue, **include a complete test function** that demonstrates it.
+When submitting an issue, **include a complete test function** that reproduces it.
 
-Thank you for your intention to contribute to the Mainnet project. As a company developing open-source code, we highly appreciate external contributions to our project.
+Thank you for your intention to contribute to the Mainnet Application project. As a company developing open-source code, we highly appreciate external contributions to our project.
 
 # Contacts
 
-If you have any additional questions, join our [developers chat](https://t.me/InsolarTech).
+If you have any additional questions, join our [developers chat on Telegram](https://t.me/InsolarTech).
 
 Our social media:
 
