@@ -23,24 +23,59 @@ This application works ontop of [Insolar platform](https://github.com/insolar/in
 You can test Insolar Mainnet locally. 
 To do that, you need to install and deploy it as described below.
 
+#### Prerequisites
+
+Install Golang programming tools **v1.12**:
+
+##### Fresh installation
+
+* Linux and Windows: install the tools from [goland.org](https://golang.org/doc/install#install). Set set [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).<br>
+
+* macOS: use Homebrew to install the tools.
+`brew install go@1.12`<br>
+Set set [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).<br>
+
+##### Multiple versions of Go on Linux
+
+If you already have another version installed and want to keep it, you can [install Go 1.12 via go get](https://golang.org/doc/install#extra_versions) or [use GVM](https://github.com/moovweb/gvm).
+
+##### Multiple versions of Go on macOS
+
+If you're a macOS user and installed a Go version from golang.org, then address Linux instructions above.
+
+If you used `brew` to install another version of the go@ package, then install go@1.12 and switch to it:
+
+```
+brew install go@1.12
+brew unlink go
+brew link go@1.12 --force
+```
+
+This is if you have a generic go package installed. You can unlink go@1.12 later and link back your go package.
+
+
+```
+brew install go@1.12
+brew switch go@1.12
+```
+
 ### Install
 
-1. Install the latest 1.12 version of the [Golang programming tools](https://golang.org/doc/install#install). 
-   Make sure the `$GOPATH` environment variable is set.
+This is if you have a specific version of go packahe installed.
 
-2. Download the Mainnet package:
+1. Download the Mainnet package:
 
    ```
    go get github.com/insolar/mainnet
    ```
 
-3. Go to the package directory:
+2. Go to the package directory:
 
    ```
    cd $GOPATH/src/github.com/insolar/mainnet
    ```
 
-4. Install dependencies and build binaries using [the makefile](https://github.com/insolar/mainnet/blob/master/Makefile) that automates this process:
+3. Install dependencies and build binaries using [the makefile](https://github.com/insolar/mainnet/blob/master/Makefile) that automates this process:
 
    ```
    make
@@ -48,17 +83,24 @@ To do that, you need to install and deploy it as described below.
 
 ### Deploy locally
 
-1. Run the launcher:
+1. Go to the directory with the binary files
+
+   ```
+   cd $GOPATH/src/github.com/insolar/mainnet/bin
+   ```
+
+2. Run the launcher:
 
    ```
    insolar-scripts/insolard/launchnet.sh -g
    ```
 
-   The launcher generates te necessary bootstrap data, starts a pulse watcher, and launches a number of nodes. 
-   In a local setup, the "nodes" are simply services listening on different ports.
-   The default number of nodes is 5. You can vary this number by commenting/uncommenting nodes in the `discovery_nodes` section in `scripts/insolard/bootstrap_template.yaml`.
+   The launcher generates te necessary bootstrap data, starts a pulse watcher, and launches a number of nodes. <br>
+   In a local setup, the "nodes" are simply services listening on different ports.<br>
+   The default number of nodes is 5.<br>
+   You can vary this number by commenting/uncommenting nodes in the `discovery_nodes` section in `scripts/insolard/bootstrap_template.yaml`.
 
-2. When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark:
+3. When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark:
      ```
      bin/benchmark -c=4 -r=25 -k=.artifacts/launchnet/configs/
      ```
