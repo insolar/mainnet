@@ -21,7 +21,12 @@ This application works ontop of [Insolar platform](https://github.com/insolar/in
 ## Quick start
 
 You can test Insolar Mainnet locally. 
-To do that, you need to install and deploy it as described below.
+
+To do that, you need to:
+
+1. Install everything from the **Prerequisites** section.
+2. Install this application.
+3. Deploy this application locally.
 
 ### Prerequisites
 
