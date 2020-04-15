@@ -20,13 +20,12 @@ This application works ontop of [Insolar platform](https://github.com/insolar/in
 
 ## Quick start
 
-You can test Insolar Mainnet locally. 
-
-To do that, you need to:
+You can test Insolar Mainnet locally:
 
 1. Install everything from the **Prerequisites** section.
 2. Install this application.
 3. Deploy this application locally.
+4. Test this application locally.
 
 ### Prerequisites
 
@@ -68,7 +67,9 @@ brew install go@1.12
 brew switch go@1.12
 ```
 
-### Install
+This is if you're already using a specific version of via a go@ package.
+
+### Install 
 
 This is if you have a specific version of go packahe installed.
 
@@ -102,8 +103,10 @@ This is if you have a specific version of go packahe installed.
    In a local setup, the "nodes" are simply services listening on different ports.<br>
    The default number of nodes is 5.<br>
    You can vary this number by commenting/uncommenting nodes in the `discovery_nodes` section in `scripts/insolard/bootstrap_template.yaml`.
+   
+### Test locally
 
-3. When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in another terminal tab/window:
+When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in another terminal tab/window:
      ```
      bin/benchmark -c=4 -r=25 -k=.artifacts/launchnet/configs/
      ```
