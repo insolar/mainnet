@@ -27,6 +27,12 @@ You can test Insolar Mainnet locally:
 3. Deploy this application locally.
 4. Test this application locally.
 
+Lifehack: you can automatically install, deploy and run functional tests via `make` with the key `functest`:
+
+   ```
+   make functest
+   ```
+
 ### Prerequisites
 
 Install Golang programming tools **v1.12**:
@@ -111,12 +117,6 @@ When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in a
 #### Functional tests
 
 The tests include creating user accounts, migrating INS to Mainnet using mockups, exchanging INS for XNS using mockups, transferring XNS mockups between user accounts.
-
-Lifehack: you can automatically install, deploy and run functional tests via `make` with the key `functest`:
-
-   ```
-   make functest
-   ```
 
 ## Contribute!
 
