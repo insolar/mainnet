@@ -45,7 +45,7 @@ If you already have another version installed and want to keep it, you can [inst
 
 If you're a macOS user and installed a Go version from golang.org, then address **Multiple versions of Go on Linux**.
 
-If you used `brew` to install another version of the go@ package, then install go@1.12 and switch to it:
+If you used `brew` to install another version of the go package, then install go@1.12 and switch to it:
 
 ```
 brew install go@1.12
