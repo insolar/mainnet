@@ -35,9 +35,7 @@ Install Golang programming tools **v1.12**:
 
 * Linux and Windows: install the tools from [goland.org](https://golang.org/doc/install#install). Set set [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).<br>
 
-* macOS: use Homebrew to install the tools.
-`brew install go@1.12`<br>
-Set set [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).<br>
+* macOS: use Homebrew to install the tools: `brew install go@1.12`. Set set [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
 
 #### Multiple versions of Go on Windows
 
