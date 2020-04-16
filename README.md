@@ -43,7 +43,7 @@ If you already have another version installed and want to keep it, you can [inst
 
 #### Multiple versions of Go on macOS
 
-If you're a macOS user and installed a Go version from golang.org, then address Linux instructions above.
+If you're a macOS user and installed a Go version from golang.org, then address **Multiple versions of Go on Linux**.
 
 If you used `brew` to install another version of the go@ package, then install go@1.12 and switch to it:
 
