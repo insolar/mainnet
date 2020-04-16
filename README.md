@@ -39,11 +39,11 @@ Install Golang programming tools **v1.12**:
 
 #### Multiple versions of Go on Windows
 
-If you already have another version installed and want to keep it, you can [install Go 1.12 via go get](https://golang.org/doc/install#extra_versions).
+If you already have another version installed and want to keep it, you can [install Go v1.12 via go get](https://golang.org/doc/install#extra_versions).
 
 #### Multiple versions of Go on Linux
 
-If you already have another version installed and want to keep it, you can [install Go 1.12 via go get](https://golang.org/doc/install#extra_versions) or [use GVM](https://github.com/moovweb/gvm).
+If you already have another version installed and want to keep it, you can [install Go v1.12 via go get](https://golang.org/doc/install#extra_versions) or [use GVM](https://github.com/moovweb/gvm).
 
 #### Multiple versions of Go on macOS
 
