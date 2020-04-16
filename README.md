@@ -27,7 +27,7 @@ You can test Insolar Mainnet locally:
 3. Deploy this application locally.
 4. Test this application locally.
 
-Lifehack: you can automatically install, deploy and run functional tests via `make` with the key `functest`:
+**Lifehack**: you can automatically install, deploy and run functional tests via `make` with the key `functest`:
 
    ```
    make functest
