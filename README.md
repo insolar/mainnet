@@ -118,9 +118,9 @@ When the pulse watcher says `INSOLAR STATE: READY`, you can run a series of func
 
 The tests include creating user accounts, migrating INS to Mainnet using mockups, exchanging INS for XNS using mockups, transferring XNS mockups between user accounts.
 
-     ```
-     make functest
-     ```
+   ```
+   make functest
+   ```
 
 ## Contribute!
 
