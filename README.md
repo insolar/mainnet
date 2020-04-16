@@ -101,6 +101,7 @@ This is if you're already using a specific version of the tools via a go@ packag
    
 ### Test locally
 
+#### Benchmark test
 When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in another terminal tab/window:
      ```
      bin/benchmark -c=4 -r=25 -k=.artifacts/launchnet/configs/
@@ -110,6 +111,16 @@ When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in a
      * `-k`: Path to the root user's key pair.
      * `-c`: Number of concurrent threads in which requests are sent.
      * `-r`: Number of transfer requests to be sent in each thread.
+     
+#### Functional tests
+
+When the pulse watcher says `INSOLAR STATE: READY`, you can run a series of functional tests in another terminal tab/window.
+
+The tests include creating user accounts, migrating INS to Mainnet using mockups, exchanging INS for XNS using mockups, transferring XNS mockups between user accounts.
+
+     ```
+     make functest
+     ```
 
 ## Contribute!
 
