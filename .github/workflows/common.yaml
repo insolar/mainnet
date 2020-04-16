@@ -164,9 +164,10 @@ jobs:
         env:
           POSTGRES_ENABLE: 1
         run: |
-          make submodule
-          make build
-          make functest
+          echo skipped, see https://insolar.atlassian.net/browse/PENV-185
+#          make submodule
+#          make build
+#          make functest
       - name: slack
         if: failure()
         run: curl -s ${{secrets.SLACK_URL}} -d '{"text":"Func-tests-postgresql failed for https://github.com/'$GITHUB_REPOSITORY'/pull/'$(echo $GITHUB_REF | cut -d '/' -f3)'\nHave a look! @'$GITHUB_ACTOR'"}'
