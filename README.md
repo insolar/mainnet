@@ -9,7 +9,7 @@ This application works ontop of [Insolar platform](https://github.com/insolar/in
 
 * Create Insolar wallet
 
-* Migrate INS onto Insolar exchanging INS to XNS 1:1 where INS is Ethereum ERC-20 token and XNS is Insolar native token.
+* Migrate INS onto Insolar exchanging INS to XNS 1:10 where INS is Ethereum ERC-20 token and XNS is Insolar native token.
 
 * Deposit migrated tokens into the wallet
 
@@ -59,7 +59,6 @@ brew link go@1.12 --force
 
 This is if you have a generic go package installed. You can unlink go@1.12 later and link back your go package.
 
-
 ```
 brew install go@1.12
 brew switch go@1.12
@@ -95,7 +94,7 @@ This is if you're already using a specific version of the tools via a go@ packag
    insolar-scripts/insolard/launchnet.sh -g
    ```
 
-   The launcher generates te necessary bootstrap data, starts a pulse watcher, and launches a number of nodes. <br>
+   The launcher generates the necessary bootstrap data, starts a pulse watcher, and launches a number of nodes. <br>
    In a local setup, the "nodes" are simply services listening on different ports.<br>
    
    The default number of nodes is 5. You can vary this number by commenting/uncommenting nodes in the `discovery_nodes` section in `scripts/insolard/bootstrap_template.yaml`.
