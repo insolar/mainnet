@@ -65,11 +65,9 @@ brew install go@1.12
 brew switch go@1.12
 ```
 
-This is if you're already using a specific version of via a go@ package.
+This is if you're already using a specific version of the tools via a go@ package.
 
 ### Install 
-
-This is if you have a specific version of go packahe installed.
 
 1. Download the Mainnet package:
 
