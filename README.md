@@ -33,7 +33,7 @@ Install Golang programming tools **v1.12**:
 
 #### Fresh Go installation
 
-* Linux and Windows: install the tools from [goland.org](https://golang.org/doc/install#install). Set [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
+* Linux and Windows: install the tools v1.12 from [goland.org](https://golang.org/doc/install#install). It is recommended to use the default settings. Set [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
 
 * macOS: use Homebrew to install the tools: `brew install go@1.12`. Set [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
 
@@ -129,8 +129,6 @@ Thank you for your intention to contribute to the Insolar Mainnet project. As a 
 
 If you have any additional questions, join our [developers chat on Telegram](https://t.me/InsolarTech).
 
-<!-- The icons don't show! 
-
 Our social media:
 
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-facebook.png" width="36" height="36">](https://facebook.com/insolario)
@@ -140,7 +138,7 @@ Our social media:
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-reddit.png" width="36" height="36">](https://www.reddit.com/r/insolar/)
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-linkedin.png" width="36" height="36">](https://www.linkedin.com/company/insolario/)
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-instagram.png" width="36" height="36">](https://instagram.com/insolario)
-[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-telegram.png" width="36" height="36">](https://t.me/InsolarAnnouncements) -->
+[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-telegram.png" width="36" height="36">](https://t.me/InsolarAnnouncements) 
 
 ## License
 
