@@ -88,7 +88,7 @@ This is if you're already using a specific version of the tools via a go@ packag
 
 ### Deploy locally
  
-1. In the directory where you downloaded the Mainnet package to, run the launcher:
+1. Fire up another tab in the Terminal. In the directory where you downloaded the Mainnet package to, run the launcher:
 
    ```
    insolar-scripts/insolard/launchnet.sh -g
