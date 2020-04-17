@@ -118,11 +118,11 @@ When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in a
      
 #### Functional tests
 
-These tests aim to assess operability of the app and include creating user accounts; migrating INS to Mainnet using mockups; exchanging INS for XNS using mockups; transferring XNS mockups between user accounts.
+These tests aim to assess operability of the app and include creating user accounts; migrating INS to Mainnet using mockups; exchanging INS for XNS using mockups; transferring XNS between user accounts.
 
 To run the tests, wait till the pulse watcher says `INSOLAR STATE: READY` and do the following in another terminal tab/window:
 
-1. Copy the bootstrap config from the `launchnet` folder to `launchnet/bootstrap`:
+1. Copy the bootstrap config from the `launchnet` folder to `launchnet/config`:
 
      ```
      cp .artifacts/launchnet/bootstrap.yaml .artifacts/launchnet/configs/bootstrap.yaml
