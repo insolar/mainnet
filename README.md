@@ -104,7 +104,9 @@ This is if you're already using a specific version of the tools via a go@ packag
 ### Test locally
 
 #### Benchmark test
+
 When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in another terminal tab/window:
+
      ```
      bin/benchmark -c=4 -r=25 -k=.artifacts/launchnet/configs/
      ```
@@ -116,7 +118,20 @@ When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in a
      
 #### Functional tests
 
-The tests include creating user accounts, migrating INS to Mainnet using mockups, exchanging INS for XNS using mockups, transferring XNS mockups between user accounts.
+These tests aim to assess operability of the app and include creating user accounts; migrating INS to Mainnet using mockups; exchanging INS for XNS using mockups; transferring XNS mockups between user accounts.
+
+To run the tests, wait till the pulse watcher says `INSOLAR STATE: READY` and do the following in another terminal tab/window:
+
+1. Copy the bootstrap file from the `launchnet` folder to `launchnet/bootstrap`:
+
+     ```
+     cp .artifacts/launchnet/bootstrap.yaml .artifacts/launchnet/configs/bootstrap.yaml
+     ```
+2. Run the tests:
+
+     ```
+     INSOLAR_FUNC_RPC_URL=http://localhost:19001/admin-api/rpc INSOLAR_FUNC_RPC_URL_PUBLIC=http://localhost:19101/api/rpc INSOLAR_FUNC_KEYS_PATH=../../.artifacts/launchnet/configs INSOLAR_ARTIFACTS_DIR=../../.artifacts go test -test.v -tags "functest" ./application/functest
+     ```
 
 ## Contribute!
 
