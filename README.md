@@ -122,7 +122,7 @@ These tests aim to assess operability of the app and include creating user accou
 
 To run the tests, wait till the pulse watcher says `INSOLAR STATE: READY` and do the following in another terminal tab/window:
 
-1. Copy the bootstrap file from the `launchnet` folder to `launchnet/bootstrap`:
+1. Copy the bootstrap config from the `launchnet` folder to `launchnet/bootstrap`:
 
      ```
      cp .artifacts/launchnet/bootstrap.yaml .artifacts/launchnet/configs/bootstrap.yaml
