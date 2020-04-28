@@ -320,11 +320,12 @@ func INSCONSTRUCTOR_New(ref insolar.Reference, data []byte) (state []byte, resul
 
 func Initialize() insolar.ContractWrapper {
 	return insolar.ContractWrapper{
-		GetCode:      INSMETHOD_GetCode,
-		GetPrototype: INSMETHOD_GetPrototype,
 		Methods: insolar.ContractMethods{
 			"GetFeeMember": INSMETHOD_GetFeeMember,
 			"CalcFee":      INSMETHOD_CalcFee,
+
+			"GetCode":      INSMETHOD_GetCode,
+			"GetPrototype": INSMETHOD_GetPrototype,
 		},
 		Constructors: insolar.ContractConstructors{
 			"New": INSCONSTRUCTOR_New,
