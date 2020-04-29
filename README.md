@@ -1,45 +1,106 @@
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/github-readme-banner.png">](http://insolar.io/?utm_source=Github)
 
-Mainnet application for [Insolar platform](https://github.com/insolar/insolar).
+# Insolar MainNet
 
-# Quick start
+## Introduction 
+Insolar MainNet is the application that implements smart contracts logic for Insolar MainNet. 
 
-To test Mainnet locally, install it and deploy as described below.
+This application works ontop of [Insolar platform](https://github.com/insolar/insolar) and allows you to:
 
-## Install
+* Create Insolar wallet
 
-1. Install the latest 1.12 version of the [Golang programming tools](https://golang.org/doc/install#install). Make sure the `$GOPATH` environment variable is set.
+* Migrate INS onto Insolar exchanging INS to XNS 1:10 where INS is Ethereum ERC-20 token and XNS is Insolar native token.
 
-2. Download the Mainnet package:
+* Deposit migrated tokens into the wallet
+
+* Transfer XNS to Insolar MainNet users
+
+* Receive XNS from Insolar MainNet users
+
+
+## Quick start
+
+You can test Insolar Mainnet locally:
+
+1. Install everything from the **Prerequisites** section.
+2. Install this application.
+3. Deploy this application locally.
+4. Test this application locally.
+
+### Prerequisites
+
+Install Golang programming tools **v1.12**:
+
+#### Fresh Go installation
+
+* Linux: install the tools v1.12 from [golang.org](https://golang.org/doc/install#install). It is recommended to use the default settings. Set the [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
+
+* macOS: use Homebrew to install the tools: `brew install go@1.12`. Set the [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
+
+#### Multiple versions of Go on Linux
+
+If you already have another version installed and want to keep it, you can [install Go v1.12 via go get](https://golang.org/doc/install#extra_versions) or [use GVM](https://github.com/moovweb/gvm).
+
+#### Multiple versions of Go on macOS
+
+If you're a macOS user and installed a Go version from golang.org, then address **Multiple versions of Go on Linux**.
+
+If you used `brew` to install another version of the go package, then install go@1.12 and switch to it:
+
+```
+brew install go@1.12
+brew unlink go
+brew link go@1.12 --force
+```
+
+This is if you have a generic go package installed. You can unlink go@1.12 later and link back your go package.
+
+```
+brew install go@1.12
+brew switch go@1.12
+```
+
+This is if you're already using a specific version of the tools via a go@ package.
+
+### Install 
+
+1. Download the Mainnet package:
 
    ```
    go get github.com/insolar/mainnet
    ```
 
-3. Go to the package directory:
+2. Go to the package directory:
 
    ```
    cd $GOPATH/src/github.com/insolar/mainnet
    ```
 
-4. Install dependencies and build binaries:
+3. Install dependencies and build binaries using [the makefile](https://github.com/insolar/mainnet/blob/master/Makefile) that automates this process:
 
    ```
    make
    ```
 
-## Deploy locally
-
-1. Run the launcher:
+### Deploy locally
+ 
+1. In the directory where you downloaded the Mainnet package to, run the launcher:
 
    ```
    insolar-scripts/insolard/launchnet.sh -g
    ```
 
-   It generates bootstrap data, starts a pulse watcher, and launches a number of nodes. In local setup, the "nodes" are simply services listening on different ports.
-   The default number of nodes is 5, you can uncomment more in `scripts/insolard/bootstrap_template.yaml`.
+   The launcher generates the necessary bootstrap data, starts a pulse watcher, and launches a number of nodes. <br>
+   In a local setup, the "nodes" are simply services listening on different ports.<br>
+   
+   The default number of nodes is 5. You can vary this number by commenting/uncommenting nodes in the `discovery_nodes` section in `scripts/insolard/bootstrap_template.yaml`.
+   
+### Test locally
 
-2. When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark:
+#### Benchmark test
+
+When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in another terminal tab/window:
+
      ```
      bin/benchmark -c=4 -r=25 -k=.artifacts/launchnet/configs/
      ```
@@ -48,24 +109,41 @@ To test Mainnet locally, install it and deploy as described below.
      * `-k`: Path to the root user's key pair.
      * `-c`: Number of concurrent threads in which requests are sent.
      * `-r`: Number of transfer requests to be sent in each thread.
+     
+#### Functional tests
 
-# Contribute!
+These tests aim to assess operability of the app and include creating user accounts; migrating INS to Mainnet using mockups; exchanging INS for XNS using mockups; transferring XNS between user accounts.
+
+To run the tests, wait till the pulse watcher says `INSOLAR STATE: READY` and do the following in another terminal tab/window:
+
+1. Copy the bootstrap config from the `launchnet` folder to `launchnet/config`:
+
+     ```
+     cp .artifacts/launchnet/bootstrap.yaml .artifacts/launchnet/configs/bootstrap.yaml
+     ```
+2. Run the tests:
+
+     ```
+     INSOLAR_FUNC_RPC_URL=http://localhost:19001/admin-api/rpc INSOLAR_FUNC_RPC_URL_PUBLIC=http://localhost:19101/api/rpc INSOLAR_FUNC_KEYS_PATH=../../.artifacts/launchnet/configs INSOLAR_ARTIFACTS_DIR=../../.artifacts go test -test.v -tags "functest" ./application/functest
+     ```
+
+## Contribute!
 
 Feel free to submit issues, fork the repository and send pull requests! 
 
-To make the process smooth for both reviewers and contributors, familiarize yourself with the list of guidelines:
+To make the process smooth for both reviewers and contributors, familiarize yourself with the following guidelines:
 
 1. [Open source contributor guide](https://github.com/freeCodeCamp/how-to-contribute-to-open-source).
 2. [Style guide: Effective Go](https://golang.org/doc/effective_go.html).
 3. [List of shorthands for Go code review comments](https://github.com/golang/go/wiki/CodeReviewComments).
 
-When submitting an issue, **include a complete test function** that demonstrates it.
+When submitting an issue, **include a complete test function** that reproduces it.
 
-Thank you for your intention to contribute to the Mainnet project. As a company developing open-source code, we highly appreciate external contributions to our project.
+Thank you for your intention to contribute to the Insolar Mainnet project. As a company developing open-source code, we highly appreciate external contributions to our project.
 
-# Contacts
+## Contacts
 
-If you have any additional questions, join our [developers chat](https://t.me/InsolarTech).
+If you have any additional questions, join our [developers chat on Telegram](https://t.me/InsolarTech).
 
 Our social media:
 
@@ -76,8 +154,8 @@ Our social media:
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-reddit.png" width="36" height="36">](https://www.reddit.com/r/insolar/)
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-linkedin.png" width="36" height="36">](https://www.linkedin.com/company/insolario/)
 [<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-instagram.png" width="36" height="36">](https://instagram.com/insolario)
-[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-telegram.png" width="36" height="36">](https://t.me/InsolarAnnouncements)
+[<img src="https://github.com/insolar/doc-pics/raw/master/st/ico-social-telegram.png" width="36" height="36">](https://t.me/InsolarAnnouncements) 
 
-# License
+## License
 
 This project is licensed under the terms of the [Insolar License 1.0](LICENSE.md).
