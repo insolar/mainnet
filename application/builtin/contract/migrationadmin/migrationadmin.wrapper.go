@@ -578,8 +578,6 @@ func INSMETHOD_AddNewMigrationAddressToMaps(object []byte, data []byte) (newStat
 
 func Initialize() insolar.ContractWrapper {
 	return insolar.ContractWrapper{
-		GetCode:      INSMETHOD_GetCode,
-		GetPrototype: INSMETHOD_GetPrototype,
 		Methods: insolar.ContractMethods{
 			"MigrationAdminCall":            INSMETHOD_MigrationAdminCall,
 			"GetDepositParameters":          INSMETHOD_GetDepositParameters,
@@ -587,6 +585,9 @@ func Initialize() insolar.ContractWrapper {
 			"GetMemberByMigrationAddress":   INSMETHOD_GetMemberByMigrationAddress,
 			"GetFreeMigrationAddress":       INSMETHOD_GetFreeMigrationAddress,
 			"AddNewMigrationAddressToMaps":  INSMETHOD_AddNewMigrationAddressToMaps,
+
+			"GetCode":      INSMETHOD_GetCode,
+			"GetPrototype": INSMETHOD_GetPrototype,
 		},
 		Constructors: insolar.ContractConstructors{},
 	}

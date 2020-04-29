@@ -408,13 +408,14 @@ func INSMETHOD_GetMigrationDaemonMember(object []byte, data []byte) (newState []
 
 func Initialize() insolar.ContractWrapper {
 	return insolar.ContractWrapper{
-		GetCode:      INSMETHOD_GetCode,
-		GetPrototype: INSMETHOD_GetPrototype,
 		Methods: insolar.ContractMethods{
 			"DepositMigrationCall":     INSMETHOD_DepositMigrationCall,
 			"SetActivationStatus":      INSMETHOD_SetActivationStatus,
 			"GetActivationStatus":      INSMETHOD_GetActivationStatus,
 			"GetMigrationDaemonMember": INSMETHOD_GetMigrationDaemonMember,
+
+			"GetCode":      INSMETHOD_GetCode,
+			"GetPrototype": INSMETHOD_GetPrototype,
 		},
 		Constructors: insolar.ContractConstructors{},
 	}

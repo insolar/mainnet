@@ -244,11 +244,12 @@ func INSMETHOD_AddNewMemberToPublicKeyMap(object []byte, data []byte) (newState 
 
 func Initialize() insolar.ContractWrapper {
 	return insolar.ContractWrapper{
-		GetCode:      INSMETHOD_GetCode,
-		GetPrototype: INSMETHOD_GetPrototype,
 		Methods: insolar.ContractMethods{
 			"GetMemberByPublicKey":       INSMETHOD_GetMemberByPublicKey,
 			"AddNewMemberToPublicKeyMap": INSMETHOD_AddNewMemberToPublicKeyMap,
+
+			"GetCode":      INSMETHOD_GetCode,
+			"GetPrototype": INSMETHOD_GetPrototype,
 		},
 		Constructors: insolar.ContractConstructors{},
 	}
