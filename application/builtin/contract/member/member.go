@@ -8,6 +8,7 @@ package member
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/insolar/mainnet/application/builtin/proxy/helloworld"
 	"strings"
 
 	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
@@ -153,6 +154,11 @@ func (m *Member) Call(signedRequest []byte) (interface{}, error) {
 		return m.depositMigrationCall(params)
 	case "deposit.transfer":
 		return m.depositTransferCall(params)
+	case "helloworld.create":
+		return m.createHelloWorldCall(params)
+	// case "helloworld.showmessage":
+		// return m.showMessageCall(params)
+
 	}
 	return nil, fmt.Errorf("unknown method '%s'", request.Params.CallSite)
 }
@@ -299,6 +305,16 @@ func (m *Member) depositTransferCall(params map[string]interface{}) (interface{}
 
 	d := deposit.GetObject(*dRef)
 	return d.Transfer(amount, m.GetReference(), *request)
+}
+
+func (m *Member) createHelloWorldCall(params map[string]interface{}) (interface{}, error) {
+	aHelloWorld := helloworld.New()
+	helloWorldRef, err := aHelloWorld.AsChild(appfoundation.GetRootDomain())
+	if err != nil {
+		return nil, fmt.Errorf("failed to address the 'Hello, world' smart contract: %s", err.Error())
+	}
+
+	return &helloWorldRef, nil
 }
 
 func (m *Member) depositMigrationCall(params map[string]interface{}) (interface{}, error) {
