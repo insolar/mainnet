@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/insolar/mainnet/application/builtin/proxy/helloworld"
+	"github.com/pkg/errors"
 	"strings"
 
 	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
@@ -156,8 +157,8 @@ func (m *Member) Call(signedRequest []byte) (interface{}, error) {
 		return m.depositTransferCall(params)
 	case "helloworld.create":
 		return m.createHelloWorldCall(params)
-	// case "helloworld.showmessage":
-		// return m.showMessageCall(params)
+	case "helloworld.showmessage":
+		return m.showHelloWorldMessageCall(params)
 
 	}
 	return nil, fmt.Errorf("unknown method '%s'", request.Params.CallSite)
@@ -315,6 +316,39 @@ func (m *Member) createHelloWorldCall(params map[string]interface{}) (interface{
 	}
 
 	return &helloWorldRef, nil
+}
+
+func (m *Member) showHelloWorldMessageCall(params map[string]interface{}) (interface{}, error) {
+	refStr, err := getStringFromParams("reference", params)
+	if err != nil {
+		return nil, err
+	}
+	if refStr == "" {
+		return nil, fmt.Errorf("failed to parse nil reference")
+	}
+	ref, err := insolar.NewObjectReferenceFromString(refStr)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to cast reference from string")
+	}
+	hw := helloworld.GetObject(ref)
+	helloWorldMessage, err := hw.ShowHelloWorldMessage()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get the 'Hello, world' message: %s", err.Error())
+	}
+
+	return helloWorldMessage, nil
+}
+
+func getStringFromParams(nameParams string, params map[string]interface{}) (string, error) {
+	str, ok := params[nameParams].(string)
+	if !ok {
+		return "", fmt.Errorf("failed to get '%s' param", nameParams)
+	}
+	str = strings.TrimSpace(str)
+	if len(str) == 0 {
+		return "", fmt.Errorf("param '%s' is empty", nameParams)
+	}
+	return str, nil
 }
 
 func (m *Member) depositMigrationCall(params map[string]interface{}) (interface{}, error) {
@@ -486,3 +520,4 @@ func (m *Member) Accept(arg appfoundation.SagaAcceptInfo) error {
 	}
 	return nil
 }
+
