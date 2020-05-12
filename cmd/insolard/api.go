@@ -72,6 +72,7 @@ func initAPIOptions() (api.Options, error) {
 		"member.migrationCreate": true,
 		"deposit.transfer":       true,
 		"helloworld.create":      true,
+		"helloworld.getMessage":  true,
 	}
 	proxyToRootMethods := []string{"member.create", "member.migrationCreate", "member.get"}
 
