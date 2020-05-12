@@ -788,24 +788,8 @@ paths:
                             - helloworld.create
                         callParams:
                           description: Parameters of the contract's internal method.
-                          required: null
-                          properties:
-                            amount:
-                              type: string
-                              description: |
-                                No parameters.
-                              example: ''
-                              pattern: '^[1-9][0-9]*$'
-                              minLength: 1
-                              maxLength: 20
-                            ethTxHash:
-                              type: string
-                              pattern: '^(0x[a-f0-9]{64}|genesis_deposit)$'
-                              description: >-
-                                Ethereum transaction's hash. Used for deposit
-                                identification.
-                              example: >-
-                                0x21145195deb606bd75eab41a7afe38d7c3ae60a091cadc201f0ba489cbec8f09
+                          enum:
+                            - {}
                         reference:
                           allOf:
                             - $ref: '#/components/schemas/reference'
@@ -840,7 +824,84 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/response-transferSuccess'
+                  - $ref: '#/components/schemas/response-helloWorldSuccess'
+                  - $ref: '#/components/schemas/response-signedRequestError'
+  '/api/rpc#helloworld.getMessage':
+    post:
+      summary: helloworld.getMessage
+      description: |
+        Get a "Hello, world" message from a created "Hello, world" object.
+      operationId: helloworld-get-message
+      tags:
+        - Member
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      description: Parameter values to pass to the invoked method.
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - helloworld.getMessage
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - helloWorldRef
+                          properties:
+                            helloWorldRef:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: 'Refence to a `Hello, world` object.'
+                                  example: >-
+                                    insolar:1FUpUFSfNpmyX05nustQ7B8al0xj-_j3_ndqXfgLRra4
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: refence to your `member` object.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          type: string
+                          pattern: >-
+                            ^\s*(-+BEGIN[^-]+-+\s+[a-zA-Z0-9+\/=
+                            \n]+-+END[^-]+-+|[a-zA-Z0-9+\/= \n]+)\s*$
+                          description: >
+                            Public key of your `member` object. Used to check
+                            the `<signatureString>` created by the paired
+                            private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-getHelloWorldMessageSuccess'
                   - $ref: '#/components/schemas/response-signedRequestError'
 tags:
   - name: Information
@@ -1059,6 +1120,71 @@ components:
                 traceID:
                   $ref: '#/components/schemas/traceID'
       x-json-schema-id: response/transferSuccess
+    response-helloWorldSuccess:
+      title: Success
+      description: A successful transfer response.
+      allOf:
+        - $ref: '#/components/schemas/response-RPCResponse'
+        - properties:
+            result:
+              required:
+                - callResult
+                - requestReference
+                - traceID
+              properties:
+                callResult:
+                  required:
+                    - helloWorldRef
+                  properties:
+                    helloWorldRef:
+                      type: string
+                      pattern: '^insolar:(0[a-zA-Z0-9_-]{2,43}|1[a-zA-Z0-9_-]{42,43})$'
+                      example: 'insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE'
+                      x-json-schema-id: reference
+                      description: 'Reference to the `Hello, world` object.'
+                requestReference:
+                  type: string
+                  description: >-
+                    Reference to a *transfer* request record. This reference is
+                    equivalent to `txID` — transaction identificator.
+                  example: 'insolar:1FUpUFSfNpmyX05nustQ7B8al0xj-_j3_ndqXfgLRra4.record'
+                  pattern: '^insolar:1[a-zA-Z0-9_-]{42,43}\.record$'
+                  x-json-schema-id: requestReference
+                traceID:
+                  $ref: '#/components/schemas/traceID'
+      x-json-schema-id: response/helloWorldSuccess
+    response-getHelloWorldMessageSuccess:
+      title: Success
+      description: 'A successful display of the `Hello, world` message to the user.'
+      allOf:
+        - $ref: '#/components/schemas/response-RPCResponse'
+        - properties:
+            result:
+              required:
+                - callResult
+                - requestReference
+                - traceID
+              properties:
+                callResult:
+                  required:
+                    - helloWorldMessage
+                  properties:
+                    helloWorldMessage:
+                      description: '`Hello, world` message.'
+                      type: string
+                      enum:
+                        - 'Hello, world!'
+                requestReference:
+                  type: string
+                  description: >-
+                    Reference to a *transfer* request record. This reference is
+                    equivalent to `txID` — transaction identificator.
+                  example: 'insolar:1FUpUFSfNpmyX05nustQ7B8al0xj-_j3_ndqXfgLRra4.record'
+                  pattern: '^insolar:1[a-zA-Z0-9_-]{42,43}\.record$'
+                  x-json-schema-id: requestReference
+                traceID:
+                  $ref: '#/components/schemas/traceID'
+      x-json-schema-id: response/getHelloWorldMessageSuccess
     response-RPCResponse:
       description: Base definition for HTTP JSON RPC 2.0 responses.
       type: object

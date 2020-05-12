@@ -319,7 +319,7 @@ func (m *Member) createHelloWorldCall(params map[string]interface{}) (interface{
 }
 
 func (m *Member) showHelloWorldMessageCall(params map[string]interface{}) (interface{}, error) {
-	refStr, err := getStringFromParams("reference", params)
+	refStr, err := getStringFromParams("helloWorldRef", params)
 	if err != nil {
 		return nil, err
 	}
@@ -330,7 +330,7 @@ func (m *Member) showHelloWorldMessageCall(params map[string]interface{}) (inter
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to cast reference from string")
 	}
-	hw := helloworld.GetObject(ref)
+	hw := helloworld.GetObject(*ref)
 	helloWorldMessage, err := hw.ShowHelloWorldMessage()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get the 'Hello, world' message: %s", err.Error())
