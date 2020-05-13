@@ -17,7 +17,7 @@ RUN BUILD_NUMBER=${BUILD_NUMBER} \
     BUILD_TIME=${BUILD_TIME} \
     BUILD_HASH=${BUILD_HASH} \
     BUILD_VERSION=${BUILD_VERSION} \
-    make build
+    make all
 
 RUN  set -eux; \
      groupadd -r insolar --gid=999; \
