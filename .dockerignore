@@ -6,4 +6,3 @@ data
 docker
 Dockerfile
 docker-compose
-.*
