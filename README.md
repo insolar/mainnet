@@ -101,14 +101,13 @@ This is if you're already using a specific version of the tools via a go@ packag
 
 When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in another terminal tab/window:
 
-     ```
-     bin/benchmark -c=4 -r=25 -k=.artifacts/launchnet/configs/
-     ```
 
-     Options:
-     * `-k`: Path to the root user's key pair.
-     * `-c`: Number of concurrent threads in which requests are sent.
-     * `-r`: Number of transfer requests to be sent in each thread.
+   ```bin/benchmark -c=4 -r=25 -k=.artifacts/launchnet/configs/```
+
+   Options:
+   * `-k`: Path to the root user's key pair.
+   * `-c`: Number of concurrent threads in which requests are sent.
+   * `-r`: Number of transfer requests to be sent in each thread.
      
 #### Functional tests
 
