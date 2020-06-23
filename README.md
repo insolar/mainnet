@@ -18,66 +18,31 @@ This application works ontop of [Insolar Platform 1.0](https://github.com/insola
 
 ## Quick start
 
-You can run Insolar MainNet locally:
+Run Insolar MainNet locally:
 
-1. Install everything from the **Prerequisites** section.
-2. Install this application.
-3. Deploy this application locally.
-4. Test this application locally.
+1. Install this application.
+2. Deploy this application locally.
+3. Test this application locally.
 
 These steps are detailed below.
 
-### Prerequisites
+### Install
 
-Install Golang programming tools **v1.12** in one of the following ways.
+1. Install Golang programming tools v1.12. For example, from [golang.org](http://golang.org/). Set the [$GOPATH environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
 
-* **Fresh Go installation on**:
-
-  * Linux: install the tools v1.12 from [golang.org](https://golang.org/doc/install#install). It is recommended to use the default settings. Set the [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
-
-  * macOS: use Homebrew to install the tools: `brew install go@1.12`. Set the [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
-
-* **Multiple versions of Go on Linux** in case you already have another version installed and want to keep it:
-
-  * [install Go v1.12 via go get](https://golang.org/doc/install#extra_versions) or 
-  * [use GVM](https://github.com/moovweb/gvm)
-
-* **Multiple versions of Go on macOS**:
-
-  * If you're a macOS user and installed a Go version from golang.org, then address **Multiple versions of Go on Linux**.
-
-  * If you used `brew` to install another version of the go package, then install go@1.12 and switch to it:
-
-    ```
-    brew install go@1.12
-    brew unlink go
-    brew link go@1.12 --force
-    ```
-
-    This is if you have a generic go package installed. You can unlink go@1.12 later and link back your go package.
-
-    ```
-    brew install go@1.12
-    brew switch go@1.12
-    ```
-
-    This is if you're already using a specific version of the tools via a go@ package.
-
-### Install 
-
-1. Download the MainNet package:
+2. Download the MainNet package:
 
    ```
    go get github.com/insolar/mainnet
    ```
 
-2. Go to the package directory:
+3. Go to the package directory:
 
    ```
    cd $GOPATH/src/github.com/insolar/mainnet
    ```
 
-3. Install dependencies and build binaries using [the makefile](https://github.com/insolar/mainnet/blob/master/Makefile) that automates this process:
+4. Install dependencies and build binaries using [the makefile](https://github.com/insolar/mainnet/blob/master/Makefile) that automates this process:
 
    ```
    make
