@@ -2,69 +2,70 @@
 
 # Insolar MainNet
 
-## Introduction 
 Insolar MainNet is the application that implements smart contracts logic for Insolar MainNet. 
 
-This application works ontop of [Insolar platform](https://github.com/insolar/insolar) and allows you to:
+This application works ontop of [Insolar Platform 1.0](https://github.com/insolar/insolar) and allows you to:
 
-* Create Insolar wallet
+* Create Insolar Wallet
 
-* Migrate INS onto Insolar exchanging INS to XNS 1:10 where INS is Ethereum ERC-20 token and XNS is Insolar native token.
+* Migrate INS onto Insolar exchanging INS to XNS 1:10 where INS is Ethereum ERC-20 token and XNS is Insolar native coin
 
-* Deposit migrated tokens into the wallet
+* Deposit migrated tokens into the Wallet
 
 * Transfer XNS to Insolar MainNet users
 
 * Receive XNS from Insolar MainNet users
 
-
 ## Quick start
 
-You can test Insolar Mainnet locally:
+You can run Insolar MainNet locally:
 
 1. Install everything from the **Prerequisites** section.
 2. Install this application.
 3. Deploy this application locally.
 4. Test this application locally.
 
+These steps are detailed below.
+
 ### Prerequisites
 
-Install Golang programming tools **v1.12**:
+Install Golang programming tools **v1.12** in one of the following ways.
 
-#### Fresh Go installation
+* **Fresh Go installation on**:
 
-* Linux: install the tools v1.12 from [golang.org](https://golang.org/doc/install#install). It is recommended to use the default settings. Set the [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
+  * Linux: install the tools v1.12 from [golang.org](https://golang.org/doc/install#install). It is recommended to use the default settings. Set the [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
 
-* macOS: use Homebrew to install the tools: `brew install go@1.12`. Set the [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
+  * macOS: use Homebrew to install the tools: `brew install go@1.12`. Set the [`$GOPATH` environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
 
-#### Multiple versions of Go on Linux
+* **Multiple versions of Go on Linux** in case you already have another version installed and want to keep it:
 
-If you already have another version installed and want to keep it, you can [install Go v1.12 via go get](https://golang.org/doc/install#extra_versions) or [use GVM](https://github.com/moovweb/gvm).
+  * [install Go v1.12 via go get](https://golang.org/doc/install#extra_versions) or 
+  * [use GVM](https://github.com/moovweb/gvm)
 
-#### Multiple versions of Go on macOS
+* **Multiple versions of Go on macOS**:
 
-If you're a macOS user and installed a Go version from golang.org, then address **Multiple versions of Go on Linux**.
+  * If you're a macOS user and installed a Go version from golang.org, then address **Multiple versions of Go on Linux**.
 
-If you used `brew` to install another version of the go package, then install go@1.12 and switch to it:
+  * If you used `brew` to install another version of the go package, then install go@1.12 and switch to it:
 
-```
-brew install go@1.12
-brew unlink go
-brew link go@1.12 --force
-```
+    ```
+    brew install go@1.12
+    brew unlink go
+    brew link go@1.12 --force
+    ```
 
-This is if you have a generic go package installed. You can unlink go@1.12 later and link back your go package.
+    This is if you have a generic go package installed. You can unlink go@1.12 later and link back your go package.
 
-```
-brew install go@1.12
-brew switch go@1.12
-```
+    ```
+    brew install go@1.12
+    brew switch go@1.12
+    ```
 
-This is if you're already using a specific version of the tools via a go@ package.
+    This is if you're already using a specific version of the tools via a go@ package.
 
 ### Install 
 
-1. Download the Mainnet package:
+1. Download the MainNet package:
 
    ```
    go get github.com/insolar/mainnet
@@ -84,47 +85,49 @@ This is if you're already using a specific version of the tools via a go@ packag
 
 ### Deploy locally
  
-1. In the directory where you downloaded the Mainnet package to, run the launcher:
+In the directory where you downloaded the MainNet package to, run the launcher:
 
-   ```
-   insolar-scripts/insolard/launchnet.sh -g
-   ```
+```
+insolar-scripts/insolard/launchnet.sh -g
+```
 
-   The launcher generates the necessary bootstrap data, starts a pulse watcher, and launches a number of nodes. <br>
-   In a local setup, the "nodes" are simply services listening on different ports.<br>
-   
-   The default number of nodes is 5. You can vary this number by commenting/uncommenting nodes in the `discovery_nodes` section in `scripts/insolard/bootstrap_template.yaml`.
+The launcher generates the necessary bootstrap data, starts a pulse watcher, and launches a number of nodes.
+In a local setup, the "nodes" are simply services listening on different ports.
+
+The default number of nodes is 5. You can vary this number by commenting/uncommenting nodes in the `discovery_nodes` section in `scripts/insolard/bootstrap_template.yaml`.
    
 ### Test locally
+
+Run either bencmark or functional tests.
 
 #### Benchmark test
 
 When the pulse watcher says `INSOLAR STATE: READY`, you can run a benchmark in another terminal tab/window:
 
+```bin/benchmark -c=4 -r=25 -k=.artifacts/launchnet/configs/```
 
-   ```bin/benchmark -c=4 -r=25 -k=.artifacts/launchnet/configs/```
-
-   Options:
-   * `-k`: Path to the root user's key pair.
-   * `-c`: Number of concurrent threads in which requests are sent.
-   * `-r`: Number of transfer requests to be sent in each thread.
+Options:
+* `-k`: Path to the root user's key pair.
+* `-c`: Number of concurrent threads in which requests are sent.
+* `-r`: Number of transfer requests to be sent in each thread.
      
 #### Functional tests
 
-These tests aim to assess operability of the app and include creating user accounts; migrating INS to Mainnet using mockups; exchanging INS for XNS using mockups; transferring XNS between user accounts.
+These tests aim to assess operability of the app and include creating user accounts; migrating INS to MainNet using mockups; exchanging INS for XNS using mockups; transferring XNS between user accounts.
 
 To run the tests, wait till the pulse watcher says `INSOLAR STATE: READY` and do the following in another terminal tab/window:
 
 1. Copy the bootstrap config from the `launchnet` folder to `launchnet/config`:
 
-     ```
-     cp .artifacts/launchnet/bootstrap.yaml .artifacts/launchnet/configs/bootstrap.yaml
-     ```
+   ```
+   cp .artifacts/launchnet/bootstrap.yaml .artifacts/launchnet/configs/bootstrap.yaml
+   ```
+
 2. Run the tests:
 
-     ```
-     INSOLAR_FUNC_RPC_URL=http://localhost:19001/admin-api/rpc INSOLAR_FUNC_RPC_URL_PUBLIC=http://localhost:19101/api/rpc INSOLAR_FUNC_KEYS_PATH=../../.artifacts/launchnet/configs INSOLAR_ARTIFACTS_DIR=../../.artifacts go test -test.v -tags "functest" ./application/functest
-     ```
+   ```
+   INSOLAR_FUNC_RPC_URL=http://localhost:19001/admin-api/rpc INSOLAR_FUNC_RPC_URL_PUBLIC=http://localhost:19101/api/rpc INSOLAR_FUNC_KEYS_PATH=../../.artifacts/launchnet/configs INSOLAR_ARTIFACTS_DIR=../../.artifacts go test -test.v -tags "functest" ./application/functest
+   ```
 
 ## Contribute!
 
@@ -138,7 +141,7 @@ To make the process smooth for both reviewers and contributors, familiarize your
 
 When submitting an issue, **include a complete test function** that reproduces it.
 
-Thank you for your intention to contribute to the Insolar Mainnet project. As a company developing open-source code, we highly appreciate external contributions to our project.
+Thank you for your intention to contribute to the Insolar MainNet project. As a company developing open-source code, we highly appreciate external contributions to our project.
 
 ## Contacts
 
