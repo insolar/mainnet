@@ -69,6 +69,7 @@ func initAPIOptions() (api.Options, error) {
 		"member.create":          true,
 		"member.get":             true,
 		"member.transfer":        true,
+		"member.transferDirect":        true,
 		"member.migrationCreate": true,
 		"deposit.transfer":       true,
 	}

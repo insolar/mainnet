@@ -420,6 +420,25 @@ func (sdk *SDK) Transfer(amount string, from Member, to Member) (string, error) 
 	return response.TraceID, nil
 }
 
+// Transfer method send money from one member to another
+func (sdk *SDK) TransferSimple(amount string, from Member, to Member) (string, error) {
+	userConfig, err := requester.CreateUserConfig(from.GetReference(), from.GetPrivateKey(), from.GetPublicKey())
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create user config for request")
+	}
+	response, err := sdk.DoRequest(
+		sdk.publicAPIURLs,
+		userConfig,
+		"member.transferDirect",
+		map[string]interface{}{"amount": amount, "toMemberReference": to.GetReference()},
+	)
+	if err != nil {
+		return "", errors.Wrap(err, "request was failed ")
+	}
+
+	return response.TraceID, nil
+}
+
 // GetBalance returns current balance of the given member.
 func (sdk *SDK) GetBalance(m Member) (*big.Int, []interface{}, error) {
 	userConfig, err := requester.CreateUserConfig(m.GetReference(), m.GetPrivateKey(), m.GetPublicKey())

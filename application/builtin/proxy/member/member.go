@@ -525,3 +525,26 @@ func (r *Member) Accept(arg appfoundation.SagaAcceptInfo) error {
 	}
 	return nil
 }
+
+// AcceptSimple is proxy generated method
+func (r *Member) AcceptSimple(arg appfoundation.SagaAcceptInfo) error {
+	var args [1]interface{}
+	args[0] = arg
+
+	var argsSerialized []byte
+
+	ret := make([]interface{}, 1)
+	var ret0 *foundation.Error
+	ret[0] = &ret0
+
+	err := common.CurrentProxyCtx.Serialize(args, &argsSerialized)
+	if err != nil {
+		return err
+	}
+
+	_, err = common.CurrentProxyCtx.RouteCall(r.Reference, false, true, "AcceptSimple", argsSerialized, *PrototypeReference)
+	if err != nil {
+		return err
+	}
+	return nil
+}

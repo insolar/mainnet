@@ -8,11 +8,14 @@ package member
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"strings"
 
 	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
+	"github.com/insolar/insolar/logicrunner/builtin/foundation/safemath"
+
 	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/insolar/mainnet/application/builtin/proxy/account"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
@@ -36,6 +39,8 @@ type Member struct {
 	PublicKey        string
 	MigrationAddress string
 	Wallet           insolar.Reference
+
+	Balance string
 }
 
 // New creates new member.
@@ -44,6 +49,7 @@ func New(key string, migrationAddress string, walletRef insolar.Reference) (*Mem
 		PublicKey:        key,
 		MigrationAddress: migrationAddress,
 		Wallet:           walletRef,
+		Balance: "10000000000000000",
 	}, nil
 }
 
@@ -148,6 +154,8 @@ func (m *Member) Call(signedRequest []byte) (interface{}, error) {
 		return m.getBalanceCall(params)
 	case "member.transfer":
 		return m.transferCall(params)
+	case "member.transferDirect":
+		return m.transferDirect(params)
 	// deposit.*
 	case "deposit.migration":
 		return m.depositMigrationCall(params)
@@ -270,6 +278,74 @@ func (m *Member) transferCall(params map[string]interface{}) (interface{}, error
 	}
 
 	return wallet.GetObject(m.Wallet).Transfer(asset, amount, recipientReference, fromMember, *request)
+}
+
+func (m *Member) getBalance() (string, error) {
+	return m.Balance, nil
+}
+
+func (m *Member) transferDirect(params map[string]interface{}) (interface{}, error) {
+	recipientReferenceStr, ok := params["toMemberReference"].(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get 'toMemberReference' param")
+	}
+
+	amountStr, ok := params["amount"].(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get 'amount' param")
+	}
+
+	recipientReference, err := insolar.NewObjectReferenceFromString(recipientReferenceStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse 'toMemberReference' param: %s", err.Error())
+	}
+	if m.GetReference() == *recipientReference {
+		return nil, fmt.Errorf("recipient must be different from the sender")
+	}
+
+	fromMember := m.GetReference()
+	request, err := foundation.GetRequestReference()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get destination wallet: %s", err.Error())
+	}
+
+	// account transfer
+	amount, ok := new(big.Int).SetString(amountStr, 10)
+	if !ok {
+	return nil, fmt.Errorf("can't parse input amount")
+	}
+	if amount.Sign() <= 0 {
+	return nil, fmt.Errorf("amount must be larger then zero")
+	}
+
+	currentBalanceStr, err := m.getBalance()
+	if err != nil {
+	return nil, fmt.Errorf("failed to get balance for asset: %s", err.Error())
+	}
+	currentBalance, ok := new(big.Int).SetString(currentBalanceStr, 10)
+	if !ok {
+	return nil, fmt.Errorf("can't parse account balance")
+	}
+	if amount.Cmp(currentBalance) > 0 {
+	return nil, fmt.Errorf("balance is too low: %s", currentBalanceStr)
+	}
+
+	newBalance, err := safemath.Sub(currentBalance, amount)
+	if err != nil {
+	return nil, fmt.Errorf("not enough balance for transfer: %s", err.Error())
+	}
+	m.Balance = newBalance.String()
+
+	to := member.GetObject(*recipientReference)
+	err = to.AcceptSimple(appfoundation.SagaAcceptInfo{
+		Amount:     amountStr,
+		FromMember: fromMember,
+		Request:    *request,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to transfer amount: %s", err.Error())
+	}
+	return member.TransferResponse{}, nil
 }
 
 func (m *Member) depositTransferCall(params map[string]interface{}) (interface{}, error) {
@@ -468,5 +544,37 @@ func (m *Member) Accept(arg appfoundation.SagaAcceptInfo) error {
 	if err != nil {
 		return fmt.Errorf("failed to increase balance: %s", err.Error())
 	}
+	return nil
+}
+
+// AcceptSimple accepts transfer to balance.
+// FromMember and Request not used, but needed by observer, do not remove
+//ins:saga(INS_FLAG_NO_ROLLBACK_METHOD)
+func (m *Member) AcceptSimple(arg appfoundation.SagaAcceptInfo) error {
+	err := m.increaseBalance(arg.Amount)
+	if err != nil {
+		return fmt.Errorf("failed to increase balance: %s", err.Error())
+	}
+	return nil
+}
+
+// IncreaseBalance increases the current balance by the amount.
+func (m *Member) increaseBalance(amountStr string) error {
+	amount, ok := new(big.Int).SetString(amountStr, 10)
+	if !ok {
+		return fmt.Errorf("can't parse input amount")
+	}
+	if amount.Sign() <= 0 {
+		return fmt.Errorf("amount should be greater then zero")
+	}
+	balance, ok := new(big.Int).SetString(m.Balance, 10)
+	if !ok {
+		return fmt.Errorf("can't parse account balance")
+	}
+	newBalance, err := safemath.Add(balance, amount)
+	if err != nil {
+		return fmt.Errorf("failed to add amount to balance: %s", err.Error())
+	}
+	m.Balance = newBalance.String()
 	return nil
 }

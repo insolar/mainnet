@@ -125,6 +125,18 @@ func newTransferDifferentMemberScenarios(out io.Writer, insSDK *sdk.SDK, concurr
 	}
 }
 
+func newSimpleTransferDifferentMemberScenarios(out io.Writer, insSDK *sdk.SDK, concurrent int, repetitions int) benchmark {
+	return benchmark{
+		scenario: &walletToWalletSimpleTransferScenario{
+			insSDK: insSDK,
+		},
+		concurrent:  concurrent,
+		repetitions: repetitions,
+		name:        "SimpleTransferDifferentMembers",
+		out:         out,
+	}
+}
+
 func newTransferTwoSidesScenario(out io.Writer, insSDK *sdk.SDK, concurrent int, repetitions int) benchmark {
 	return benchmark{
 		scenario: &walletToWalletTwoSidesScenario{
@@ -521,6 +533,8 @@ func switchScenario(out io.Writer, insSDK *sdk.SDK) benchmark {
 		b = newMigrationScenarios(out, insSDK, concurrent, repetitions)
 	case "depositTransfer":
 		b = newDepositTransferScenarios(out, insSDK, concurrent, repetitions)
+	case "simple":
+		b = newSimpleTransferDifferentMemberScenarios(out, insSDK, concurrent, repetitions)
 	default:
 		b = newTransferDifferentMemberScenarios(out, insSDK, concurrent, repetitions)
 	}

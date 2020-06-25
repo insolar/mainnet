@@ -654,6 +654,122 @@ paths:
                       traceID: 0b9ac245-2522-4364-9059-efc17907ce54
                 execution-error:
                   $ref: '#/components/examples/executionError'
+  '/api/rpc#member.transferDirect':
+    post:
+      summary: member.transferDirect
+      description: >
+        Transfers an `amount` of XNS coins from some member's account to
+        another.
+
+
+        To invoke this method, specify the following parameters:
+
+
+        * in `params`, the member `reference` (returned by
+        [member.create](/#operation/member-create)) to transfer coins from;
+
+        * in `callParams`, the `toMemberReference` to transfer coins to;
+
+        * in `params`, the `amount` of coins to transfer.
+
+
+        Returns factual fee value according to the current tariff.
+      operationId: member-transfer
+      tags:
+        - Member
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - member.transferDirect
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - amount
+                            - toMemberReference
+                          properties:
+                            amount:
+                              type: string
+                              description: Amount of coins to transfer.
+                              example: '1000'
+                              pattern: '^[1-9][0-9]*$'
+                              minLength: 1
+                              maxLength: 20
+                            toMemberReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: >-
+                                    Reference to the recipient's `member`
+                                    object.
+                                  example: >-
+                                    insolar:1AfNjPWh7Ut-P7Ky7Mj7HLCte3gjGXi4RpXNxTvrhlww
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to your `member` object. Used for
+                                identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          type: string
+                          pattern: >-
+                            ^\s*(-+BEGIN[^-]+-+\s+[a-zA-Z0-9+\/=
+                            \n]+-+END[^-]+-+|[a-zA-Z0-9+\/= \n]+)\s*$
+                          description: >
+                            Public key of your `member` object. Used to check
+                            the `<signatureString>` created by the paired
+                            private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/definitions-responses-transfer-yaml'
+                  - $ref: '#/components/schemas/response-signedRequestError'
+              examples:
+                success:
+                  value:
+                    jsonrpc: '2.0'
+                    id: '1'
+                    result:
+                      callResult:
+                        fee: '10'
+                      requestReference: >-
+                        insolar:1FUpUFSfNpmyX05nustQ7B8al0xj-_j3_ndqXfgLRra4.record
+                      traceID: 0b9ac245-2522-4364-9059-efc17907ce54
+                execution-error:
+                  $ref: '#/components/examples/executionError'
   '/api/rpc#deposit.transfer':
     post:
       summary: deposit.transfer
