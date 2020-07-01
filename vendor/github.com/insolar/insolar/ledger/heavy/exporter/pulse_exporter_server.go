@@ -9,13 +9,15 @@ import (
 	"context"
 	"time"
 
+	"go.opencensus.io/stats"
+
 	"github.com/insolar/insolar/insolar"
+	"github.com/insolar/insolar/insolar/jet"
 	"github.com/insolar/insolar/insolar/node"
 	insolarPulse "github.com/insolar/insolar/insolar/pulse"
 	"github.com/insolar/insolar/instrumentation/inslogger"
 	"github.com/insolar/insolar/ledger/heavy/executor"
 	"github.com/insolar/insolar/pulse"
-	"go.opencensus.io/stats"
 )
 
 type PulseServer struct {
@@ -34,11 +36,12 @@ func NewPulseServer(pulses insolarPulse.Calculator, jetKeeper executor.JetKeeper
 
 func (p *PulseServer) Export(getPulses *GetPulses, stream PulseExporter_ExportServer) error {
 	ctx := stream.Context()
+	ctxWithTags := addTagsForExporterMethodTiming(ctx, "pulse-export")
 
 	exportStart := time.Now()
 	defer func(ctx context.Context) {
 		stats.Record(
-			addTagsForExporterMethodTiming(ctx, "pulse-export"),
+			ctxWithTags,
 			HeavyExporterMethodTiming.M(float64(time.Since(exportStart).Nanoseconds())/1e6),
 		)
 	}(ctx)
@@ -95,6 +98,10 @@ func (p *PulseServer) Export(getPulses *GetPulses, stream PulseExporter_ExportSe
 		currentPN = pulse.PulseNumber
 	}
 
+	stats.Record(
+		ctxWithTags,
+		HeavyExporterLastExportedPulse.M(int64(currentPN)),
+	)
 	return nil
 }
 
@@ -110,4 +117,38 @@ func (p *PulseServer) TopSyncPulse(ctx context.Context, _ *GetTopSyncPulse) (*To
 	return &TopSyncPulseResponse{
 		PulseNumber: p.jetKeeper.TopSyncPulse().AsUint32(),
 	}, nil
+}
+
+func (p *PulseServer) NextFinalizedPulse(ctx context.Context, gnfp *GetNextFinalizedPulse) (*FullPulse, error) {
+	pn := gnfp.GetPulseNo()
+	logger := inslogger.FromContext(ctx)
+
+	if pn == 0 {
+		pu, err := p.pulses.Forwards(ctx, p.jetKeeper.TopSyncPulse(), 0)
+		if err != nil {
+			logger.Error(err)
+			return nil, err
+		}
+		return makeFullPulse(ctx, pu, p.jetKeeper.Storage()), nil
+	}
+
+	pu, err := p.pulses.Forwards(ctx, insolar.PulseNumber(pn), 1)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+
+	return makeFullPulse(ctx, pu, p.jetKeeper.Storage()), nil
+}
+
+func makeFullPulse(ctx context.Context, pu insolar.Pulse, js jet.Storage) *FullPulse {
+	return &FullPulse{
+		PulseNumber:      pu.PulseNumber,
+		PrevPulseNumber:  pu.PrevPulseNumber,
+		NextPulseNumber:  pu.NextPulseNumber,
+		Entropy:          pu.Entropy,
+		PulseTimestamp:   pu.PulseTimestamp,
+		EpochPulseNumber: pu.EpochPulseNumber,
+		Jets:             js.All(ctx, pu.PulseNumber),
+	}
 }
