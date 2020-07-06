@@ -4,7 +4,7 @@
 
 Insolar MainNet is the application that implements smart contracts logic for Insolar MainNet. 
 
-This application works ontop of [Insolar Platform 1.0](https://github.com/insolar/insolar) and allows you to:
+This application works on top of [Insolar Platform 1.0](https://github.com/insolar/insolar) and allows you to:
 
 * Create Insolar Wallet
 
@@ -63,7 +63,7 @@ The default number of nodes is 5. You can vary this number by commenting/uncomme
    
 ### Test locally
 
-Run either bencmark or functional tests.
+Run either benchmark or functional tests.
 
 #### Benchmark test
 
