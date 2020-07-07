@@ -8,6 +8,7 @@ ARTIFACTS_DIR ?= .artifacts
 INSOLAR = insolar
 INSOLARD = insolard
 BENCHMARK = benchmark
+AIRDROP = airdrop
 REQUESTER= requester
 
 ALL_PACKAGES = ./...
@@ -89,7 +90,7 @@ vendor: ## update vendor dependencies
 	go mod vendor
 
 .PHONY: build
-build: $(BIN_DIR) $(INSOLARD) $(INSOLAR) $(BENCHMARK) $(REQUESTER)## build all binaries
+build: $(BIN_DIR) $(INSOLARD) $(INSOLAR) $(BENCHMARK)  $(AIRDROP) $(REQUESTER)## build all binaries
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
@@ -104,6 +105,10 @@ $(INSOLAR):
 .PHONY: $(BENCHMARK)
 $(BENCHMARK):
 	$(GOBUILD) -o $(BIN_DIR)/$(BENCHMARK) -ldflags "${LDFLAGS}" application/cmd/benchmark/*.go
+
+.PHONY: $(AIRDROP)
+$(AIRDROP):
+	$(GOBUILD) -o $(BIN_DIR)/$(AIRDROP) -ldflags "${LDFLAGS}" application/cmd/airdrop/*.go
 
 .PHONY: $(REQUESTER)
 $(REQUESTER):
