@@ -41,7 +41,6 @@ var (
 	apiURL           string
 	verbose          bool
 	memberPrivateKey crypto.PrivateKey
-	// request          *requester.ContractRequest
 	airMembers       []AirMember
 )
 
@@ -132,7 +131,6 @@ func verifyParams() error {
 	}
 
 	// try to read airMembers
-	// verify that the member airMembers paramsFile is exist
 	if !isFileExists(membersPath) {
 		return errors.New("File with members does not exists")
 	}
@@ -260,7 +258,7 @@ func AirdropCommand() *cobra.Command {
 					Amount            string `json:"amount"`
 					ToMemberReference string `json:"toMemberReference"`
 				}{
-					Amount:            big.NewInt(m.Tokens*FractionsInXNS).String(), // do we need multiply?
+					Amount:            big.NewInt(m.Tokens*FractionsInXNS).String(),
 					ToMemberReference: m.Wallet,
 				}
 				response, err := requester.Send(ctx, apiURL, userConfig, &request.Params)
