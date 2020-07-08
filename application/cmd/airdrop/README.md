@@ -61,5 +61,6 @@ To use the airdrop, do the following:
     Flags:
       -p, --hexPrivate          Airdrop from member private key in hex
       -m, --membersPath         Path to a file with members to airdrop
+      -w, --waitTime            Milliseconds to wait after each transfer
       -h, --help                Help for airdrop
       -v, --verbose             Print request information

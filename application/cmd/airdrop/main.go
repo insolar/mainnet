@@ -35,9 +35,11 @@ import (
 const ApplicationShortDescription string = "airdrop is tool for airdrop distribution at Insolar Platform"
 
 const FractionsInXNS int64 = 10000000000
+
 var (
 	hexPrivate       string
 	membersPath      string
+	waitTime         int64
 	apiURL           string
 	verbose          bool
 	memberPrivateKey crypto.PrivateKey
@@ -48,6 +50,7 @@ func parseInputParams(cmd *cobra.Command) {
 	flags := cmd.Flags()
 	flags.StringVarP(&hexPrivate, "hexPrivate", "p", "", "Private key pair")
 	flags.StringVarP(&membersPath, "membersPath", "m", "", "Path to a file with members")
+	flags.Int64VarP(&waitTime, "waitTime", "w", 500, "Milliseconds to wait after each transfer")
 	flags.BoolVarP(&verbose, "verbose", "v", false, "Print request information")
 	flags.BoolP("help", "h", false, "Help for airdrop")
 }
@@ -64,7 +67,7 @@ func main() {
 	}
 }
 
-func getMemberPrivateKey(hexPrivate string) (crypto.PrivateKey, error)  {
+func getMemberPrivateKey(hexPrivate string) (crypto.PrivateKey, error) {
 	// Declare a new big int variable, specify the key as its value,
 	// and set its format to base 16:
 	i := new(big.Int)
@@ -91,7 +94,7 @@ func getMemberPrivateKey(hexPrivate string) (crypto.PrivateKey, error)  {
 	return memberPrivateKey, nil
 }
 
-func getMemberReference(ctx context.Context, userConfig *requester.UserConfigJSON) (string, error)  {
+func getMemberReference(ctx context.Context, userConfig *requester.UserConfigJSON) (string, error) {
 	getMemberRequest := &requester.ContractRequest{
 		Request: requester.Request{
 			Version: "2.0",
@@ -253,22 +256,23 @@ func AirdropCommand() *cobra.Command {
 				},
 			}
 
-			for _, m := range airMembers {
+			airMembersLen := len(airMembers)
+			for i, m := range airMembers {
 				request.Params.CallParams = struct {
 					Amount            string `json:"amount"`
 					ToMemberReference string `json:"toMemberReference"`
 				}{
-					Amount:            big.NewInt(m.Tokens*FractionsInXNS).String(),
+					Amount:            big.NewInt(m.Tokens * FractionsInXNS).String(),
 					ToMemberReference: m.Wallet,
 				}
 				response, err := requester.Send(ctx, apiURL, userConfig, &request.Params)
 				if err != nil {
 					return err
 				}
-				requestInfo := fmt.Sprintf("Request to member %s for transferring %s tokens: ", m.Wallet, big.NewInt(m.Tokens*FractionsInXNS).String())
+				requestInfo := fmt.Sprintf("[%d of %d] Request to member %s for transferring %s tokens: ", i+1, airMembersLen, m.Wallet, big.NewInt(m.Tokens*FractionsInXNS).String())
 				_, _ = os.Stdout.Write([]byte(requestInfo))
 				_, _ = os.Stdout.Write(response)
-				time.Sleep(time.Millisecond*500)
+				time.Sleep(time.Millisecond * time.Duration(waitTime))
 			}
 
 			return nil
