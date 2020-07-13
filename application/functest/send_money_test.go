@@ -18,6 +18,8 @@ import (
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
 	"github.com/insolar/insolar/applicationbase/testutils/testrequest"
 	"github.com/insolar/insolar/insolar/gen"
+
+	"github.com/insolar/mainnet/application/genesisrefs"
 )
 
 const times = 5
@@ -282,4 +284,16 @@ func TestTransferTwoTimes(t *testing.T) {
 	// checkBalanceFewTimes(t, secondMember, secondMember.Ref, oldSecondBalance+2*amount)
 	// newFirstBalance := getBalanceNoErr(t, firstMember, firstMember.Ref)
 	// require.Equal(t, oldFirstBalance-2*amount, newFirstBalance)
+}
+
+func TestTransferMoneyFromNotMemberRef(t *testing.T) {
+	firstMember := createMember(t)
+	secondMember := createMember(t)
+	// Broke member to request object with prototype with no 'Call' method
+	firstMember.Ref = genesisrefs.ContractCostCenter.String()
+	amountStr := "10"
+	_, _, err := testrequest.MakeSignedRequest(launchnet.TestRPCUrlPublic, firstMember, "member.transfer",
+		map[string]interface{}{"amount": amountStr, "toMemberReference":  secondMember.Ref})
+	data := checkConvertRequesterError(t, err).Data
+	require.Contains(t, data.Trace, "failed to find contracts method")
 }
