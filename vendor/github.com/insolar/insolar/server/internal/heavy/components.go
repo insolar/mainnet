@@ -418,8 +418,8 @@ func initWithPostgres(
 		pulseExporter  *exporter.PulseServer
 	)
 	{
-		recordExporter = exporter.NewRecordServer(PulsesPostgres, RecordsPostgres, RecordsPostgres, PostgresJetKeeper)
-		pulseExporter = exporter.NewPulseServer(PulsesPostgres, PostgresJetKeeper, NodesPostgres)
+		recordExporter = exporter.NewRecordServer(PulsesPostgres, RecordsPostgres, RecordsPostgres, PostgresJetKeeper, cfg.Exporter.Auth)
+		pulseExporter = exporter.NewPulseServer(PulsesPostgres, PostgresJetKeeper, NodesPostgres, cfg.Exporter.Auth)
 
 		grpcServer, err := newGRPCServer(cfg.Exporter)
 		if err != nil {
@@ -762,8 +762,8 @@ func initWithBadger(
 		pulseExporter  *exporter.PulseServer
 	)
 	{
-		recordExporter = exporter.NewRecordServer(Pulses, Records, Records, JetKeeper)
-		pulseExporter = exporter.NewPulseServer(Pulses, JetKeeper, Nodes)
+		recordExporter = exporter.NewRecordServer(Pulses, Records, Records, JetKeeper, cfg.Exporter.Auth)
+		pulseExporter = exporter.NewPulseServer(Pulses, JetKeeper, Nodes, cfg.Exporter.Auth)
 
 		grpcServer, err := newGRPCServer(cfg.Exporter)
 		if err != nil {
@@ -975,8 +975,9 @@ func authorize(ctx context.Context) (context.Context, error) {
 		return nil, err
 	}
 
-	md.Set(exporter.ObsID, sub)
-	return metadata.NewIncomingContext(ctx, md), nil
+	newMD := md.Copy()
+	newMD.Set(exporter.ObsID, sub)
+	return metadata.NewIncomingContext(ctx, newMD), nil
 }
 
 func validateJWT(token string) (string, error) {
