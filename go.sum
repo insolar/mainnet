@@ -95,8 +95,8 @@ github.com/golang/protobuf v1.3.2 h1:6nsPYzhq5kReh6QImI3k5qWzO4PEbvbIW2cwSfR/6xs
 github.com/golang/protobuf v1.3.2/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/google/btree v1.0.0/go.mod h1:lNA+9X1NB3Zf8V7Ke586lFgjr2dZNuvo3lPJSGZ5JPQ=
 github.com/google/go-cmp v0.2.0/go.mod h1:oXzfMopK8JAjlY9xF4vHSVASa0yLyX7SntLO5aqRK0M=
-github.com/google/go-cmp v0.3.0 h1:crn/baboCvb5fXaQ0IJ1SGTsTVrWpDsCWC8EGETZijY=
 github.com/google/go-cmp v0.3.0/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMywk6iLU=
+github.com/google/go-cmp v0.4.0 h1:xsAVV57WRhGj6kEIi8ReJzQlHHqcBYCElAvkovg3B/4=
 github.com/google/go-cmp v0.4.0/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/gofuzz v1.0.0 h1:A8PeW59pxE9IoFRqBp37U+mSNaQoZ46F1f0f863XSXw=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
@@ -136,27 +136,12 @@ github.com/insolar/go-actors v0.0.0-20190805151516-2fcc7bfc8ff9 h1:476W50z1EA/U8
 github.com/insolar/go-actors v0.0.0-20190805151516-2fcc7bfc8ff9/go.mod h1:vh6gyvTJhKxCMROgV7ADLE1jS19NAd6gIaHCjHgVWKQ=
 github.com/insolar/insconfig v0.0.0-20200227134411-011eca6dc866 h1:821agB4jwkceJbV2lniBH3/mGLqSaHPhmurMfeGZAVg=
 github.com/insolar/insconfig v0.0.0-20200227134411-011eca6dc866/go.mod h1:zB9bawcGFKS4hwXcu6yH4rYH06EZnGlFfhl0+KMKM9k=
-github.com/insolar/insolar v1.5.0 h1:KAX/+YVax0bqfShjkFZvoUDWm36KL8Loz+8arSCLXN0=
-github.com/insolar/insolar v1.5.0/go.mod h1:HpkU7MAOc4APtJ5QlLs/yC0PVfGD+xSxgf8s95O8hZo=
-github.com/insolar/insolar v1.5.1 h1:vI6P0FvDqLGe0yn3S+DjJ6PRsnvBCb9mY0z1rQg0NEI=
-github.com/insolar/insolar v1.5.1/go.mod h1:HvUtnqOPs4yaaLtzxOWAQbY58RWrwiIGqVyQajz24Nw=
-github.com/insolar/insolar v1.5.3 h1:aj+v2JZk3TyM1U7nf+LLQlu3SJZwXJNDskNpL5n1yLg=
-github.com/insolar/insolar v1.5.3/go.mod h1:HvUtnqOPs4yaaLtzxOWAQbY58RWrwiIGqVyQajz24Nw=
-github.com/insolar/insolar v1.5.4 h1:1LaI3cyu3L47MWPlB+BvrAE0XYea2rf0mUH0t4xRDo8=
-github.com/insolar/insolar v1.5.4/go.mod h1:HvUtnqOPs4yaaLtzxOWAQbY58RWrwiIGqVyQajz24Nw=
-github.com/insolar/insolar v1.6.1 h1:Sd8gtKE8zCq8cf35wGdnyqSmm2xTgwEl4wHtoyjVjT0=
-github.com/insolar/insolar v1.6.1/go.mod h1:0l0OdVqaWBCUOBv42Tm4v+ueTttffgUCs2u9b13l9lI=
-github.com/insolar/insolar v1.6.2 h1:uvgyRe9RqgzkxFSVAXDNfoKLnn+szEZkvcmNw1STviE=
-github.com/insolar/insolar v1.6.2/go.mod h1:0l0OdVqaWBCUOBv42Tm4v+ueTttffgUCs2u9b13l9lI=
-github.com/insolar/insolar v1.6.3-0.20200713100518-c4605921d8f6 h1:q3CHeac7c03GWCmmOX1O2nrvvGGWn8JBnseXg4Q8X44=
-github.com/insolar/insolar v1.6.3-0.20200713100518-c4605921d8f6/go.mod h1:0l0OdVqaWBCUOBv42Tm4v+ueTttffgUCs2u9b13l9lI=
-github.com/insolar/insolar v1.6.3-0.20200720164814-d013aca52fa4 h1:gD+dsOon+XwAtVLn1M0Wvx2ky3oUriQQFCIRufWNRbI=
-github.com/insolar/insolar v1.6.3-0.20200720164814-d013aca52fa4/go.mod h1:0l0OdVqaWBCUOBv42Tm4v+ueTttffgUCs2u9b13l9lI=
+github.com/insolar/insolar v1.6.3-0.20200722162410-6abadc3b7e1d h1:CIdsyc2dtU4gOpVkOSCjO36MrgQmliBtf+7Bw1+Vb3E=
+github.com/insolar/insolar v1.6.3-0.20200722162410-6abadc3b7e1d/go.mod h1:0l0OdVqaWBCUOBv42Tm4v+ueTttffgUCs2u9b13l9lI=
 github.com/insolar/rpc v1.2.2-0.20200331123021-db57b8833f82 h1:SbU7YjfN6JdDP3ULyYqqgxtSOlDkFPKm6ddN4tM0bFI=
 github.com/insolar/rpc v1.2.2-0.20200331123021-db57b8833f82/go.mod h1:BZcTsPtQu8QG8RqqQdAnuNAG8n6TOrdNxIHro0h99Ik=
 github.com/insolar/x-crypto v0.0.0-20191031140942-75fab8a325f6 h1:WS4a7qw+P1pcnviyxyMTA/aR+T51wJok1IC9rJkHrTg=
 github.com/insolar/x-crypto v0.0.0-20191031140942-75fab8a325f6/go.mod h1:9mvKFD2wFLEGmK8pNFIowmGRTjfyn3YHtr10s7DHpBY=
-github.com/jackc/chunkreader v1.0.0 h1:4s39bBR8ByfqH+DKm8rQA3E1LHZWB9XWcrz8fqaZbe0=
 github.com/jackc/chunkreader v1.0.0/go.mod h1:RT6O25fNZIuasFJRyZ4R/Y2BbhasbmZXF9QQ7T3kePo=
 github.com/jackc/chunkreader/v2 v2.0.0 h1:DUwgMQuuPnS0rhMXenUtZpqZqrR/30NWY+qQvTpSvEs=
 github.com/jackc/chunkreader/v2 v2.0.0/go.mod h1:odVSm741yZoC3dpHEUXIqA9tQRhFrgOHwnPIn9lDKlk=
@@ -171,7 +156,6 @@ github.com/jackc/pgmock v0.0.0-20190831213851-13a1b77aafa2 h1:JVX6jT/XfzNqIjye47
 github.com/jackc/pgmock v0.0.0-20190831213851-13a1b77aafa2/go.mod h1:fGZlG77KXmcq05nJLRkk0+p82V8B8Dw8KN2/V9c/OAE=
 github.com/jackc/pgpassfile v1.0.0 h1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=
 github.com/jackc/pgpassfile v1.0.0/go.mod h1:CEx0iS5ambNFdcRtxPj5JhEz+xB6uRky5eyVu/W2HEg=
-github.com/jackc/pgproto3 v1.1.0 h1:FYYE4yRw+AgI8wXIinMlNjBbp/UitDJwfj5LqqewP1A=
 github.com/jackc/pgproto3 v1.1.0/go.mod h1:eR5FA3leWg7p9aeAqi37XOTgTIbkABlvcPB3E5rlc78=
 github.com/jackc/pgproto3/v2 v2.0.0-alpha1.0.20190420180111-c116219b62db/go.mod h1:bhq50y+xrl9n5mRYyCBFKkpRVTLYJVWeCc+mEAI3yXA=
 github.com/jackc/pgproto3/v2 v2.0.0-alpha1.0.20190609003834-432c2951c711/go.mod h1:uH0AWtUmuShn0bcesswc4aBTWGvw0cAxIJp+6OB//Wg=
@@ -266,7 +250,6 @@ github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/9
 github.com/pelletier/go-toml v1.4.0 h1:u3Z1r+oOXJIkxqw34zVhyPgjBsm6X2wn21NWs/HfSeg=
 github.com/pelletier/go-toml v1.4.0/go.mod h1:PN7xzY2wHTK0K9p34ErDQMlFxa51Fk0OUruD3k1mMwo=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
-github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
@@ -327,7 +310,6 @@ github.com/spf13/cobra v0.0.5/go.mod h1:3K3wKZymM7VvHMDS9+Akkh4K60UwM26emMESw8tL
 github.com/spf13/jwalterweatherman v1.0.0/go.mod h1:cQK4TGJAtQXfYWX+Ddv3mKDzgVb68N+wFjFa4jdeBTo=
 github.com/spf13/jwalterweatherman v1.1.0 h1:ue6voC5bR5F8YxI5S67j9i582FU4Qvo2bmqnqMYADFk=
 github.com/spf13/jwalterweatherman v1.1.0/go.mod h1:aNWZUN0dPAAO/Ljvb5BEdw96iTZ0EXowPYD95IqWIGo=
-github.com/spf13/pflag v1.0.3 h1:zPAT6CGy6wXeQ7NtTnaTerfKOsV6V6F8agHXFiazDkg=
 github.com/spf13/pflag v1.0.3/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
 github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
 github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
@@ -344,8 +326,6 @@ github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81P
 github.com/subosito/gotenv v1.2.0 h1:Slr1R9HxAlEKefgq5jn9U+DnETlIUa6HfgEzj0g5d7s=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
-github.com/tylerb/gls v0.0.0-20150407001822-e606233f194d h1:yYYPFFlbqxF5mrj5sEfETtM/Ssz2LTy0/VKlDdXYctc=
-github.com/tylerb/gls v0.0.0-20150407001822-e606233f194d/go.mod h1:0MwyId/pXK5wkYYEXe7NnVknX+aNBuF73fLV3U0reU8=
 github.com/tylerb/is v2.1.4+incompatible h1:BMf2zP0kY2Ykzx2W1fDrjwKj1x1B4E0mELkpjaNy1tM=
 github.com/tylerb/is v2.1.4+incompatible/go.mod h1:3Bw2NWEEe8Kx7/etYqgm9ug53iNDgabnloch75jjOSc=
 github.com/uber-go/atomic v1.4.0 h1:yOuPqEq4ovnhEjpHmfFwsqBXDYbQeT6Nb0bwD6XnD5o=
@@ -378,7 +358,6 @@ golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9/go.mod h1:6SG95UA2DQfeDnf
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190411191339-88737f569e3a/go.mod h1:WFFai1msRO1wXaEeE5yQxYXgSfI8pQAWXbQop6sCtWE=
 golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
-golang.org/x/crypto v0.0.0-20190911031432-227b76d455e7 h1:0hQKqeLdqlt5iIwVOBErRisrHJAN57yOiPRQItI20fU=
 golang.org/x/crypto v0.0.0-20190911031432-227b76d455e7/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/crypto v0.0.0-20190927123631-a832865fa7ad h1:5E5raQxcv+6CZ11RrBYQe5WRbUIWpScjh0kvHZkZIrQ=
 golang.org/x/crypto v0.0.0-20190927123631-a832865fa7ad/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
@@ -453,7 +432,6 @@ golang.org/x/tools v0.0.0-20191108193012-7d206e10da11 h1:Yq9t9jnGoR+dBuitxdo9l6Q
 golang.org/x/tools v0.0.0-20191108193012-7d206e10da11/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
 golang.org/x/xerrors v0.0.0-20190410155217-1f06c39b4373/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 golang.org/x/xerrors v0.0.0-20190513163551-3ee3066db522/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
-golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7 h1:9zdDQZ7Thm29KFXgAX/+yaf3eVbP7djjWp/dXAppNCc=
 golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
@@ -486,7 +464,6 @@ gopkg.in/yaml.v2 v2.0.0-20170812160011-eb3733d160e7/go.mod h1:JAlM8MvJe8wmxCU4Bl
 gopkg.in/yaml.v2 v2.2.1/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.2.4/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
-gopkg.in/yaml.v2 v2.2.7 h1:VUgggvou5XRW9mHwD/yXxIYSMtY0zoKQf/v226p2nyo=
 gopkg.in/yaml.v2 v2.2.7/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.2.8 h1:obN1ZagJSUGI0Ek/LBmuj4SNLPfIny3KsKFopxRdj10=
 gopkg.in/yaml.v2 v2.2.8/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=

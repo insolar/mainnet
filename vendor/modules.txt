@@ -103,7 +103,7 @@ github.com/insolar/go-actors/actor/system
 github.com/insolar/go-actors/actor/mailbox
 # github.com/insolar/insconfig v0.0.0-20200227134411-011eca6dc866
 github.com/insolar/insconfig
-# github.com/insolar/insolar v1.6.3-0.20200720164814-d013aca52fa4
+# github.com/insolar/insolar v1.6.3-0.20200722162410-6abadc3b7e1d
 github.com/insolar/insolar/cmd/insgocc
 github.com/insolar/insolar/cmd/keeperd
 github.com/insolar/insolar/cmd/pulsard
@@ -117,16 +117,16 @@ github.com/insolar/insolar/logicrunner/artifacts
 github.com/insolar/insolar/logicrunner/builtin/foundation/safemath
 github.com/insolar/insolar/logicrunner/common
 github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain
-github.com/insolar/insolar/insolar/defaults
-github.com/insolar/insolar/log
-github.com/insolar/insolar/testutils
 github.com/insolar/insolar/api/requester
-github.com/insolar/insolar/cmd/pulsewatcher/config
 github.com/insolar/insolar/configuration
+github.com/insolar/insolar/log
+github.com/insolar/insolar/log/logadapter
+github.com/insolar/insolar/insolar/defaults
+github.com/insolar/insolar/testutils
+github.com/insolar/insolar/cmd/pulsewatcher/config
 github.com/insolar/insolar/keystore
 github.com/insolar/insolar/platformpolicy
 github.com/insolar/insolar/version
-github.com/insolar/insolar/log/logadapter
 github.com/insolar/insolar/applicationbase/testutils/launchnet
 github.com/insolar/insolar/applicationbase/testutils/testrequest
 github.com/insolar/insolar/applicationbase/testutils/testresponse
@@ -160,12 +160,12 @@ github.com/insolar/insolar/logicrunner/metrics
 github.com/insolar/insolar/logicrunner/goplugin/rpctypes
 github.com/insolar/insolar/log/critlog
 github.com/insolar/insolar/log/zlogadapter
-github.com/insolar/insolar/keystore/internal/privatekey
-github.com/insolar/insolar/platformpolicy/internal/hash
-github.com/insolar/insolar/platformpolicy/internal/sign
 github.com/insolar/insolar/log/inssyslog
 github.com/insolar/insolar/log/logmetrics
 github.com/insolar/insolar/log/logoutput
+github.com/insolar/insolar/keystore/internal/privatekey
+github.com/insolar/insolar/platformpolicy/internal/hash
+github.com/insolar/insolar/platformpolicy/internal/sign
 github.com/insolar/insolar/applicationbase/builtin/contract/nodedomain
 github.com/insolar/insolar/applicationbase/builtin/contract/noderecord
 github.com/insolar/insolar/insolar/store
@@ -284,17 +284,17 @@ github.com/insolar/rpc/v2/json2
 github.com/insolar/x-crypto
 github.com/insolar/x-crypto/ecdsa
 github.com/insolar/x-crypto/elliptic
-github.com/insolar/x-crypto/rand
 github.com/insolar/x-crypto/x509
+github.com/insolar/x-crypto/rand
 github.com/insolar/x-crypto/sha256
 github.com/insolar/x-crypto/internal/randutil
 github.com/insolar/x-crypto/sha512
-github.com/insolar/x-crypto/rand/internal/unix
 github.com/insolar/x-crypto/dsa
 github.com/insolar/x-crypto/md5
 github.com/insolar/x-crypto/rsa
 github.com/insolar/x-crypto/sha1
 github.com/insolar/x-crypto/x509/pkix
+github.com/insolar/x-crypto/rand/internal/unix
 github.com/insolar/x-crypto/subtle
 # github.com/jackc/chunkreader/v2 v2.0.0
 github.com/jackc/chunkreader/v2
@@ -431,9 +431,9 @@ go.opencensus.io/trace/propagation
 go.uber.org/goleak
 go.uber.org/goleak/internal/stack
 # golang.org/x/crypto v0.0.0-20190927123631-a832865fa7ad
-golang.org/x/crypto/sha3
 golang.org/x/crypto/cryptobyte
 golang.org/x/crypto/cryptobyte/asn1
+golang.org/x/crypto/sha3
 golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/ed25519
 golang.org/x/crypto/ed25519/internal/edwards25519
