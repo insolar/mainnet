@@ -138,6 +138,13 @@ func (p *PulseServer) NextFinalizedPulse(ctx context.Context, gnfp *GetNextFinal
 			return nil, err
 		}
 		return makeFullPulse(ctx, pu, p.jetKeeper.Storage()), nil
+	} else if pn < pulse.MinTimePulse {
+		pu, err := p.pulses.Forwards(ctx, pulse.MinTimePulse, 0)
+		if err != nil {
+			logger.Error(err)
+			return nil, err
+		}
+		return makeFullPulse(ctx, pu, p.jetKeeper.Storage()), nil
 	}
 
 	pu, err := p.pulses.Forwards(ctx, insolar.PulseNumber(pn), 1)
