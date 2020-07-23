@@ -114,7 +114,9 @@ jobs:
           echo "$content" | tee $GITHUB_WORKSPACE/coverage.txt
           cat ./coverage.txt | wc
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
-      - uses: codecov/codecov-action@v1
+      - name: Codecov
+        if: github.event_name == 'pull_request'
+        uses: codecov/codecov-action@v1.0.10
         with:
           token: ${{ secrets.codecov_token }}
           file: ./coverage.txt
