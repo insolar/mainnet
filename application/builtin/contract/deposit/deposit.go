@@ -25,7 +25,7 @@ import (
 
 const numConfirmation = 2
 
-// Deposit is like wallet. It holds migrated money.
+// Deposit is like an account. But it holds migrated money.
 type Deposit struct {
 	foundation.BaseContract
 	Balance                 string                    `json:"balance"`
@@ -323,7 +323,7 @@ func (d *Deposit) availableAmount() (*big.Int, error) {
 	}
 
 	// Allow to transfer whole balance if vesting period has already finished
-	if currentPulse > d.PulseDepositUnHold+insolar.PulseNumber(d.Vesting) {
+	if currentPulse >= d.PulseDepositUnHold+insolar.PulseNumber(d.Vesting) {
 		return balance, nil
 	}
 
