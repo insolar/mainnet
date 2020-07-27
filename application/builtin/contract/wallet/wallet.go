@@ -14,7 +14,10 @@ import (
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
 )
 
-const XNS = "XNS"
+const (
+	XNS              = "XNS"
+	FundsDepositName = "genesis_deposit2"
+)
 
 // Wallet - basic wallet contract.
 type Wallet struct {
@@ -126,4 +129,17 @@ func (w *Wallet) FindOrCreateDeposit(transactionHash string, lockup int64, vesti
 	w.Deposits[transactionHash] = ref.String()
 
 	return &ref, err
+}
+
+// SetFund creates new one public allocation 2 deposit with specified lockup end date.
+func (w *Wallet) SetFund(lockupEndDate int64) (*insolar.Reference, error) {
+	depositHolder := deposit.NewGenesisDeposit2(lockupEndDate, FundsDepositName)
+	fund, err := depositHolder.AsChild(w.GetReference())
+	if err != nil {
+		return nil, fmt.Errorf("failed to save deposit as child: %s", err.Error())
+	}
+
+	ref := fund.GetReference()
+	w.Deposits[FundsDepositName] = ref.String()
+	return &ref, nil
 }

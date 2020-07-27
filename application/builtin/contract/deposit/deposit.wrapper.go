@@ -842,6 +842,87 @@ func INSCONSTRUCTOR_New(ref insolar.Reference, data []byte) (state []byte, resul
 	return
 }
 
+func INSCONSTRUCTOR_NewGenesisDeposit2(ref insolar.Reference, data []byte) (state []byte, result []byte, err error) {
+	ph := common.CurrentProxyCtx
+	ph.SetSystemError(nil)
+
+	args := make([]interface{}, 2)
+	var args0 int64
+	args[0] = &args0
+	var args1 string
+	args[1] = &args1
+
+	err = ph.Deserialize(data, &args)
+	if err != nil {
+		err = &foundation.Error{S: "[ FakeNewGenesisDeposit2 ] ( INSCONSTRUCTOR_* ) ( Generated Method ) Can't deserialize args.Arguments: " + err.Error()}
+		return
+	}
+
+	var ret0 *Deposit
+	var ret1 error
+
+	serializeResults := func() error {
+		return ph.Serialize(
+			foundation.Result{Returns: []interface{}{ref, ret1}},
+			&result,
+		)
+	}
+
+	needRecover := true
+	defer func() {
+		if !needRecover {
+			return
+		}
+		if r := recover(); r != nil {
+			recoveredError := errors.Wrap(errors.Errorf("%v", r), "Failed to execute constructor (panic)")
+			recoveredError = ph.MakeErrorSerializable(recoveredError)
+
+			if PanicIsLogicalError {
+				ret1 = recoveredError
+
+				err = serializeResults()
+				if err == nil {
+					state = data
+				}
+			} else {
+				err = recoveredError
+			}
+		}
+	}()
+
+	ret0, ret1 = NewGenesisDeposit2(args0, args1)
+
+	needRecover = false
+
+	ret1 = ph.MakeErrorSerializable(ret1)
+	if ret0 == nil && ret1 == nil {
+		ret1 = &foundation.Error{S: "constructor returned nil"}
+	}
+
+	if ph.GetSystemError() != nil {
+		err = ph.GetSystemError()
+		return
+	}
+
+	err = serializeResults()
+	if err != nil {
+		return
+	}
+
+	if ret1 != nil {
+		// logical error, the result should be registered with type RequestSideEffectNone
+		state = nil
+		return
+	}
+
+	err = ph.Serialize(ret0, &state)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func Initialize() insolar.ContractWrapper {
 	return insolar.ContractWrapper{
 		Methods: insolar.ContractMethods{
@@ -858,7 +939,8 @@ func Initialize() insolar.ContractWrapper {
 			"GetPrototype": INSMETHOD_GetPrototype,
 		},
 		Constructors: insolar.ContractConstructors{
-			"New": INSCONSTRUCTOR_New,
+			"New":                INSCONSTRUCTOR_New,
+			"NewGenesisDeposit2": INSCONSTRUCTOR_NewGenesisDeposit2,
 		},
 	}
 }

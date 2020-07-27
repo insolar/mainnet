@@ -10,6 +10,7 @@ import (
 	"math/big"
 	"strings"
 
+	"github.com/insolar/insolar/pulse"
 	"github.com/pkg/errors"
 
 	"github.com/insolar/insolar/insolar"
@@ -58,6 +59,22 @@ func New(txHash string, lockup int64, vesting int64, vestingStep int64) (*Deposi
 		Vesting:                 vesting,
 		VestingStep:             vestingStep,
 		VestingType:             appfoundation.DefaultVesting,
+	}, nil
+}
+
+// NewGenesisDeposit2 creates new public allocation 2 deposit
+func NewGenesisDeposit2(lockupEndDate int64, fundsDepositName string) (*Deposit, error) {
+	unholdPulse := pulse.OfUnixTime(lockupEndDate)
+	return &Deposit{
+		Balance:            "0",
+		Amount:             "0",
+		PulseDepositUnHold: unholdPulse,
+		VestingType:        appfoundation.Vesting2,
+		TxHash:             fundsDepositName,
+		Lockup:             int64(unholdPulse - pulse.MinTimePulse),
+		Vesting:            0,
+		VestingStep:        0,
+		IsConfirmed:        true,
 	}, nil
 }
 
