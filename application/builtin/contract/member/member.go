@@ -315,7 +315,7 @@ func (m *Member) depositTransferToDepositCall(params map[string]interface{}) (in
 	}
 	toMember, ok := params["toMemberReference"].(string)
 	if !ok {
-		return nil, fmt.Errorf("failed to get 'toDepositName' param")
+		return nil, fmt.Errorf("failed to get 'toMemberReference' param")
 	}
 	toMemberRef, err := insolar.NewObjectReferenceFromString(toMember)
 	if err != nil {
