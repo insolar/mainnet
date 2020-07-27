@@ -107,11 +107,10 @@ func New(txHash string, lockup int64, vesting int64, vestingStep int64) *Contrac
 	return &ContractConstructorHolder{constructorName: "New", argsSerialized: argsSerialized}
 }
 
-// NewGenesisDeposit2 is constructor
-func NewGenesisDeposit2(lockupEndDate int64, fundsDepositName string) *ContractConstructorHolder {
-	var args [2]interface{}
+// NewFund is constructor
+func NewFund(lockupEndDate int64) *ContractConstructorHolder {
+	var args [1]interface{}
 	args[0] = lockupEndDate
-	args[1] = fundsDepositName
 
 	var argsSerialized []byte
 	err := common.CurrentProxyCtx.Serialize(args, &argsSerialized)
@@ -119,7 +118,7 @@ func NewGenesisDeposit2(lockupEndDate int64, fundsDepositName string) *ContractC
 		panic(err)
 	}
 
-	return &ContractConstructorHolder{constructorName: "NewGenesisDeposit2", argsSerialized: argsSerialized}
+	return &ContractConstructorHolder{constructorName: "NewFund", argsSerialized: argsSerialized}
 }
 
 // GetReference returns reference of the object

@@ -333,7 +333,7 @@ func (m *Member) createFundCall(params map[string]interface{}) (interface{}, err
 		return nil, errors.Wrap(err, "failed to parse timestamp value")
 	}
 
-	return wallet.GetObject(m.Wallet).SetFund(lockupEndDate)
+	return wallet.GetObject(m.Wallet).CreateFund(lockupEndDate)
 }
 
 // Platform methods.

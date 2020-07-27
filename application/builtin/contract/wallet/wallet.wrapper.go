@@ -586,20 +586,20 @@ func INSMETHOD_FindOrCreateDeposit(object []byte, data []byte) (newState []byte,
 	return
 }
 
-func INSMETHOD_SetFund(object []byte, data []byte) (newState []byte, result []byte, err error) {
+func INSMETHOD_CreateFund(object []byte, data []byte) (newState []byte, result []byte, err error) {
 	ph := common.CurrentProxyCtx
 	ph.SetSystemError(nil)
 
 	self := new(Wallet)
 
 	if len(object) == 0 {
-		err = &foundation.Error{S: "[ FakeSetFund ] ( INSMETHOD_* ) ( Generated Method ) Object is nil"}
+		err = &foundation.Error{S: "[ FakeCreateFund ] ( INSMETHOD_* ) ( Generated Method ) Object is nil"}
 		return
 	}
 
 	err = ph.Deserialize(object, self)
 	if err != nil {
-		err = &foundation.Error{S: "[ FakeSetFund ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Data: " + err.Error()}
+		err = &foundation.Error{S: "[ FakeCreateFund ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Data: " + err.Error()}
 		return
 	}
 
@@ -609,7 +609,7 @@ func INSMETHOD_SetFund(object []byte, data []byte) (newState []byte, result []by
 
 	err = ph.Deserialize(data, &args)
 	if err != nil {
-		err = &foundation.Error{S: "[ FakeSetFund ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Arguments: " + err.Error()}
+		err = &foundation.Error{S: "[ FakeCreateFund ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Arguments: " + err.Error()}
 		return
 	}
 
@@ -646,7 +646,7 @@ func INSMETHOD_SetFund(object []byte, data []byte) (newState []byte, result []by
 		}
 	}()
 
-	ret0, ret1 = self.SetFund(args0)
+	ret0, ret1 = self.CreateFund(args0)
 
 	needRecover = false
 
@@ -757,7 +757,7 @@ func Initialize() insolar.ContractWrapper {
 			"GetDeposits":         INSMETHOD_GetDeposits,
 			"FindDeposit":         INSMETHOD_FindDeposit,
 			"FindOrCreateDeposit": INSMETHOD_FindOrCreateDeposit,
-			"SetFund":             INSMETHOD_SetFund,
+			"CreateFund":          INSMETHOD_CreateFund,
 
 			"GetCode":      INSMETHOD_GetCode,
 			"GetPrototype": INSMETHOD_GetPrototype,

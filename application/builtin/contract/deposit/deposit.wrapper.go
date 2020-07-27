@@ -842,19 +842,17 @@ func INSCONSTRUCTOR_New(ref insolar.Reference, data []byte) (state []byte, resul
 	return
 }
 
-func INSCONSTRUCTOR_NewGenesisDeposit2(ref insolar.Reference, data []byte) (state []byte, result []byte, err error) {
+func INSCONSTRUCTOR_NewFund(ref insolar.Reference, data []byte) (state []byte, result []byte, err error) {
 	ph := common.CurrentProxyCtx
 	ph.SetSystemError(nil)
 
-	args := make([]interface{}, 2)
+	args := make([]interface{}, 1)
 	var args0 int64
 	args[0] = &args0
-	var args1 string
-	args[1] = &args1
 
 	err = ph.Deserialize(data, &args)
 	if err != nil {
-		err = &foundation.Error{S: "[ FakeNewGenesisDeposit2 ] ( INSCONSTRUCTOR_* ) ( Generated Method ) Can't deserialize args.Arguments: " + err.Error()}
+		err = &foundation.Error{S: "[ FakeNewFund ] ( INSCONSTRUCTOR_* ) ( Generated Method ) Can't deserialize args.Arguments: " + err.Error()}
 		return
 	}
 
@@ -890,7 +888,7 @@ func INSCONSTRUCTOR_NewGenesisDeposit2(ref insolar.Reference, data []byte) (stat
 		}
 	}()
 
-	ret0, ret1 = NewGenesisDeposit2(args0, args1)
+	ret0, ret1 = NewFund(args0)
 
 	needRecover = false
 
@@ -939,8 +937,8 @@ func Initialize() insolar.ContractWrapper {
 			"GetPrototype": INSMETHOD_GetPrototype,
 		},
 		Constructors: insolar.ContractConstructors{
-			"New":                INSCONSTRUCTOR_New,
-			"NewGenesisDeposit2": INSCONSTRUCTOR_NewGenesisDeposit2,
+			"New":     INSCONSTRUCTOR_New,
+			"NewFund": INSCONSTRUCTOR_NewFund,
 		},
 	}
 }

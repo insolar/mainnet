@@ -646,8 +646,8 @@ func (r *Wallet) FindOrCreateDepositAsImmutable(transactionHash string, lockup i
 	return ret0, nil
 }
 
-// SetFund is proxy generated method
-func (r *Wallet) SetFund(lockupEndDate int64) (*insolar.Reference, error) {
+// CreateFund is proxy generated method
+func (r *Wallet) CreateFund(lockupEndDate int64) (*insolar.Reference, error) {
 	var args [1]interface{}
 	args[0] = lockupEndDate
 
@@ -664,7 +664,7 @@ func (r *Wallet) SetFund(lockupEndDate int64) (*insolar.Reference, error) {
 		return ret0, err
 	}
 
-	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, false, false, "SetFund", argsSerialized, *PrototypeReference)
+	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, false, false, "CreateFund", argsSerialized, *PrototypeReference)
 	if err != nil {
 		return ret0, err
 	}
@@ -686,8 +686,8 @@ func (r *Wallet) SetFund(lockupEndDate int64) (*insolar.Reference, error) {
 	return ret0, nil
 }
 
-// SetFundAsImmutable is proxy generated method
-func (r *Wallet) SetFundAsImmutable(lockupEndDate int64) (*insolar.Reference, error) {
+// CreateFundAsImmutable is proxy generated method
+func (r *Wallet) CreateFundAsImmutable(lockupEndDate int64) (*insolar.Reference, error) {
 	var args [1]interface{}
 	args[0] = lockupEndDate
 
@@ -704,7 +704,7 @@ func (r *Wallet) SetFundAsImmutable(lockupEndDate int64) (*insolar.Reference, er
 		return ret0, err
 	}
 
-	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, true, false, "SetFund", argsSerialized, *PrototypeReference)
+	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, true, false, "CreateFund", argsSerialized, *PrototypeReference)
 	if err != nil {
 		return ret0, err
 	}
