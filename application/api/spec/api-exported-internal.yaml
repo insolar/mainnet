@@ -1590,6 +1590,107 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/response-success'
                   - $ref: '#/components/schemas/response-signedRequestError'
+  '/admin-api/rpc#deposit.transferToDeposit':
+    post:
+      summary: deposit.transferToDeposit
+      description: >
+        Transfer coins between specified deposits.
+
+
+        To invoke this method, specify the following parameters:
+
+
+        * in `params`, `reference` to the sender's member object;
+
+        * in `callParams`: `fromDepositName`—name of the sender's deposit to
+        withdraw the funds from;
+          * `toDepositName`—name of the receiver's deposit to send the funds to;
+          * `toMemberReference`—reference to the receiver's member object.
+      operationId: deposit.transferToDeposit
+      tags:
+        - Member
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - deposit.transferToDeposit
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - fromDepositName
+                            - toDepositName
+                            - toMemberReference
+                          properties:
+                            fromDepositName:
+                              type: string
+                              description: >-
+                                Deposit name or Ethereum transaction's hash.
+                                Used for deposit identification.
+                              example: genesis_deposit
+                            toDepositName:
+                              type: string
+                              description: Deposit name. Used for deposit identification.
+                              example: genesis_deposit2
+                            toMemberReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: Reference to the receiver's member object.
+                                  example: >-
+                                    insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to your `member` object. Used for
+                                identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          type: string
+                          pattern: >-
+                            ^\s*(-+BEGIN[^-]+-+\s+[a-zA-Z0-9+\/=
+                            \n]+-+END[^-]+-+|[a-zA-Z0-9+\/= \n]+)\s*$
+                          description: >
+                            Public key of your `member` object. Used to check
+                            the `<signatureString>` created by the paired
+                            private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-success'
+                  - $ref: '#/components/schemas/response-signedRequestError'
 tags:
   - name: Node
   - name: Member
