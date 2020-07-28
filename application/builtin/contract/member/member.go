@@ -17,6 +17,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/insolar/mainnet/application/appfoundation"
+	walletContract "github.com/insolar/mainnet/application/builtin/contract/wallet"
 	"github.com/insolar/mainnet/application/builtin/proxy/account"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
 	"github.com/insolar/mainnet/application/builtin/proxy/member"
@@ -28,7 +29,6 @@ import (
 )
 
 const (
-	XNS = "XNS"
 	// 10 ^ 14
 	ACCOUNT_START_VALUE = "0"
 )
@@ -158,6 +158,9 @@ func (m *Member) Call(signedRequest []byte) (interface{}, error) {
 		return m.depositTransferCall(params)
 	case "deposit.createFund":
 		return m.createFundCall(params)
+	// account.*
+	case "account.transferToDeposit":
+		return m.accountTransferToDepositCall(params)
 	}
 	return nil, fmt.Errorf("unknown method '%s'", request.Params.CallSite)
 }
@@ -220,7 +223,7 @@ func (m *Member) getBalanceCall(params map[string]interface{}) (interface{}, err
 	}
 
 	depWallet := wallet.GetObject(*walletRef)
-	b, err := depWallet.GetBalance(XNS)
+	b, err := depWallet.GetBalance(walletContract.XNS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get balance: %s", err.Error())
 	}
@@ -250,7 +253,7 @@ func (m *Member) transferCall(params map[string]interface{}) (interface{}, error
 
 	asset, ok := params["asset"].(string)
 	if !ok {
-		asset = XNS // set to default asset
+		asset = walletContract.XNS // set to default asset
 	}
 
 	recipientReference, err := insolar.NewObjectReferenceFromString(recipientReferenceStr)
@@ -334,6 +337,45 @@ func (m *Member) createFundCall(params map[string]interface{}) (interface{}, err
 	}
 
 	return wallet.GetObject(m.Wallet).CreateFund(lockupEndDate)
+}
+
+func (m *Member) accountTransferToDepositCall(params map[string]interface{}) (interface{}, error) {
+	toDepositName, ok := params["toDepositName"].(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get 'toDepositName' param")
+	}
+
+	toMember, ok := params["toMemberReference"].(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get 'toMemberReference' param")
+	}
+	toMemberRef, err := insolar.NewObjectReferenceFromString(toMember)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to cast member reference from string")
+	}
+
+	amountStr, ok := params["amount"].(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get 'amount' param")
+	}
+
+	toDepositRef, err := m.getDepositReferenceByName(toDepositName, *toMemberRef)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find toDeposit object")
+	}
+
+	request, err := foundation.GetRequestReference()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get request reference: %s", err.Error())
+	}
+
+	accountRef, err := m.GetAccount(walletContract.XNS)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get account reference: %s", err.Error())
+	}
+	acc := account.GetObject(*accountRef)
+
+	return nil, acc.TransferToDeposit(amountStr, *toDepositRef, m.GetReference(), *request)
 }
 
 // Platform methods.
@@ -477,8 +519,7 @@ func (m *Member) memberGet(publicKey string) (interface{}, error) {
 // FromMember and Request not used, but needed by observer, do not remove
 //ins:saga(INS_FLAG_NO_ROLLBACK_METHOD)
 func (m *Member) Accept(arg appfoundation.SagaAcceptInfo) error {
-
-	accountRef, err := m.GetAccount(XNS)
+	accountRef, err := m.GetAccount(walletContract.XNS)
 	if err != nil {
 		return fmt.Errorf("failed to get account reference: %s", err.Error())
 	}
@@ -488,4 +529,27 @@ func (m *Member) Accept(arg appfoundation.SagaAcceptInfo) error {
 		return fmt.Errorf("failed to increase balance: %s", err.Error())
 	}
 	return nil
+}
+
+func (m *Member) getDepositReferenceByName(depositName string, memberRef insolar.Reference) (*insolar.Reference, error) {
+	var err error
+	walletRef := &m.Wallet
+
+	if !memberRef.Equal(m.GetReference()) {
+		walletRef, err = member.GetObject(memberRef).GetWallet()
+		if err != nil {
+			if strings.Contains(err.Error(), "index not found") {
+				return nil, fmt.Errorf("recipient member does not exist")
+			}
+			return nil, fmt.Errorf("failed to get destination wallet: %s", err.Error())
+		}
+	}
+	find, depositRef, err := wallet.GetObject(*walletRef).FindDeposit(depositName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find deposit: %s", err.Error())
+	}
+	if !find {
+		return nil, fmt.Errorf("can't find deposit")
+	}
+	return depositRef, nil
 }

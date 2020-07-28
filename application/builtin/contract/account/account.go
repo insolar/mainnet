@@ -12,8 +12,11 @@ import (
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation/safemath"
+	"github.com/pkg/errors"
+
 	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/insolar/mainnet/application/builtin/proxy/costcenter"
+	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
 	"github.com/insolar/mainnet/application/builtin/proxy/member"
 )
 
@@ -136,4 +139,40 @@ func (a *Account) IncreaseBalance(amountStr string) error {
 	}
 	a.Balance = newBalance.String()
 	return nil
+}
+
+// TransferToDeposit transfers money to given member deposit.
+func (a *Account) TransferToDeposit(
+	amountStr string,
+	toDeposit insolar.Reference,
+	fromMember insolar.Reference,
+	request insolar.Reference,
+) error {
+	amount, ok := new(big.Int).SetString(amountStr, 10)
+	if !ok {
+		return errors.New("can't parse input amount")
+	}
+	balance, ok := new(big.Int).SetString(a.Balance, 10)
+	if !ok {
+		return errors.New("can't parse account balance")
+	}
+	if balance.Sign() <= 0 {
+		return errors.New("not enough balance for transfer")
+	}
+	newBalance, err := safemath.Sub(balance, amount)
+	if err != nil {
+		return errors.Wrap(err, "not enough balance for transfer")
+	}
+	a.Balance = newBalance.String()
+	destination := deposit.GetObject(toDeposit)
+	acceptDepositErr := destination.Accept(appfoundation.SagaAcceptInfo{
+		Amount:     amountStr,
+		FromMember: fromMember,
+		Request:    request,
+	})
+	if acceptDepositErr == nil {
+		return nil
+	}
+	a.Balance = balance.String()
+	return errors.Wrap(err, "failed to transfer amount")
 }
