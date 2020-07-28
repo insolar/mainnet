@@ -6,16 +6,15 @@
 package member
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"strconv"
 	"strings"
+	"encoding/json"
 
-	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
-	"github.com/insolar/insolar/insolar"
-	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/pkg/errors"
+	"github.com/insolar/insolar/insolar"
+	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
+	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 
 	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/insolar/mainnet/application/builtin/proxy/account"
