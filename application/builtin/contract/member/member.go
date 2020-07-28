@@ -6,15 +6,15 @@
 package member
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
+	"encoding/json"
 
-	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
-	"github.com/insolar/insolar/insolar"
-	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/pkg/errors"
+	"github.com/insolar/insolar/insolar"
+	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
+	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 
 	"github.com/insolar/mainnet/application/appfoundation"
 	walletContract "github.com/insolar/mainnet/application/builtin/contract/wallet"
@@ -156,6 +156,8 @@ func (m *Member) Call(signedRequest []byte) (interface{}, error) {
 		return m.depositMigrationCall(params)
 	case "deposit.transfer":
 		return m.depositTransferCall(params)
+	case "deposit.transferToDeposit":
+		return m.depositTransferToDepositCall(params)
 	case "deposit.createFund":
 		return m.createFundCall(params)
 	// account.*
@@ -307,6 +309,46 @@ func (m *Member) depositTransferCall(params map[string]interface{}) (interface{}
 
 	d := deposit.GetObject(*dRef)
 	return d.Transfer(amount, m.GetReference(), *request)
+}
+
+func (m *Member) depositTransferToDepositCall(params map[string]interface{}) (interface{}, error) {
+	fromDepositName, ok := params["fromDepositName"].(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get 'fromDepositName' param")
+	}
+	toDepositName, ok := params["toDepositName"].(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get 'toDepositName' param")
+	}
+	toMember, ok := params["toMemberReference"].(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get 'toMemberReference' param")
+	}
+	toMemberRef, err := insolar.NewObjectReferenceFromString(toMember)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to cast member reference from string")
+	}
+	if toDepositName == fromDepositName && toMemberRef.Equal(m.GetReference()) {
+		return nil, fmt.Errorf("it is impossible to make a transfer and accrual to the same deposit")
+	}
+	fromDepositRef, err := m.getDepositReferenceByName(fromDepositName, m.GetReference())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find fromDeposit object")
+	}
+	toDepositRef, err := m.getDepositReferenceByName(toDepositName, *toMemberRef)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find toDeposit object")
+	}
+	depositObj := deposit.GetObject(*fromDepositRef)
+	amountStr, err := depositObj.GetAmount()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get deposit amount")
+	}
+	request, err := foundation.GetRequestReference()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get request reference: %s", err.Error())
+	}
+	return nil, depositObj.TransferToDeposit(amountStr, *toDepositRef, m.GetReference(), *request, *toMemberRef)
 }
 
 func (m *Member) depositMigrationCall(params map[string]interface{}) (interface{}, error) {

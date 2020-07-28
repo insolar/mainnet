@@ -66,6 +66,7 @@ func initAPIOptions() (api.Options, error) {
 		"deposit.createFund":         true,
 		"member.getBalance":          true,
 		"account.transferToDeposit":  true,
+		"deposit.transferToDeposit":  true,
 	}
 	contractMethods := map[string]bool{
 		"member.create":          true,
