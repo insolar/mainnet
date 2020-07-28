@@ -645,3 +645,83 @@ func (r *Wallet) FindOrCreateDepositAsImmutable(transactionHash string, lockup i
 	}
 	return ret0, nil
 }
+
+// CreateFund is proxy generated method
+func (r *Wallet) CreateFund(lockupEndDate int64) (*insolar.Reference, error) {
+	var args [1]interface{}
+	args[0] = lockupEndDate
+
+	var argsSerialized []byte
+
+	ret := make([]interface{}, 2)
+	var ret0 *insolar.Reference
+	ret[0] = &ret0
+	var ret1 *foundation.Error
+	ret[1] = &ret1
+
+	err := common.CurrentProxyCtx.Serialize(args, &argsSerialized)
+	if err != nil {
+		return ret0, err
+	}
+
+	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, false, false, "CreateFund", argsSerialized, *PrototypeReference)
+	if err != nil {
+		return ret0, err
+	}
+
+	resultContainer := foundation.Result{
+		Returns: ret,
+	}
+	err = common.CurrentProxyCtx.Deserialize(res, &resultContainer)
+	if err != nil {
+		return ret0, err
+	}
+	if resultContainer.Error != nil {
+		err = resultContainer.Error
+		return ret0, err
+	}
+	if ret1 != nil {
+		return ret0, ret1
+	}
+	return ret0, nil
+}
+
+// CreateFundAsImmutable is proxy generated method
+func (r *Wallet) CreateFundAsImmutable(lockupEndDate int64) (*insolar.Reference, error) {
+	var args [1]interface{}
+	args[0] = lockupEndDate
+
+	var argsSerialized []byte
+
+	ret := make([]interface{}, 2)
+	var ret0 *insolar.Reference
+	ret[0] = &ret0
+	var ret1 *foundation.Error
+	ret[1] = &ret1
+
+	err := common.CurrentProxyCtx.Serialize(args, &argsSerialized)
+	if err != nil {
+		return ret0, err
+	}
+
+	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, true, false, "CreateFund", argsSerialized, *PrototypeReference)
+	if err != nil {
+		return ret0, err
+	}
+
+	resultContainer := foundation.Result{
+		Returns: ret,
+	}
+	err = common.CurrentProxyCtx.Deserialize(res, &resultContainer)
+	if err != nil {
+		return ret0, err
+	}
+	if resultContainer.Error != nil {
+		err = resultContainer.Error
+		return ret0, err
+	}
+	if ret1 != nil {
+		return ret0, ret1
+	}
+	return ret0, nil
+}

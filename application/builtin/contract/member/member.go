@@ -9,11 +9,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
+	"strconv"
 	"strings"
 
 	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
+	"github.com/pkg/errors"
+
 	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/insolar/mainnet/application/builtin/proxy/account"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
@@ -156,6 +159,8 @@ func (m *Member) Call(signedRequest []byte) (interface{}, error) {
 		return m.depositTransferCall(params)
 	case "deposit.transferToDeposit":
 		return m.depositTransferToDepositCall(params)
+	case "deposit.createFund":
+		return m.createFundCall(params)
 	}
 	return nil, fmt.Errorf("unknown method '%s'", request.Params.CallSite)
 }
@@ -358,6 +363,20 @@ func (m *Member) depositMigrationCall(params map[string]interface{}) (interface{
 
 	migrationDaemon := migrationdaemon.GetObject(migrationDaemonRef)
 	return migrationDaemon.DepositMigrationCall(params, m.GetReference(), *request)
+}
+
+func (m *Member) createFundCall(params map[string]interface{}) (interface{}, error) {
+	lockupEndDateStr, ok := params["lockupEndDate"].(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get 'lockupEndDate' param")
+	}
+
+	lockupEndDate, err := strconv.ParseInt(lockupEndDateStr, 10, 64)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse timestamp value")
+	}
+
+	return wallet.GetObject(m.Wallet).CreateFund(lockupEndDate)
 }
 
 // Platform methods.
