@@ -8,6 +8,7 @@
 package functest
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
@@ -20,8 +21,8 @@ func TestAccountTransferToDeposit(t *testing.T) {
 	t.Run("HappyPath", func(t *testing.T) {
 		ethHash := testutils.RandomEthHash()
 
-		firstMember := createMember(t)
-		secondMember := fullMigration(t, ethHash)
+		firstMember := createMember(t)            // initial zero balance
+		secondMember := fullMigration(t, ethHash) // deposit with 3600000
 
 		// init money on member
 		_, err := testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, &Root, "member.transfer",
@@ -32,6 +33,15 @@ func TestAccountTransferToDeposit(t *testing.T) {
 			"account.transferToDeposit", map[string]interface{}{"amount": "1000", "toDepositName": ethHash, "toMemberReference": secondMember.GetReference()})
 
 		require.NoError(t, err)
+
+		firstBalance := getBalanceNoErr(t, firstMember, firstMember.Ref)
+		expectedFirst, _ := new(big.Int).SetString("1999999000", 10)
+		require.Equal(t, expectedFirst, firstBalance)
+
+		secondBalance, err := getDepositBalance(t, secondMember, secondMember.Ref, ethHash)
+		require.NoError(t, err)
+		expectedSecond, _ := new(big.Int).SetString("3601000", 10)
+		require.Equal(t, expectedSecond, secondBalance)
 	})
 
 	t.Run("NotEnoughBalance", func(t *testing.T) {
