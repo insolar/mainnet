@@ -389,3 +389,85 @@ func (r *Account) IncreaseBalanceAsImmutable(amountStr string) error {
 	}
 	return nil
 }
+
+// ReallocateToDeposit is proxy generated method
+func (r *Account) ReallocateToDeposit(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference) error {
+	var args [4]interface{}
+	args[0] = amountStr
+	args[1] = toDeposit
+	args[2] = fromMember
+	args[3] = request
+
+	var argsSerialized []byte
+
+	ret := make([]interface{}, 1)
+	var ret0 *foundation.Error
+	ret[0] = &ret0
+
+	err := common.CurrentProxyCtx.Serialize(args, &argsSerialized)
+	if err != nil {
+		return err
+	}
+
+	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, false, false, "ReallocateToDeposit", argsSerialized, *PrototypeReference)
+	if err != nil {
+		return err
+	}
+
+	resultContainer := foundation.Result{
+		Returns: ret,
+	}
+	err = common.CurrentProxyCtx.Deserialize(res, &resultContainer)
+	if err != nil {
+		return err
+	}
+	if resultContainer.Error != nil {
+		err = resultContainer.Error
+		return err
+	}
+	if ret0 != nil {
+		return ret0
+	}
+	return nil
+}
+
+// ReallocateToDepositAsImmutable is proxy generated method
+func (r *Account) ReallocateToDepositAsImmutable(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference) error {
+	var args [4]interface{}
+	args[0] = amountStr
+	args[1] = toDeposit
+	args[2] = fromMember
+	args[3] = request
+
+	var argsSerialized []byte
+
+	ret := make([]interface{}, 1)
+	var ret0 *foundation.Error
+	ret[0] = &ret0
+
+	err := common.CurrentProxyCtx.Serialize(args, &argsSerialized)
+	if err != nil {
+		return err
+	}
+
+	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, true, false, "ReallocateToDeposit", argsSerialized, *PrototypeReference)
+	if err != nil {
+		return err
+	}
+
+	resultContainer := foundation.Result{
+		Returns: ret,
+	}
+	err = common.CurrentProxyCtx.Deserialize(res, &resultContainer)
+	if err != nil {
+		return err
+	}
+	if resultContainer.Error != nil {
+		err = resultContainer.Error
+		return err
+	}
+	if ret0 != nil {
+		return ret0
+	}
+	return nil
+}
