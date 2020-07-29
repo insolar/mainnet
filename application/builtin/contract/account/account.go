@@ -141,8 +141,8 @@ func (a *Account) IncreaseBalance(amountStr string) error {
 	return nil
 }
 
-// TransferToDeposit transfers money to given member deposit.
-func (a *Account) TransferToDeposit(
+// ReallocateToDeposit transfers money to given member deposit.
+func (a *Account) ReallocateToDeposit(
 	amountStr string,
 	toDeposit insolar.Reference,
 	fromMember insolar.Reference,

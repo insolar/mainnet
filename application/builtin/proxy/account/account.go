@@ -390,8 +390,8 @@ func (r *Account) IncreaseBalanceAsImmutable(amountStr string) error {
 	return nil
 }
 
-// TransferToDeposit is proxy generated method
-func (r *Account) TransferToDeposit(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference) error {
+// ReallocateToDeposit is proxy generated method
+func (r *Account) ReallocateToDeposit(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference) error {
 	var args [4]interface{}
 	args[0] = amountStr
 	args[1] = toDeposit
@@ -409,7 +409,7 @@ func (r *Account) TransferToDeposit(amountStr string, toDeposit insolar.Referenc
 		return err
 	}
 
-	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, false, false, "TransferToDeposit", argsSerialized, *PrototypeReference)
+	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, false, false, "ReallocateToDeposit", argsSerialized, *PrototypeReference)
 	if err != nil {
 		return err
 	}
@@ -431,8 +431,8 @@ func (r *Account) TransferToDeposit(amountStr string, toDeposit insolar.Referenc
 	return nil
 }
 
-// TransferToDepositAsImmutable is proxy generated method
-func (r *Account) TransferToDepositAsImmutable(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference) error {
+// ReallocateToDepositAsImmutable is proxy generated method
+func (r *Account) ReallocateToDepositAsImmutable(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference) error {
 	var args [4]interface{}
 	args[0] = amountStr
 	args[1] = toDeposit
@@ -450,7 +450,7 @@ func (r *Account) TransferToDepositAsImmutable(amountStr string, toDeposit insol
 		return err
 	}
 
-	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, true, false, "TransferToDeposit", argsSerialized, *PrototypeReference)
+	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, true, false, "ReallocateToDeposit", argsSerialized, *PrototypeReference)
 	if err != nil {
 		return err
 	}

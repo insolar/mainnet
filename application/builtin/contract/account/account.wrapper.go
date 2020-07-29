@@ -327,20 +327,20 @@ func INSMETHOD_IncreaseBalance(object []byte, data []byte) (newState []byte, res
 	return
 }
 
-func INSMETHOD_TransferToDeposit(object []byte, data []byte) (newState []byte, result []byte, err error) {
+func INSMETHOD_ReallocateToDeposit(object []byte, data []byte) (newState []byte, result []byte, err error) {
 	ph := common.CurrentProxyCtx
 	ph.SetSystemError(nil)
 
 	self := new(Account)
 
 	if len(object) == 0 {
-		err = &foundation.Error{S: "[ FakeTransferToDeposit ] ( INSMETHOD_* ) ( Generated Method ) Object is nil"}
+		err = &foundation.Error{S: "[ FakeReallocateToDeposit ] ( INSMETHOD_* ) ( Generated Method ) Object is nil"}
 		return
 	}
 
 	err = ph.Deserialize(object, self)
 	if err != nil {
-		err = &foundation.Error{S: "[ FakeTransferToDeposit ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Data: " + err.Error()}
+		err = &foundation.Error{S: "[ FakeReallocateToDeposit ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Data: " + err.Error()}
 		return
 	}
 
@@ -356,7 +356,7 @@ func INSMETHOD_TransferToDeposit(object []byte, data []byte) (newState []byte, r
 
 	err = ph.Deserialize(data, &args)
 	if err != nil {
-		err = &foundation.Error{S: "[ FakeTransferToDeposit ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Arguments: " + err.Error()}
+		err = &foundation.Error{S: "[ FakeReallocateToDeposit ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Arguments: " + err.Error()}
 		return
 	}
 
@@ -392,7 +392,7 @@ func INSMETHOD_TransferToDeposit(object []byte, data []byte) (newState []byte, r
 		}
 	}()
 
-	ret0 = self.TransferToDeposit(args0, args1, args2, args3)
+	ret0 = self.ReallocateToDeposit(args0, args1, args2, args3)
 
 	needRecover = false
 
@@ -497,10 +497,10 @@ func INSCONSTRUCTOR_New(ref insolar.Reference, data []byte) (state []byte, resul
 func Initialize() insolar.ContractWrapper {
 	return insolar.ContractWrapper{
 		Methods: insolar.ContractMethods{
-			"GetBalance":        INSMETHOD_GetBalance,
-			"Transfer":          INSMETHOD_Transfer,
-			"IncreaseBalance":   INSMETHOD_IncreaseBalance,
-			"TransferToDeposit": INSMETHOD_TransferToDeposit,
+			"GetBalance":          INSMETHOD_GetBalance,
+			"Transfer":            INSMETHOD_Transfer,
+			"IncreaseBalance":     INSMETHOD_IncreaseBalance,
+			"ReallocateToDeposit": INSMETHOD_ReallocateToDeposit,
 
 			"GetCode":      INSMETHOD_GetCode,
 			"GetPrototype": INSMETHOD_GetPrototype,

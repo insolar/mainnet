@@ -417,7 +417,7 @@ func (m *Member) accountTransferToDepositCall(params map[string]interface{}) (in
 	}
 	acc := account.GetObject(*accountRef)
 
-	return nil, acc.TransferToDeposit(amountStr, *toDepositRef, m.GetReference(), *request)
+	return nil, acc.ReallocateToDeposit(amountStr, *toDepositRef, m.GetReference(), *request)
 }
 
 // Platform methods.
