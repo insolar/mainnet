@@ -20,4 +20,6 @@ const (
 	Vesting3
 	// Deprecated: Never used
 	Vesting4
+	// Linear process for regular users
+	LinearVesting
 )
