@@ -6,15 +6,15 @@
 package member
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
-	"encoding/json"
 
-	"github.com/pkg/errors"
-	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
+	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
+	"github.com/pkg/errors"
 
 	"github.com/insolar/mainnet/application/appfoundation"
 	walletContract "github.com/insolar/mainnet/application/builtin/contract/wallet"
@@ -348,7 +348,7 @@ func (m *Member) depositTransferToDepositCall(params map[string]interface{}) (in
 	if err != nil {
 		return nil, fmt.Errorf("failed to get request reference: %s", err.Error())
 	}
-	return nil, depositObj.TransferToDeposit(amountStr, *toDepositRef, m.GetReference(), *request, *toMemberRef)
+	return nil, depositObj.TransferToDeposit(amountStr, *toDepositRef, m.GetReference(), *request, *toMemberRef, string(appfoundation.TTypeAllocation))
 }
 
 func (m *Member) depositMigrationCall(params map[string]interface{}) (interface{}, error) {

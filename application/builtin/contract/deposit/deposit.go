@@ -203,8 +203,7 @@ func (d *Deposit) Confirm(
 			}
 
 			err = deposit.GetObject(*maDeposit).TransferToDeposit(
-				amountStr, d.GetReference(), appfoundation.GetMigrationAdminMember(), request, toMember,
-			)
+				amountStr, d.GetReference(), appfoundation.GetMigrationAdminMember(), request, toMember, string(appfoundation.TTypeMigration))
 			if err != nil {
 				return errors.Wrap(err, "failed to transfer from migration deposit to deposit")
 			}
@@ -226,6 +225,7 @@ func (d *Deposit) TransferToDeposit(
 	fromMember insolar.Reference,
 	request insolar.Reference,
 	toMember insolar.Reference,
+	txType string,
 ) error {
 	amount, ok := new(big.Int).SetString(amountStr, 10)
 	if !ok {
