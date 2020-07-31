@@ -105,7 +105,7 @@ github.com/insolar/go-actors/actor/system
 github.com/insolar/go-actors/actor/mailbox
 # github.com/insolar/insconfig v0.0.0-20200227134411-011eca6dc866
 github.com/insolar/insconfig
-# github.com/insolar/insolar v1.6.6-0.20200729125554-aed6db35451e
+# github.com/insolar/insolar v1.6.6-0.20200731120437-02181db6935a
 github.com/insolar/insolar/cmd/insgocc
 github.com/insolar/insolar/cmd/keeperd
 github.com/insolar/insolar/cmd/pulsard
