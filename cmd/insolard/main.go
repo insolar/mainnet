@@ -23,6 +23,7 @@ import (
 	"github.com/insolar/insolar/server"
 
 	"github.com/insolar/mainnet/application"
+	"github.com/insolar/mainnet/application/appfoundation"
 	appbuiltin "github.com/insolar/mainnet/application/builtin"
 )
 
@@ -124,6 +125,7 @@ func runHeavyNode(configPath string, genesisConfigPath string, db string, genesi
 		},
 		genesisOnly,
 		apiOptions,
+		appfoundation.AllowedVersionSmartContract,
 	)
 	s.Serve()
 }

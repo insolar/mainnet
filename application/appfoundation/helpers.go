@@ -17,6 +17,8 @@ func GetCostCenter() insolar.Reference {
 	return genesisrefs.ContractCostCenter
 }
 
+const AllowedVersionSmartContract = 2
+
 // Get reference MigrationAdminMember contract.
 func GetMigrationAdminMember() insolar.Reference {
 	return genesisrefs.ContractMigrationAdminMember
