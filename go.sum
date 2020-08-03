@@ -138,10 +138,6 @@ github.com/insolar/go-actors v0.0.0-20190805151516-2fcc7bfc8ff9 h1:476W50z1EA/U8
 github.com/insolar/go-actors v0.0.0-20190805151516-2fcc7bfc8ff9/go.mod h1:vh6gyvTJhKxCMROgV7ADLE1jS19NAd6gIaHCjHgVWKQ=
 github.com/insolar/insconfig v0.0.0-20200227134411-011eca6dc866 h1:821agB4jwkceJbV2lniBH3/mGLqSaHPhmurMfeGZAVg=
 github.com/insolar/insconfig v0.0.0-20200227134411-011eca6dc866/go.mod h1:zB9bawcGFKS4hwXcu6yH4rYH06EZnGlFfhl0+KMKM9k=
-github.com/insolar/insolar v1.6.5 h1:ebeAhLT8Ab+M0DOOzW9VxWG4HQsoGrsHziwV90IHsKA=
-github.com/insolar/insolar v1.6.5/go.mod h1:0l0OdVqaWBCUOBv42Tm4v+ueTttffgUCs2u9b13l9lI=
-github.com/insolar/insolar v1.6.6-0.20200727081822-68505e6410cb h1:hvbGZqqW8fvG+RGt29ep3a7eP8QhoDGSVWLm3//qftM=
-github.com/insolar/insolar v1.6.6-0.20200727081822-68505e6410cb/go.mod h1:0l0OdVqaWBCUOBv42Tm4v+ueTttffgUCs2u9b13l9lI=
 github.com/insolar/insolar v1.6.6-0.20200803120127-986a6a49e82d h1:71tTEKZbfiZvB786t2gbgPnzS2RRDZ9WwzufRWON1+I=
 github.com/insolar/insolar v1.6.6-0.20200803120127-986a6a49e82d/go.mod h1:njbrBINqSm5ek4TZj06D1xQE9fI3NOG5rG/fvNnfAGY=
 github.com/insolar/rpc v1.2.2-0.20200331123021-db57b8833f82 h1:SbU7YjfN6JdDP3ULyYqqgxtSOlDkFPKm6ddN4tM0bFI=
