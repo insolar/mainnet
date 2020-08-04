@@ -15,6 +15,7 @@ import (
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation/safemath"
+
 	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
 	"github.com/insolar/mainnet/application/builtin/proxy/member"
@@ -315,11 +316,11 @@ func (d *Deposit) availableAmount() (*big.Int, error) {
 
 	amount, ok := new(big.Int).SetString(d.Amount, 10)
 	if !ok {
-		return nil, errors.New("can't parse derposit amount")
+		return nil, errors.New("can't parse deposit amount")
 	}
 	balance, ok := new(big.Int).SetString(d.Balance, 10)
 	if !ok {
-		return nil, errors.New("can't parse derposit balance")
+		return nil, errors.New("can't parse deposit balance")
 	}
 
 	// Allow to transfer whole balance if vesting period has already finished
