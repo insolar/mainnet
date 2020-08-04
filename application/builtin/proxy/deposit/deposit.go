@@ -582,13 +582,14 @@ func (r *Deposit) ConfirmAsImmutable(txHash string, amountStr string, fromMember
 }
 
 // TransferToDeposit is proxy generated method
-func (r *Deposit) TransferToDeposit(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference, toMember insolar.Reference) error {
-	var args [5]interface{}
+func (r *Deposit) TransferToDeposit(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference, toMember insolar.Reference, txType string) error {
+	var args [6]interface{}
 	args[0] = amountStr
 	args[1] = toDeposit
 	args[2] = fromMember
 	args[3] = request
 	args[4] = toMember
+	args[5] = txType
 
 	var argsSerialized []byte
 
@@ -624,13 +625,14 @@ func (r *Deposit) TransferToDeposit(amountStr string, toDeposit insolar.Referenc
 }
 
 // TransferToDepositAsImmutable is proxy generated method
-func (r *Deposit) TransferToDepositAsImmutable(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference, toMember insolar.Reference) error {
-	var args [5]interface{}
+func (r *Deposit) TransferToDepositAsImmutable(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference, toMember insolar.Reference, txType string) error {
+	var args [6]interface{}
 	args[0] = amountStr
 	args[1] = toDeposit
 	args[2] = fromMember
 	args[3] = request
 	args[4] = toMember
+	args[5] = txType
 
 	var argsSerialized []byte
 

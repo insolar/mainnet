@@ -3,7 +3,7 @@
 // This material is licensed under the Insolar License version 1.0,
 // available at https://github.com/insolar/mainnet/blob/master/LICENSE.md.
 
-package main
+package genesisstate
 
 import (
 	"encoding/json"
@@ -44,7 +44,7 @@ const (
 	FoundationVestingStep     = 0
 )
 
-func initStates(genesisConfigPath string) ([]genesis.ContractState, error) {
+func InitStates(genesisConfigPath string) ([]genesis.ContractState, error) {
 	b, err := ioutil.ReadFile(genesisConfigPath)
 	if err != nil {
 		log.Fatalf("failed to load genesis configuration from file: %v", genesisConfigPath)
