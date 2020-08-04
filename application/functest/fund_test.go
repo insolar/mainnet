@@ -17,8 +17,10 @@ import (
 
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
 	"github.com/insolar/insolar/applicationbase/testutils/testrequest"
+
 	"github.com/insolar/mainnet/application"
 	"github.com/insolar/mainnet/application/genesisrefs"
+	"github.com/insolar/mainnet/cmd/insolard/genesisstate"
 )
 
 func TestFoundationMemberCreate(t *testing.T) {
@@ -133,23 +135,37 @@ func TestFoundationTransferDeposit(t *testing.T) {
 func TestMigrationDaemonTransferDeposit(t *testing.T) {
 	m := &MigrationAdmin
 
-	res2, err := testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m, "member.get", nil)
+	res, err := testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m, "member.get", nil)
 	require.NoError(t, err)
-	decodedRes2, ok := res2.(map[string]interface{})
-	require.True(t, ok, fmt.Sprintf("failed to decode: expected map[string]interface{}, got %T", res2))
+	decodedRes2, ok := res.(map[string]interface{})
+	require.True(t, ok, fmt.Sprintf("failed to decode: expected map[string]interface{}, got %T", res))
 	m.Ref = decodedRes2["reference"].(string)
 
 	oldBalance, deposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
 	oldDepositStr := deposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
 
-	_, err = testrequest.SignedRequestWithEmptyRequestRef(t, launchnet.TestRPCUrlPublic, m,
-		"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
-	)
-	data := checkConvertRequesterError(t, err).Data
-	require.Contains(t, data.Trace, "hold period didn't end")
+	if time.Now().Unix() < genesisstate.MigrationDaemonUnholdDate {
+		_, err = testrequest.SignedRequestWithEmptyRequestRef(t, launchnet.TestRPCUrlPublic, m,
+			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+		)
+		data := checkConvertRequesterError(t, err).Data
+		require.Contains(t, data.Trace, "hold period didn't end")
 
-	newBalance, newDeposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
-	newDepositStr := newDeposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
-	require.Equal(t, oldBalance.String(), newBalance.String())
-	require.Equal(t, oldDepositStr, newDepositStr)
+		newBalance, newDeposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
+		newDepositStr := newDeposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
+		require.Equal(t, oldBalance.String(), newBalance.String())
+		require.Equal(t, oldDepositStr, newDepositStr)
+	} else {
+		_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
+			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+		)
+		require.NoError(t, err)
+		newBalance, newDeposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
+		newDepositStr := newDeposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
+		amount := int64(100)
+		require.Equal(t, oldBalance.Add(oldBalance, big.NewInt(amount)).String(), newBalance.String())
+		oldDeposit, ok := new(big.Int).SetString(oldDepositStr, 10)
+		require.True(t, ok, "can't parse oldDepositStr")
+		require.Equal(t, oldDeposit.Sub(oldDeposit, big.NewInt(amount)).String(), newDepositStr)
+	}
 }
