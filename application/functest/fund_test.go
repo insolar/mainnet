@@ -142,7 +142,7 @@ func TestMigrationDaemonTransferDeposit(t *testing.T) {
 	oldBalance, deposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
 	oldDepositStr := deposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
 
-	_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
+	_, err = testrequest.SignedRequestWithEmptyRequestRef(t, launchnet.TestRPCUrlPublic, m,
 		"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
 	)
 	data := checkConvertRequesterError(t, err).Data
