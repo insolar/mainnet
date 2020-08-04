@@ -349,11 +349,11 @@ func (d *Deposit) availableAmount() (*big.Int, error) {
 
 	amount, ok := new(big.Int).SetString(d.Amount, 10)
 	if !ok {
-		return nil, errors.New("can't parse derposit amount")
+		return nil, errors.New("can't parse deposit amount")
 	}
 	balance, ok := new(big.Int).SetString(d.Balance, 10)
 	if !ok {
-		return nil, errors.New("can't parse derposit balance")
+		return nil, errors.New("can't parse deposit balance")
 	}
 
 	// Allow to transfer whole balance if vesting period has already finished
