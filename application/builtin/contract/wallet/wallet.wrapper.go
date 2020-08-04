@@ -12,6 +12,8 @@ import (
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/insolar/insolar/logicrunner/common"
+	"github.com/insolar/insolar/pulse"
+	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/pkg/errors"
 )
 
@@ -514,15 +516,27 @@ func INSMETHOD_FindOrCreateDeposit(object []byte, data []byte) (newState []byte,
 		return
 	}
 
-	args := make([]interface{}, 4)
+	args := make([]interface{}, 10)
 	var args0 string
 	args[0] = &args0
-	var args1 int64
+	var args1 pulse.Number
 	args[1] = &args1
-	var args2 int64
+	var args2 []appfoundation.DaemonConfirm
 	args[2] = &args2
-	var args3 int64
+	var args3 string
 	args[3] = &args3
+	var args4 string
+	args[4] = &args4
+	var args5 appfoundation.VestingType
+	args[5] = &args5
+	var args6 int64
+	args[6] = &args6
+	var args7 int64
+	args[7] = &args7
+	var args8 int64
+	args[8] = &args8
+	var args9 bool
+	args[9] = &args9
 
 	err = ph.Deserialize(data, &args)
 	if err != nil {
@@ -563,7 +577,7 @@ func INSMETHOD_FindOrCreateDeposit(object []byte, data []byte) (newState []byte,
 		}
 	}()
 
-	ret0, ret1 = self.FindOrCreateDeposit(args0, args1, args2, args3)
+	ret0, ret1 = self.FindOrCreateDeposit(args0, args1, args2, args3, args4, args5, args6, args7, args8, args9)
 
 	needRecover = false
 

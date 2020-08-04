@@ -12,24 +12,22 @@ import (
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/insolar/insolar/logicrunner/common"
+	"github.com/insolar/insolar/pulse"
 	"github.com/insolar/mainnet/application/appfoundation"
 )
 
-type DaemonConfirm struct {
-	Reference string `json:"reference"`
-	Amount    string `json:"amount"`
-}
 type DepositOut struct {
-	Balance                 string                    `json:"balance"`
-	HoldStartDate           int64                     `json:"holdStartDate"`
-	PulseDepositUnHold      int64                     `json:"holdReleaseDate"`
-	MigrationDaemonConfirms []DaemonConfirm           `json:"confirmerReferences"`
-	Amount                  string                    `json:"amount"`
-	TxHash                  string                    `json:"ethTxHash"`
-	VestingType             appfoundation.VestingType `json:"vestingType"`
-	Lockup                  int64                     `json:"lockup"`
-	Vesting                 int64                     `json:"vesting"`
-	VestingStep             int64                     `json:"vestingStep"`
+	Ref                     string                        `json:"reference"`
+	Balance                 string                        `json:"balance"`
+	HoldStartDate           int64                         `json:"holdStartDate"`
+	PulseDepositUnHold      int64                         `json:"holdReleaseDate"`
+	MigrationDaemonConfirms []appfoundation.DaemonConfirm `json:"confirmerReferences"`
+	Amount                  string                        `json:"amount"`
+	TxHash                  string                        `json:"ethTxHash"`
+	VestingType             appfoundation.VestingType     `json:"vestingType"`
+	Lockup                  int64                         `json:"lockup"`
+	Vesting                 int64                         `json:"vesting"`
+	VestingStep             int64                         `json:"vestingStep"`
 }
 
 // PrototypeReference to prototype of this contract
@@ -91,12 +89,18 @@ func GetPrototype() insolar.Reference {
 }
 
 // New is constructor
-func New(txHash string, lockup int64, vesting int64, vestingStep int64) *ContractConstructorHolder {
-	var args [4]interface{}
-	args[0] = txHash
-	args[1] = lockup
-	args[2] = vesting
-	args[3] = vestingStep
+func New(balance string, pulseDepositUnHold pulse.Number, confirms []appfoundation.DaemonConfirm, amount string, txHash string, vestingType appfoundation.VestingType, lockup int64, vesting int64, vestingStep int64, isConfirmed bool) *ContractConstructorHolder {
+	var args [10]interface{}
+	args[0] = balance
+	args[1] = pulseDepositUnHold
+	args[2] = confirms
+	args[3] = amount
+	args[4] = txHash
+	args[5] = vestingType
+	args[6] = lockup
+	args[7] = vesting
+	args[8] = vestingStep
+	args[9] = isConfirmed
 
 	var argsSerialized []byte
 	err := common.CurrentProxyCtx.Serialize(args, &argsSerialized)

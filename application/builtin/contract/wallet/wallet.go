@@ -10,7 +10,9 @@ import (
 
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
+	"github.com/insolar/insolar/pulse"
 
+	"github.com/insolar/mainnet/application/appfoundation"
 	depositContract "github.com/insolar/mainnet/application/builtin/contract/deposit"
 	"github.com/insolar/mainnet/application/builtin/proxy/account"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
@@ -110,8 +112,19 @@ func (w *Wallet) FindDeposit(transactionHash string) (bool, *insolar.Reference, 
 }
 
 // FindOrCreateDeposit finds deposit for this wallet with this transaction hash or creates new one with link in this wallet.
-func (w *Wallet) FindOrCreateDeposit(transactionHash string, lockup int64, vesting int64, vestingStep int64) (*insolar.Reference, error) {
-	found, dRef, err := w.FindDeposit(transactionHash)
+func (w *Wallet) FindOrCreateDeposit(
+	balance string,
+	pulseDepositUnHold pulse.Number,
+	confirms []appfoundation.DaemonConfirm,
+	amount string,
+	txHash string,
+	vestingType appfoundation.VestingType,
+	lockup int64,
+	vesting int64,
+	vestingStep int64,
+	isConfirmed bool,
+) (*insolar.Reference, error) {
+	found, dRef, err := w.FindDeposit(txHash)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find deposit: %s", err.Error())
 	}
@@ -120,14 +133,25 @@ func (w *Wallet) FindOrCreateDeposit(transactionHash string, lockup int64, vesti
 		return dRef, nil
 	}
 
-	dHolder := deposit.New(transactionHash, lockup, vesting, vestingStep)
+	dHolder := deposit.New(
+		balance,
+		pulseDepositUnHold,
+		confirms,
+		amount,
+		txHash,
+		vestingType,
+		lockup,
+		vesting,
+		vestingStep,
+		isConfirmed,
+	)
 	txDeposit, err := dHolder.AsChild(w.GetReference())
 	if err != nil {
 		return nil, fmt.Errorf("failed to save deposit as child: %s", err.Error())
 	}
 
 	ref := txDeposit.GetReference()
-	w.Deposits[transactionHash] = ref.String()
+	w.Deposits[txHash] = ref.String()
 
 	return &ref, err
 }

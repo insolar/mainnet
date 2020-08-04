@@ -213,6 +213,15 @@ func (mA *MigrationAdmin) GetDepositParameters() (*VestingParams, error) {
 	return mA.VestingParams, nil
 }
 
+// GetLinearDepositParameters returns hardcoded deposit parameters to make supplementary migration deposit for regular users.
+func (mA *MigrationAdmin) GetLinearDepositParameters() (*VestingParams, error) {
+	return &VestingParams{
+		Lockup:      3 * 365 * 24 * 60 * 60, // three years
+		Vesting:     182 * 24 * 60 * 60,     // half a year
+		VestingStep: 24 * 60 * 60,           // 1 day
+	}, nil
+}
+
 // GetMigrationDaemonByMemberRef get migration daemon contract with  reference on MigrationDaemonMember.
 // ins:immutable
 func (mA *MigrationAdmin) GetMigrationDaemonByMemberRef(memberRef string) (insolar.Reference, error) {
