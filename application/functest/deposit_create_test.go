@@ -51,11 +51,9 @@ func TestDepositCreate(t *testing.T) {
 		}, targetMember)
 		require.Error(t, err)
 		requesterError, ok := err.(*requester.Error)
-		if ok {
-			trace := strings.Join(requesterError.Data.Trace, ": ")
-			require.Contains(t, trace, "only migration admin can call this method")
-		}
-
+		require.True(t, ok)
+		trace := strings.Join(requesterError.Data.Trace, ": ")
+		require.Contains(t, trace, "only migration admin can call this method")
 	})
 
 	t.Run("invalid_target_member", func(t *testing.T) {
@@ -71,10 +69,9 @@ func TestDepositCreate(t *testing.T) {
 		})
 		require.Error(t, err)
 		requesterError, ok := err.(*requester.Error)
-		if ok {
-			trace := strings.Join(requesterError.Data.Trace, ": ")
-			require.Contains(t, trace, "actual deposit ref is nil or deposit doesn't exist")
-		}
+		require.True(t, ok)
+		trace := strings.Join(requesterError.Data.Trace, ": ")
+		require.Contains(t, trace, "actual deposit ref is nil or deposit doesn't exist")
 	})
 
 	t.Run("invalid_target_deposit", func(t *testing.T) {
@@ -89,10 +86,9 @@ func TestDepositCreate(t *testing.T) {
 		})
 		require.Error(t, err)
 		requesterError, ok := err.(*requester.Error)
-		if ok {
-			trace := strings.Join(requesterError.Data.Trace, ": ")
-			require.Contains(t, trace, "failed to get deposit itself")
-		}
+		require.True(t, ok)
+		trace := strings.Join(requesterError.Data.Trace, ": ")
+		require.Contains(t, trace, "failed to get deposit itself")
 	})
 }
 
