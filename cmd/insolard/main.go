@@ -25,6 +25,7 @@ import (
 	"github.com/insolar/mainnet/application"
 	"github.com/insolar/mainnet/application/appfoundation"
 	appbuiltin "github.com/insolar/mainnet/application/builtin"
+	"github.com/insolar/mainnet/cmd/insolard/genesisstate"
 )
 
 func main() {
@@ -115,7 +116,7 @@ func runHeavyNode(configPath string, genesisConfigPath string, db string, genesi
 		log.Fatal(errors.Wrap(err, "failed to get API info response"))
 	}
 
-	states, _ := initStates(genesisConfigPath)
+	states, _ := genesisstate.InitStates(genesisConfigPath)
 	s := server.NewHeavyServer(
 		holder,
 		genesisConfigPath,
