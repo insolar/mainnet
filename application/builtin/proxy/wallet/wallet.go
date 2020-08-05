@@ -563,17 +563,17 @@ func (r *Wallet) FindDeposit(transactionHash string) (bool, *insolar.Reference, 
 }
 
 // FindOrCreateDeposit is proxy generated method
-func (r *Wallet) FindOrCreateDeposit(balance string, pulseDepositUnHold pulse.Number, confirms []appfoundation.DaemonConfirm, amount string, txHash string, vestingType appfoundation.VestingType, lockup int64, vesting int64, vestingStep int64, isConfirmed bool) (*insolar.Reference, error) {
+func (r *Wallet) FindOrCreateDeposit(txHash string, lockup int64, vesting int64, vestingStep int64, balance string, pulseDepositUnHold pulse.Number, confirms []appfoundation.DaemonConfirm, amount string, vestingType appfoundation.VestingType, isConfirmed bool) (*insolar.Reference, error) {
 	var args [10]interface{}
-	args[0] = balance
-	args[1] = pulseDepositUnHold
-	args[2] = confirms
-	args[3] = amount
-	args[4] = txHash
-	args[5] = vestingType
-	args[6] = lockup
-	args[7] = vesting
-	args[8] = vestingStep
+	args[0] = txHash
+	args[1] = lockup
+	args[2] = vesting
+	args[3] = vestingStep
+	args[4] = balance
+	args[5] = pulseDepositUnHold
+	args[6] = confirms
+	args[7] = amount
+	args[8] = vestingType
 	args[9] = isConfirmed
 
 	var argsSerialized []byte
@@ -612,17 +612,17 @@ func (r *Wallet) FindOrCreateDeposit(balance string, pulseDepositUnHold pulse.Nu
 }
 
 // FindOrCreateDepositAsImmutable is proxy generated method
-func (r *Wallet) FindOrCreateDepositAsImmutable(balance string, pulseDepositUnHold pulse.Number, confirms []appfoundation.DaemonConfirm, amount string, txHash string, vestingType appfoundation.VestingType, lockup int64, vesting int64, vestingStep int64, isConfirmed bool) (*insolar.Reference, error) {
+func (r *Wallet) FindOrCreateDepositAsImmutable(txHash string, lockup int64, vesting int64, vestingStep int64, balance string, pulseDepositUnHold pulse.Number, confirms []appfoundation.DaemonConfirm, amount string, vestingType appfoundation.VestingType, isConfirmed bool) (*insolar.Reference, error) {
 	var args [10]interface{}
-	args[0] = balance
-	args[1] = pulseDepositUnHold
-	args[2] = confirms
-	args[3] = amount
-	args[4] = txHash
-	args[5] = vestingType
-	args[6] = lockup
-	args[7] = vesting
-	args[8] = vestingStep
+	args[0] = txHash
+	args[1] = lockup
+	args[2] = vesting
+	args[3] = vestingStep
+	args[4] = balance
+	args[5] = pulseDepositUnHold
+	args[6] = confirms
+	args[7] = amount
+	args[8] = vestingType
 	args[9] = isConfirmed
 
 	var argsSerialized []byte

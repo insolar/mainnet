@@ -461,18 +461,7 @@ func (m *Member) depositCreateCall(params map[string]interface{}) (interface{}, 
 		ZeroBalance    = "0"
 		FullyConfirmed = true
 	)
-	newDeposit, err := targetWalletObj.FindOrCreateDeposit(
-		ZeroBalance,
-		pulseDepositUnHold,
-		depositInfo.MigrationDaemonConfirms,
-		depositInfo.Amount,
-		newTxHash,
-		appfoundation.LinearVesting,
-		vestingParams.Lockup,
-		vestingParams.Vesting,
-		vestingParams.VestingStep,
-		FullyConfirmed,
-	)
+	newDeposit, err := targetWalletObj.FindOrCreateDeposit(newTxHash, vestingParams.Lockup, vestingParams.Vesting, vestingParams.VestingStep, ZeroBalance, pulseDepositUnHold, depositInfo.MigrationDaemonConfirms, depositInfo.Amount, appfoundation.LinearVesting, FullyConfirmed)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to find or create deposit")
 	}

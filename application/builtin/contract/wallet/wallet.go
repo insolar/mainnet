@@ -112,18 +112,7 @@ func (w *Wallet) FindDeposit(transactionHash string) (bool, *insolar.Reference, 
 }
 
 // FindOrCreateDeposit finds deposit for this wallet with this transaction hash or creates new one with link in this wallet.
-func (w *Wallet) FindOrCreateDeposit(
-	balance string,
-	pulseDepositUnHold pulse.Number,
-	confirms []appfoundation.DaemonConfirm,
-	amount string,
-	txHash string,
-	vestingType appfoundation.VestingType,
-	lockup int64,
-	vesting int64,
-	vestingStep int64,
-	isConfirmed bool,
-) (*insolar.Reference, error) {
+func (w *Wallet) FindOrCreateDeposit(txHash string, lockup int64, vesting int64, vestingStep int64, balance string, pulseDepositUnHold pulse.Number, confirms []appfoundation.DaemonConfirm, amount string, vestingType appfoundation.VestingType, isConfirmed bool) (*insolar.Reference, error) {
 	found, dRef, err := w.FindDeposit(txHash)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find deposit: %s", err.Error())
@@ -133,18 +122,7 @@ func (w *Wallet) FindOrCreateDeposit(
 		return dRef, nil
 	}
 
-	dHolder := deposit.New(
-		balance,
-		pulseDepositUnHold,
-		confirms,
-		amount,
-		txHash,
-		vestingType,
-		lockup,
-		vesting,
-		vestingStep,
-		isConfirmed,
-	)
+	dHolder := deposit.New(txHash, lockup, vesting, vestingStep, balance, pulseDepositUnHold, confirms, amount, vestingType, isConfirmed)
 	txDeposit, err := dHolder.AsChild(w.GetReference())
 	if err != nil {
 		return nil, fmt.Errorf("failed to save deposit as child: %s", err.Error())

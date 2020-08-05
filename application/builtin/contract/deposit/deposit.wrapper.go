@@ -765,21 +765,21 @@ func INSCONSTRUCTOR_New(ref insolar.Reference, data []byte) (state []byte, resul
 	args := make([]interface{}, 10)
 	var args0 string
 	args[0] = &args0
-	var args1 pulse.Number
+	var args1 int64
 	args[1] = &args1
-	var args2 []appfoundation.DaemonConfirm
+	var args2 int64
 	args[2] = &args2
-	var args3 string
+	var args3 int64
 	args[3] = &args3
 	var args4 string
 	args[4] = &args4
-	var args5 appfoundation.VestingType
+	var args5 pulse.Number
 	args[5] = &args5
-	var args6 int64
+	var args6 []appfoundation.DaemonConfirm
 	args[6] = &args6
-	var args7 int64
+	var args7 string
 	args[7] = &args7
-	var args8 int64
+	var args8 appfoundation.VestingType
 	args[8] = &args8
 	var args9 bool
 	args[9] = &args9

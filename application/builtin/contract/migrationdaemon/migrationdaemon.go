@@ -114,17 +114,7 @@ func (md *MigrationDaemon) depositMigration(
 		DefaultVestingType          = appfoundation.DefaultVesting
 		NotConfirmed                = false
 	)
-	depositRef, err := w.FindOrCreateDeposit(
-		ZeroBalance,
-		UndefinedDepositUnholdPulse,
-		emptyConfirms,
-		ZeroAmount,
-		txHash,
-		DefaultVestingType,
-		vestingParams.Lockup,
-		vestingParams.Vesting,
-		vestingParams.VestingStep,
-		NotConfirmed)
+	depositRef, err := w.FindOrCreateDeposit(txHash, vestingParams.Lockup, vestingParams.Vesting, vestingParams.VestingStep, ZeroBalance, UndefinedDepositUnholdPulse, emptyConfirms, ZeroAmount, DefaultVestingType, NotConfirmed)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get or create deposit: %s", err.Error())
 	}

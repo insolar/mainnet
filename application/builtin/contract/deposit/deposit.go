@@ -46,18 +46,7 @@ type Deposit struct {
 }
 
 // New creates new deposit.
-func New(
-	balance string,
-	pulseDepositUnHold pulse.Number,
-	confirms []appfoundation.DaemonConfirm,
-	amount string,
-	txHash string,
-	vestingType appfoundation.VestingType,
-	lockup int64,
-	vesting int64,
-	vestingStep int64,
-	isConfirmed bool,
-) (*Deposit, error) {
+func New(txHash string, lockup int64, vesting int64, vestingStep int64, balance string, pulseDepositUnHold pulse.Number, confirms []appfoundation.DaemonConfirm, amount string, vestingType appfoundation.VestingType, isConfirmed bool) (*Deposit, error) {
 
 	if vestingStep > 0 && vesting%vestingStep != 0 {
 		return nil, errors.New("vesting is not multiple of vestingStep")
