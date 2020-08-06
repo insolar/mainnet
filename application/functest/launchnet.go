@@ -7,15 +7,22 @@ package functest
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"math/big"
 	"strconv"
+	"time"
 
+	"github.com/insolar/insolar/insolar/defaults"
+	"github.com/insolar/insolar/testutils"
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/pkg/errors"
 
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
 	"github.com/insolar/mainnet/application"
+	"github.com/insolar/mainnet/application/builtin/contract/deposit"
+	"github.com/insolar/mainnet/application/genesisrefs"
 	"github.com/insolar/mainnet/application/sdk"
 )
 
@@ -197,10 +204,124 @@ func SetInfo() error {
 	if err != nil {
 		return errors.Wrap(err, "[ setInfo ] error sending request")
 	}
+
+	err = PostGenesis()
+	if err != nil {
+		return errors.Wrap(err, "[ setInfo ] failed to execute post genesis")
+	}
 	return nil
 }
 
 func AfterSetup() {
 	Root.Ref = info.RootMember
 	MigrationAdmin.Ref = info.MigrationAdminMember
+}
+
+func PostGenesis() error {
+	fmt.Println("[ PostGenesis ] starting...")
+	err := preparePublicAllocation2()
+	if err != nil {
+		return errors.Wrap(err, "failed to create fund public allocation 2")
+	}
+	return nil
+}
+
+func preparePublicAllocation2() error {
+	insSDK, err := sdk.NewSDK(
+		[]string{launchnet.TestRPCUrl},
+		[]string{launchnet.TestRPCUrlPublic},
+		defaults.LaunchnetConfigDir(),
+		sdk.DefaultOptions)
+	if err != nil {
+		return errors.Wrap(err, "SDK is not initialized")
+	}
+
+	lockupEndDate := time.Now().Unix()
+	_, err = insSDK.CreateFund(strconv.FormatInt(lockupEndDate, 10))
+	if err != nil {
+		return errors.Wrap(err, "failed to call deposit.createFund")
+	}
+
+	migrationAdmin := insSDK.GetMigrationAdminMember()
+	fundAmount, err := getFundBalance(insSDK, migrationAdmin, genesisrefs.FundsDepositName)
+	if err != nil {
+		return errors.Wrap(err, "failed to get deposit balance")
+	}
+	halfAmount := fundAmount.Div(fundAmount, big.NewInt(2))
+	donorUser, donorDeposit, err := prepareFundDonor(insSDK, halfAmount)
+	if err != nil {
+		return errors.Wrap(err, "failed to prepare fund donor")
+	}
+	err = transferFromDepositToDeposit(
+		insSDK,
+		donorUser,
+		donorDeposit,
+		deposit.PublicAllocation2DepositName,
+		migrationAdmin.GetReference(),
+	)
+	if err != nil {
+		return errors.Wrap(err, "failed to transfer money from donor member")
+	}
+	return nil
+}
+
+func getFundBalance(insSDK *sdk.SDK, migrationAdmin sdk.Member, ethHash string) (*big.Int, error) {
+	_, deposits, err := insSDK.GetBalance(migrationAdmin)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to call member.getBalance")
+	}
+
+	for _, d := range deposits {
+		depositJson, err := json.Marshal(d)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to marshal deposit info map")
+		}
+		depositInfo := &deposit.DepositOut{}
+		err = json.Unmarshal(depositJson, depositInfo)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to unmarshal deposit info")
+		}
+
+		if depositInfo.TxHash == ethHash {
+			balance, ok := new(big.Int).SetString(depositInfo.Balance, 10)
+			if !ok {
+				return nil, errors.New("can't parse deposit balance")
+			}
+			return balance, nil
+		}
+	}
+	return nil, errors.New("failed to find deposit")
+}
+
+func prepareFundDonor(insSDK *sdk.SDK, fundAmount *big.Int) (sdk.Member, string, error) {
+	ethHash := testutils.RandomEthHash()
+	amountForMigration := new(big.Int).Div(fundAmount, big.NewInt(10))
+
+	daemons, err := insSDK.GetAndActivateMigrationDaemonMembers()
+	if err != nil {
+		return nil, "", errors.Wrap(err, "failed to get or activate migration daemon members")
+	}
+	donorMember, _, err := insSDK.MigrationCreateMember()
+	if err != nil {
+		return nil, "", errors.Wrap(err, "failed to create fund donor member")
+	}
+	migrationMember := donorMember.(*sdk.MigrationMember)
+	_, err = insSDK.FullMigration(daemons, ethHash, amountForMigration.String(), migrationMember.MigrationAddress)
+	if err != nil {
+		return nil, "", errors.Wrap(err, "failed to migrate donor member")
+	}
+	return donorMember, ethHash, nil
+}
+
+func transferFromDepositToDeposit(insSDK *sdk.SDK,
+	from sdk.Member,
+	fromDepositName string,
+	toDepositName string,
+	toMemberRef string) error {
+
+	_, err := insSDK.TransferFromDepositToDeposit(from, fromDepositName, toDepositName, toMemberRef)
+	if err != nil {
+		return errors.Wrap(err, "failed to call deposit.transferToDeposit")
+	}
+	return nil
 }

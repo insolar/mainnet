@@ -21,6 +21,7 @@ import (
 	"github.com/insolar/insolar/applicationbase/testutils/testresponse"
 	"github.com/insolar/insolar/insolar/secrets"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
+
 	"github.com/insolar/mainnet/application/genesisrefs"
 
 	"github.com/insolar/insolar/api/requester"
@@ -119,6 +120,12 @@ func getDepositBalance(t *testing.T, caller *AppUser, reference string, ethHash 
 	return amount, nil
 }
 
+func getDepositBalanceNoErr(t *testing.T, caller *AppUser, reference string, ethHash string) *big.Int {
+	balance, err := getDepositBalance(t, caller, reference, ethHash)
+	require.NoError(t, err)
+	return balance
+}
+
 func getBalanceAndDepositsNoErr(t *testing.T, caller *AppUser, reference string) (*big.Int, map[string]interface{}) {
 	balance, deposits, err := getBalanceAndDeposits(t, caller, reference)
 	require.NoError(t, err)
@@ -194,11 +201,15 @@ func migrate(t *testing.T, memberRef string, amount string, tx string, ma string
 const migrationAmount = "360000"
 
 func fullMigration(t *testing.T, txHash string) *AppUser {
+	return fullMigrationAmount(t, txHash, migrationAmount)
+}
+
+func fullMigrationAmount(t *testing.T, txHash string, amount string) *AppUser {
 	activeDaemons := activateDaemons(t, countTwoActiveDaemon)
 
 	member := createMigrationMemberForMA(t)
 	for i := range activeDaemons {
-		migrate(t, member.Ref, migrationAmount, txHash, member.MigrationAddress, i)
+		migrate(t, member.Ref, amount, txHash, member.MigrationAddress, i)
 	}
 	return member
 }

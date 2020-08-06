@@ -16,6 +16,7 @@ import (
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation/safemath"
+
 	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
 	"github.com/insolar/mainnet/application/builtin/proxy/member"
@@ -45,23 +46,28 @@ type Deposit struct {
 }
 
 // New creates new deposit.
-func New(txHash string, lockup int64, vesting int64, vestingStep int64) (*Deposit, error) {
+func New(txHash string, lockup int64, vesting int64, vestingStep int64, balance string, pulseDepositUnHold pulse.Number, confirms []appfoundation.DaemonConfirm, amount string, vestingType appfoundation.VestingType, isConfirmed bool) (*Deposit, error) {
 
 	if vestingStep > 0 && vesting%vestingStep != 0 {
 		return nil, errors.New("vesting is not multiple of vestingStep")
 	}
 
 	migrationDaemonConfirms := make(foundation.StableMap)
+	for _, confirm := range confirms {
+		migrationDaemonConfirms[confirm.Reference] = confirm.Amount
+	}
 
 	return &Deposit{
-		Balance:                 "0",
+		Balance:                 balance,
+		PulseDepositUnHold:      pulseDepositUnHold,
 		MigrationDaemonConfirms: migrationDaemonConfirms,
-		Amount:                  "0",
+		Amount:                  amount,
 		TxHash:                  txHash,
 		Lockup:                  lockup,
 		Vesting:                 vesting,
 		VestingStep:             vestingStep,
-		VestingType:             appfoundation.DefaultVesting,
+		VestingType:             vestingType,
+		IsConfirmed:             isConfirmed,
 	}, nil
 }
 
@@ -83,21 +89,17 @@ func NewFund(lockupEndDate int64) (*Deposit, error) {
 
 // Form of Deposit that is applied in API
 type DepositOut struct {
-	Balance                 string                    `json:"balance"`
-	HoldStartDate           int64                     `json:"holdStartDate"`
-	PulseDepositUnHold      int64                     `json:"holdReleaseDate"`
-	MigrationDaemonConfirms []DaemonConfirm           `json:"confirmerReferences"`
-	Amount                  string                    `json:"amount"`
-	TxHash                  string                    `json:"ethTxHash"`
-	VestingType             appfoundation.VestingType `json:"vestingType"`
-	Lockup                  int64                     `json:"lockup"`
-	Vesting                 int64                     `json:"vesting"`
-	VestingStep             int64                     `json:"vestingStep"`
-}
-
-type DaemonConfirm struct {
-	Reference string `json:"reference"`
-	Amount    string `json:"amount"`
+	Ref                     string                        `json:"reference"`
+	Balance                 string                        `json:"balance"`
+	HoldStartDate           int64                         `json:"holdStartDate"`
+	PulseDepositUnHold      int64                         `json:"holdReleaseDate"`
+	MigrationDaemonConfirms []appfoundation.DaemonConfirm `json:"confirmerReferences"`
+	Amount                  string                        `json:"amount"`
+	TxHash                  string                        `json:"ethTxHash"`
+	VestingType             appfoundation.VestingType     `json:"vestingType"`
+	Lockup                  int64                         `json:"lockup"`
+	Vesting                 int64                         `json:"vesting"`
+	VestingStep             int64                         `json:"vestingStep"`
 }
 
 // GetTxHash gets transaction hash.
@@ -121,10 +123,10 @@ func (d *Deposit) GetPulseUnHold() (insolar.PulseNumber, error) {
 // Itself gets deposit information.
 // ins:immutable
 func (d *Deposit) Itself() (interface{}, error) {
-	var daemonConfirms = make([]DaemonConfirm, 0, len(d.MigrationDaemonConfirms))
+	var daemonConfirms = make([]appfoundation.DaemonConfirm, 0, len(d.MigrationDaemonConfirms))
 	var pulseDepositUnHold int64
 	for k, v := range d.MigrationDaemonConfirms {
-		daemonConfirms = append(daemonConfirms, DaemonConfirm{Reference: k, Amount: v})
+		daemonConfirms = append(daemonConfirms, appfoundation.DaemonConfirm{Reference: k, Amount: v})
 	}
 	t, err := d.PulseDepositUnHold.AsApproximateTime()
 	if err == nil {
@@ -135,6 +137,7 @@ func (d *Deposit) Itself() (interface{}, error) {
 		holdStartDate = 0
 	}
 	return &DepositOut{
+		Ref:                     d.GetReference().String(),
 		Balance:                 d.Balance,
 		HoldStartDate:           holdStartDate,
 		PulseDepositUnHold:      pulseDepositUnHold,
@@ -335,11 +338,11 @@ func (d *Deposit) availableAmount() (*big.Int, error) {
 
 	amount, ok := new(big.Int).SetString(d.Amount, 10)
 	if !ok {
-		return nil, errors.New("can't parse derposit amount")
+		return nil, errors.New("can't parse deposit amount")
 	}
 	balance, ok := new(big.Int).SetString(d.Balance, 10)
 	if !ok {
-		return nil, errors.New("can't parse derposit balance")
+		return nil, errors.New("can't parse deposit balance")
 	}
 
 	// Allow to transfer whole balance if vesting period has already finished
