@@ -90,6 +90,30 @@ func TestDepositCreate(t *testing.T) {
 		trace := strings.Join(requesterError.Data.Trace, ": ")
 		require.Contains(t, trace, "failed to get deposit itself")
 	})
+
+	t.Run("double_creation", func(t *testing.T) {
+		ethHash := testutils.RandomEthHash()
+		targetMember := fullMigration(t, ethHash)
+		targetDeposit := getDepositReference(t, targetMember, ethHash)
+
+		// make call
+		err := registerDepositCreateAdminCall(t, map[string]interface{}{
+			"depositReference": targetDeposit,
+			"memberReference":  targetMember.Ref,
+		})
+		require.NoError(t, err)
+
+		// try to create it again
+		err = registerDepositCreateAdminCall(t, map[string]interface{}{
+			"depositReference": targetDeposit,
+			"memberReference":  targetMember.Ref,
+		})
+		require.Error(t, err)
+		requesterError, ok := err.(*requester.Error)
+		require.True(t, ok)
+		trace := strings.Join(requesterError.Data.Trace, ": ")
+		require.Contains(t, trace, "linear deposit is already created")
+	})
 }
 
 func registerDepositCreateAdminCall(t *testing.T, params map[string]interface{}) error {
