@@ -106,6 +106,19 @@ func getAdminDepositBalance(t *testing.T, caller *AppUser, reference string) (*b
 	return amount, nil
 }
 
+func getDepositBalance(t *testing.T, caller *AppUser, reference string, ethHash string) (*big.Int, error) {
+	_, deposits := getBalanceAndDepositsNoErr(t, caller, reference)
+	mapd, ok := deposits[ethHash].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("can't parse deposit")
+	}
+	amount, ok := new(big.Int).SetString(mapd["balance"].(string), 10)
+	if !ok {
+		return nil, fmt.Errorf("can't parse deposit balance")
+	}
+	return amount, nil
+}
+
 func getBalanceAndDepositsNoErr(t *testing.T, caller *AppUser, reference string) (*big.Int, map[string]interface{}) {
 	balance, deposits, err := getBalanceAndDeposits(t, caller, reference)
 	require.NoError(t, err)

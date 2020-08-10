@@ -10,6 +10,7 @@ import (
 	"math/big"
 	"strings"
 
+	"github.com/insolar/insolar/pulse"
 	"github.com/pkg/errors"
 
 	"github.com/insolar/insolar/insolar"
@@ -24,7 +25,10 @@ import (
 	"github.com/insolar/mainnet/application/genesisrefs"
 )
 
-const numConfirmation = 2
+const (
+	numConfirmation              = 2
+	PublicAllocation2DepositName = "genesis_deposit2"
+)
 
 // Deposit is like an account. But it holds migrated money.
 type Deposit struct {
@@ -59,6 +63,22 @@ func New(txHash string, lockup int64, vesting int64, vestingStep int64) (*Deposi
 		Vesting:                 vesting,
 		VestingStep:             vestingStep,
 		VestingType:             appfoundation.DefaultVesting,
+	}, nil
+}
+
+// NewFund creates new public allocation 2 deposit
+func NewFund(lockupEndDate int64) (*Deposit, error) {
+	unholdPulse := pulse.OfUnixTime(lockupEndDate)
+	return &Deposit{
+		Balance:            "0",
+		Amount:             "0",
+		PulseDepositUnHold: unholdPulse,
+		VestingType:        appfoundation.Vesting2,
+		TxHash:             PublicAllocation2DepositName,
+		Lockup:             int64(unholdPulse - pulse.MinTimePulse),
+		Vesting:            0,
+		VestingStep:        0,
+		IsConfirmed:        true,
 	}, nil
 }
 
@@ -184,8 +204,7 @@ func (d *Deposit) Confirm(
 			}
 
 			err = deposit.GetObject(*maDeposit).TransferToDeposit(
-				amountStr, d.GetReference(), appfoundation.GetMigrationAdminMember(), request, toMember,
-			)
+				amountStr, d.GetReference(), appfoundation.GetMigrationAdminMember(), request, toMember, string(appfoundation.TTypeMigration))
 			if err != nil {
 				return errors.Wrap(err, "failed to transfer from migration deposit to deposit")
 			}
@@ -207,6 +226,7 @@ func (d *Deposit) TransferToDeposit(
 	fromMember insolar.Reference,
 	request insolar.Reference,
 	toMember insolar.Reference,
+	txType string,
 ) error {
 	amount, ok := new(big.Int).SetString(amountStr, 10)
 	if !ok {

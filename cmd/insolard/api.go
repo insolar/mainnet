@@ -63,7 +63,10 @@ func initAPIOptions() (api.Options, error) {
 		"migration.addAddresses":     true,
 		"migration.getAddressCount":  true,
 		"deposit.migration":          true,
+		"deposit.createFund":         true,
 		"member.getBalance":          true,
+		"account.transferToDeposit":  true,
+		"deposit.transferToDeposit":  true,
 	}
 	contractMethods := map[string]bool{
 		"member.create":          true,

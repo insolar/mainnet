@@ -10,11 +10,15 @@ import (
 
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
+
+	depositContract "github.com/insolar/mainnet/application/builtin/contract/deposit"
 	"github.com/insolar/mainnet/application/builtin/proxy/account"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
 )
 
-const XNS = "XNS"
+const (
+	XNS = "XNS"
+)
 
 // Wallet - basic wallet contract.
 type Wallet struct {
@@ -126,4 +130,17 @@ func (w *Wallet) FindOrCreateDeposit(transactionHash string, lockup int64, vesti
 	w.Deposits[transactionHash] = ref.String()
 
 	return &ref, err
+}
+
+// CreateFund creates new one public allocation 2 deposit with specified lockup end date.
+func (w *Wallet) CreateFund(lockupEndDate int64) (*insolar.Reference, error) {
+	depositHolder := deposit.NewFund(lockupEndDate)
+	fund, err := depositHolder.AsChild(w.GetReference())
+	if err != nil {
+		return nil, fmt.Errorf("failed to save deposit as child: %s", err.Error())
+	}
+
+	ref := fund.GetReference()
+	w.Deposits[depositContract.PublicAllocation2DepositName] = ref.String()
+	return &ref, nil
 }

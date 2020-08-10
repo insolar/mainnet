@@ -992,6 +992,303 @@ paths:
                     id: 1
                     result:
                       specification: as a free-form JSON object
+  '/admin-api/rpc#account.transferToDeposit':
+    post:
+      summary: account.transferToDeposit
+      description: >
+        Transfers XNS coin fractions from a member's current account to the
+        deposit of another member.
+
+
+        To invoke this method, specify the following parameters:
+
+
+        * in `params`, `reference` to the sender's member object;
+
+        * in `callParams`:
+          * `toDepositName`—name of the receiver's deposit to send the funs to;
+          * `amount`—amount of XNS coin fractions to send;
+          * `toMemberReference`—reference to the receiver's member object.
+      operationId: account.transferToDeposit
+      tags:
+        - Member
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - account.transferToDeposit
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - toDepositName
+                            - toMemberReference
+                            - amount
+                          properties:
+                            toDepositName:
+                              type: string
+                              description: Deposit name. Used for deposit identification.
+                              example: genesis_deposit2
+                            toMemberReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: Reference to the receiver's member object.
+                                  example: >-
+                                    insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                            amount:
+                              type: string
+                              description: >
+                                Amount of XNS coin fractions to transfer—a whole
+                                number. The smallest fraction of XNS is
+                                `1/10^10`. To specify the amount in fractions,
+                                multiply XNS by `10^10`. For example: `0.1 XNS =
+                                0.1 * 10^10 = 1000000000`.
+                              example: '1000000000'
+                              pattern: '^[1-9][0-9]*$'
+                              minLength: 1
+                              maxLength: 20
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to your `member` object. Used for
+                                identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          type: string
+                          pattern: >-
+                            ^\s*(-+BEGIN[^-]+-+\s+[a-zA-Z0-9+\/=
+                            \n]+-+END[^-]+-+|[a-zA-Z0-9+\/= \n]+)\s*$
+                          description: >
+                            Public key of your `member` object. Used to check
+                            the `<signatureString>` created by the paired
+                            private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-success'
+                  - $ref: '#/components/schemas/response-signedRequestError'
+  '/admin-api/rpc#deposit.createFund':
+    post:
+      summary: deposit.createFund
+      description: >
+        Utility method that only the migration admin member can call.
+
+
+        Creates a deposit named `genesis_deposit2` for the allocation of 500B of
+        XNS coins from existing funds.
+
+
+        To invoke this method, specify a `lockupEndDate` in `callParams`. Before
+        this date, the coins cannot be moved from the deposit.
+
+
+        Note: This method is to be removed in a future release after the coins
+        are distributed to members.
+      operationId: deposit-create-fund
+      tags:
+        - Daemon
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - deposit.createFund
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - lockupEndDate
+                          properties:
+                            lockupEndDate:
+                              type: string
+                              description: >-
+                                End date of the lockup. During the lockup, coins
+                                cannot be moved.
+                              example: '1599868800'
+                              pattern: '^[0-9]{10}$'
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to `migrationAdminMember`. Can be
+                                acquired by the `network.getInfo` status
+                                request. Used for identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          description: >
+                            Public key of the `migrationAdminMember` object.
+                            Used to check the `<signatureString>` created by the
+                            paired private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-success'
+                  - $ref: '#/components/schemas/response-signedRequestError'
+  '/admin-api/rpc#deposit.transferToDeposit':
+    post:
+      summary: deposit.transferToDeposit
+      description: >
+        Transfer coins between specified deposits.
+
+
+        To invoke this method, specify the following parameters:
+
+
+        * in `params`, `reference` to the sender's member object;
+
+        * in `callParams`: `fromDepositName`—name of the sender's deposit to
+        withdraw the funds from;
+          * `toDepositName`—name of the receiver's deposit to send the funds to;
+          * `toMemberReference`—reference to the receiver's member object.
+      operationId: deposit.transferToDeposit
+      tags:
+        - Member
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - deposit.transferToDeposit
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - fromDepositName
+                            - toDepositName
+                            - toMemberReference
+                          properties:
+                            fromDepositName:
+                              type: string
+                              description: >-
+                                Deposit name or Ethereum transaction's hash.
+                                Used for deposit identification.
+                              example: genesis_deposit
+                            toDepositName:
+                              type: string
+                              description: Deposit name. Used for deposit identification.
+                              example: genesis_deposit2
+                            toMemberReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: Reference to the receiver's member object.
+                                  example: >-
+                                    insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to your `member` object. Used for
+                                identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          type: string
+                          pattern: >-
+                            ^\s*(-+BEGIN[^-]+-+\s+[a-zA-Z0-9+\/=
+                            \n]+-+END[^-]+-+|[a-zA-Z0-9+\/= \n]+)\s*$
+                          description: >
+                            Public key of your `member` object. Used to check
+                            the `<signatureString>` created by the paired
+                            private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-success'
+                  - $ref: '#/components/schemas/response-signedRequestError'
 tags:
   - name: Node
   - name: Member
@@ -1848,4 +2145,3 @@ components:
       required: true
       schema:
         type: string
-
