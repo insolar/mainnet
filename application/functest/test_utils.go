@@ -110,7 +110,11 @@ func getAdminDepositBalance(t *testing.T, caller *AppUser, reference string) (*b
 
 func getDepositBalance(t *testing.T, caller *AppUser, reference string, ethHash string) (*big.Int, error) {
 	_, deposits := getBalanceAndDepositsNoErr(t, caller, reference)
-	mapd, ok := deposits[ethHash].(map[string]interface{})
+	mapFace, ok := deposits[ethHash]
+	if !ok {
+		return nil, fmt.Errorf("deposit with this ethHash is missing in the wallet")
+	}
+	mapd, ok := mapFace.(map[string]interface{})
 	if !ok {
 		return nil, fmt.Errorf("can't parse deposit")
 	}
@@ -361,7 +365,7 @@ func getAddressCount(t *testing.T, startWithIndex int) map[int]int {
 	return migrationShardsMap
 }
 
-func verifyFundsMembersAndDeposits(t *testing.T, m *AppUser, expectedBalance string) error {
+func verifyFundsMembersAndDeposits(t *testing.T, m *AppUser, expectedAmount, expectedBalance string) error {
 	res2, err := testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m, "member.get", nil)
 	if err != nil {
 		return err
@@ -376,7 +380,7 @@ func verifyFundsMembersAndDeposits(t *testing.T, m *AppUser, expectedBalance str
 		return errors.New("balance should be zero, current value: " + balance.String())
 	}
 	deposit, ok := deposits["genesis_deposit"].(map[string]interface{})
-	if deposit["amount"] != expectedBalance {
+	if deposit["amount"] != expectedAmount {
 		return errors.New(fmt.Sprintf("deposit amount should be %s, current value: %s", expectedBalance, deposit["amount"]))
 	}
 	if deposit["balance"] != expectedBalance {

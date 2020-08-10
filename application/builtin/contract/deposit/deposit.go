@@ -8,6 +8,7 @@ package deposit
 import (
 	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/insolar/insolar/pulse"
 	"github.com/pkg/errors"
@@ -19,6 +20,7 @@ import (
 	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
 	"github.com/insolar/mainnet/application/builtin/proxy/member"
+	"github.com/insolar/mainnet/application/builtin/proxy/migrationadmin"
 	"github.com/insolar/mainnet/application/builtin/proxy/wallet"
 	"github.com/insolar/mainnet/application/genesisrefs"
 )
@@ -218,6 +220,12 @@ func (d *Deposit) Confirm(txHash string, proposedAmount string, migrationDaemonR
 	}
 	d.PulseDepositUnHold = currentPulse + insolar.PulseNumber(d.Lockup)
 	d.IsConfirmed = true
+
+	// create additional deposit with linear vesting process
+	err = d.createAdditionalDeposit(requestRef, toMember)
+	if err != nil {
+		return errors.Wrap(err, "failed to create additional linear deposit")
+	}
 	return nil
 }
 
@@ -298,6 +306,78 @@ func (d *Deposit) acquireFundAssets(amount string, requestRef insolar.Reference,
 		return errors.Wrap(err, "failed to transfer from migration deposit to deposit")
 	}
 	return nil
+}
+
+func (d *Deposit) createAdditionalDeposit(requestRef insolar.Reference, targetMember insolar.Reference) error {
+	// get target wallet object
+	targetWallet, err := member.GetObject(targetMember).GetWallet()
+	if err != nil {
+		if strings.Contains(err.Error(), "index not found") {
+			return fmt.Errorf("target member does not exist")
+		}
+		return errors.Wrap(err, "failed to get target wallet")
+	}
+	targetWalletObj := wallet.GetObject(*targetWallet)
+
+	// get target deposit info
+	depositInfoFace, err := d.Itself()
+	if err != nil {
+		return errors.Wrap(err, "failed to get deposit itself")
+	}
+
+	depositInfo, ok := depositInfoFace.(*DepositOut)
+	if !ok {
+		return fmt.Errorf("failed to assert deposit.Itseft() result to *deposit.DepositOut actualType=%T",
+			depositInfoFace)
+	}
+
+	// calc new vesting parameters
+	vestingParams, err := migrationadmin.GetObject(appfoundation.GetMigrationAdmin()).GetLinearDepositParameters()
+	if err != nil {
+		return errors.Wrap(err, "failed to get linear deposit parameters")
+	}
+	pulseDepositUnHold := pulse.Number(depositInfo.HoldStartDate + vestingParams.Lockup)
+
+	// try to create new deposit
+	newTxHash := depositInfo.TxHash + "_2"
+	const (
+		ZeroBalance    = "0"
+		FullyConfirmed = true
+	)
+	newDeposit, err := targetWalletObj.FindOrCreateDeposit(
+		newTxHash,
+		vestingParams.Lockup,
+		vestingParams.Vesting,
+		vestingParams.VestingStep,
+		ZeroBalance,
+		pulseDepositUnHold,
+		depositInfo.MigrationDaemonConfirms,
+		depositInfo.Amount,
+		appfoundation.LinearVesting,
+		FullyConfirmed,
+	)
+	if err != nil {
+		return errors.Wrap(err, "failed to find or create deposit")
+	}
+
+	// migrate money to new deposit
+	maRef := appfoundation.GetMigrationAdminMember()
+	ma := member.GetObject(maRef)
+	adminWalletRef, err := ma.GetWallet()
+	if err != nil {
+		return errors.Wrap(err, "failed to get wallet")
+	}
+	ok, fund, _ := wallet.GetObject(*adminWalletRef).FindDeposit(PublicAllocation2DepositName)
+	if !ok {
+		return fmt.Errorf("failed to find source deposit - %s", adminWalletRef.String())
+	}
+	return deposit.GetObject(*fund).TransferToDeposit(
+		depositInfo.Amount,
+		*newDeposit,
+		maRef,
+		requestRef,
+		targetMember,
+	)
 }
 
 func (d *Deposit) availableAmount() (*big.Int, error) {
