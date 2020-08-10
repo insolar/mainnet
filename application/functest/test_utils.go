@@ -53,6 +53,7 @@ type rpcInfoResponse struct {
 }
 
 func checkConvertRequesterError(t *testing.T, err error) *requester.Error {
+	require.Error(t, err)
 	rv, ok := err.(*requester.Error)
 	require.Truef(t, ok, "got wrong error %T (expected *requester.Error) with text '%s'", err, err.Error())
 	return rv

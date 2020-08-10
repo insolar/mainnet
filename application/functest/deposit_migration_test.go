@@ -331,46 +331,6 @@ func TestMigration_WrongFirstAmount(t *testing.T) {
 	require.Equal(t, "1000", confirmations[MigrationDaemons[2].Ref])
 }
 
-func TestMigration_WrongThirdAmount(t *testing.T) {
-	activateDaemons(t, countThreeActiveDaemon)
-
-	member := createMigrationMemberForMA(t)
-
-	ethHash := testutils.RandomEthHash()
-
-	_, err := testrequest.SignedRequest(t,
-		launchnet.TestRPCUrl,
-		MigrationDaemons[0], "deposit.migration",
-		map[string]interface{}{"amount": "100", "ethTxHash": ethHash, "migrationAddress": member.MigrationAddress})
-	require.NoError(t, err)
-
-	_, err = testrequest.SignedRequest(t,
-		launchnet.TestRPCUrl,
-		MigrationDaemons[1], "deposit.migration",
-		map[string]interface{}{"amount": "100", "ethTxHash": ethHash, "migrationAddress": member.MigrationAddress})
-	require.NoError(t, err)
-
-	_, _, err = testrequest.MakeSignedRequest(
-		launchnet.TestRPCUrl,
-		MigrationDaemons[2],
-		"deposit.migration",
-		map[string]interface{}{"amount": "200", "ethTxHash": ethHash, "migrationAddress": member.MigrationAddress})
-	data := checkConvertRequesterError(t, err).Data
-	require.Contains(t, data.Trace, fmt.Sprintf("migration is done for this deposit %s, but with different amount", ethHash))
-
-	_, deposits := getBalanceAndDepositsNoErr(t, member, member.Ref)
-	deposit, ok := deposits[ethHash].(map[string]interface{})
-	require.True(t, ok)
-	require.Equal(t, ethHash, deposit["ethTxHash"])
-	require.Equal(t, "1000", deposit["amount"])
-	memberBalance := deposit["balance"].(string)
-	require.Equal(t, "1000", memberBalance)
-	confirmations := deposit["confirmerReferences"].(map[string]interface{})
-	require.Equal(t, "1000", confirmations[MigrationDaemons[0].Ref])
-	require.Equal(t, "1000", confirmations[MigrationDaemons[1].Ref])
-	require.Equal(t, "2000", confirmations[MigrationDaemons[2].Ref])
-}
-
 func TestMigration_WrongAllAmount(t *testing.T) {
 	activateDaemons(t, countThreeActiveDaemon)
 
