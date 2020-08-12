@@ -19,20 +19,19 @@ import (
 
 func TestDepositCreateFund(t *testing.T) {
 	lockupEndDate := time.Now().Unix()
-	ref, err := registerCreateFundCall(t, map[string]interface{}{
+	err := registerCreateFundCall(t, map[string]interface{}{
 		"lockupEndDate": strconv.FormatInt(lockupEndDate, 10),
 	})
 	require.NoError(t, err)
-	require.NotNil(t, ref)
 
 	_, deposits := getBalanceAndDepositsNoErr(t, &MigrationAdmin, MigrationAdmin.Ref)
 	require.Contains(t, deposits, "genesis_deposit2")
 }
 
-func registerCreateFundCall(t *testing.T, params map[string]interface{}) (string, error) {
-	res, err := testrequest.SignedRequest(t, launchnet.TestRPCUrl, &MigrationAdmin, "deposit.createFund", params)
+func registerCreateFundCall(t *testing.T, params map[string]interface{}) error {
+	_, err := testrequest.SignedRequest(t, launchnet.TestRPCUrl, &MigrationAdmin, "deposit.createFund", params)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return res.(string), nil
+	return nil
 }

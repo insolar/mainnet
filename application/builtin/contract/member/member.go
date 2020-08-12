@@ -17,6 +17,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/insolar/mainnet/application/appfoundation"
+	depositContract "github.com/insolar/mainnet/application/builtin/contract/deposit"
 	walletContract "github.com/insolar/mainnet/application/builtin/contract/wallet"
 	"github.com/insolar/mainnet/application/builtin/proxy/account"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
@@ -378,7 +379,17 @@ func (m *Member) createFundCall(params map[string]interface{}) (interface{}, err
 		return nil, errors.Wrap(err, "failed to parse timestamp value")
 	}
 
-	return wallet.GetObject(m.Wallet).CreateFund(lockupEndDate)
+	walletObj := wallet.GetObject(m.Wallet)
+	found, dRef, err := walletObj.FindDeposit(depositContract.PublicAllocation2DepositName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find deposit: %s", err.Error())
+	}
+	if found {
+		return nil, fmt.Errorf("fund already created depositRef=%s", dRef.String())
+	}
+
+	_, err = walletObj.CreateFund(lockupEndDate)
+	return map[string]interface{}{}, err
 }
 
 func (m *Member) accountTransferToDepositCall(params map[string]interface{}) (interface{}, error) {
