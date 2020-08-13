@@ -12,6 +12,8 @@ import (
 	"github.com/insolar/mainnet/application/genesisrefs"
 )
 
+const AllowedVersionSmartContract = 2
+
 // Get reference CostCenter contract.
 func GetCostCenter() insolar.Reference {
 	return genesisrefs.ContractCostCenter
