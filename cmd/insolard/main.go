@@ -7,6 +7,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/insolar/mainnet/application/appfoundation"
 	"io/ioutil"
 	"path/filepath"
 
@@ -125,6 +126,7 @@ func runHeavyNode(configPath string, genesisConfigPath string, db string, genesi
 		},
 		genesisOnly,
 		apiOptions,
+		appfoundation.AllowedVersionSmartContract,
 	)
 	s.Serve()
 }
