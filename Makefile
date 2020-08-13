@@ -9,6 +9,7 @@ INSOLAR = insolar
 INSOLARD = insolard
 BENCHMARK = benchmark
 AIRDROP = airdrop
+INTEGRUM = integrum
 REQUESTER= requester
 
 ALL_PACKAGES = ./...
@@ -90,7 +91,7 @@ vendor: ## update vendor dependencies
 	go mod vendor
 
 .PHONY: build
-build: $(BIN_DIR) $(INSOLARD) $(INSOLAR) $(BENCHMARK)  $(AIRDROP) $(REQUESTER)## build all binaries
+build: $(BIN_DIR) $(INSOLARD) $(INSOLAR) $(BENCHMARK) $(AIRDROP) $(INTEGRUM) $(REQUESTER)## build all binaries
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
@@ -109,6 +110,10 @@ $(BENCHMARK):
 .PHONY: $(AIRDROP)
 $(AIRDROP):
 	$(GOBUILD) -o $(BIN_DIR)/$(AIRDROP) -ldflags "${LDFLAGS}" application/cmd/airdrop/*.go
+
+.PHONY: $(INTEGRUM)
+$(INTEGRUM):
+	$(GOBUILD) -o $(BIN_DIR)/$(INTEGRUM) -ldflags "${LDFLAGS}" application/cmd/integrum/*.go
 
 .PHONY: $(REQUESTER)
 $(REQUESTER):
