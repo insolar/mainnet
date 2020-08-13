@@ -502,12 +502,12 @@ func (r *Deposit) Itself() (interface{}, error) {
 }
 
 // Confirm is proxy generated method
-func (r *Deposit) Confirm(txHash string, amountStr string, fromMember insolar.Reference, request insolar.Reference, toMember insolar.Reference) error {
+func (r *Deposit) Confirm(txHash string, proposedAmount string, migrationDaemonRef insolar.Reference, requestRef insolar.Reference, toMember insolar.Reference) error {
 	var args [5]interface{}
 	args[0] = txHash
-	args[1] = amountStr
-	args[2] = fromMember
-	args[3] = request
+	args[1] = proposedAmount
+	args[2] = migrationDaemonRef
+	args[3] = requestRef
 	args[4] = toMember
 
 	var argsSerialized []byte
@@ -544,12 +544,12 @@ func (r *Deposit) Confirm(txHash string, amountStr string, fromMember insolar.Re
 }
 
 // ConfirmAsImmutable is proxy generated method
-func (r *Deposit) ConfirmAsImmutable(txHash string, amountStr string, fromMember insolar.Reference, request insolar.Reference, toMember insolar.Reference) error {
+func (r *Deposit) ConfirmAsImmutable(txHash string, proposedAmount string, migrationDaemonRef insolar.Reference, requestRef insolar.Reference, toMember insolar.Reference) error {
 	var args [5]interface{}
 	args[0] = txHash
-	args[1] = amountStr
-	args[2] = fromMember
-	args[3] = request
+	args[1] = proposedAmount
+	args[2] = migrationDaemonRef
+	args[3] = requestRef
 	args[4] = toMember
 
 	var argsSerialized []byte
