@@ -198,7 +198,7 @@ func (d *Deposit) Confirm(txHash string, proposedAmount string, migrationDaemonR
 	if len(d.MigrationDaemonConfirms) < numConfirmation {
 		return nil
 	}
-	amounts := d.toAmounts(d.MigrationDaemonConfirms)
+	amounts := d.amounts()
 	if !d.allAmountsEqual(amounts) {
 		return fmt.Errorf("some of confirmation amounts aren't equal others confirms=%v",
 			d.MigrationDaemonConfirms)
@@ -259,9 +259,9 @@ func (d *Deposit) TransferToDeposit(
 
 }
 
-func (d *Deposit) toAmounts(confirms map[string]string) []string {
+func (d *Deposit) amounts() []string {
 	var amounts []string
-	for _, amount := range confirms {
+	for _, amount := range d.MigrationDaemonConfirms {
 		amounts = append(amounts, amount)
 	}
 	return amounts
