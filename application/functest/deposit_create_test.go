@@ -20,8 +20,9 @@ import (
 )
 
 func TestDepositCreate(t *testing.T) {
+	t.Skip("skipped. due to the lack of test users with old migration type")
+
 	t.Run("happy_path", func(t *testing.T) {
-		t.Skip("skipped. due to the lack of test users with old migration type")
 		ethHash := testutils.RandomEthHash()
 		targetMember := fullMigration(t, ethHash)
 		targetDeposit := getDepositReference(t, targetMember, ethHash)
