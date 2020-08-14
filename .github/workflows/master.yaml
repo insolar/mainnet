@@ -1,0 +1,27 @@
+name: master
+on:
+  push:
+    branches:
+      - master
+env:
+  GO_VERSION: 1.12.15
+jobs:
+  build-and-push:
+    name: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@master
+      - name: gather info
+        id: info
+        run: |
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+          echo "::set-output name=build_date::$(shell ./scripts/dev/git-date-time.sh -d)"
+          echo "::set-output name=build_time::$(shell ./scripts/dev/git-date-time.sh -t)"
+          echo "::set-output name=build_version::latest"
+      - name: pack project
+        run: |
+          docker build -t insolar:${{ steps.info.outputs.build_version }} --pull --build-arg "GOLANG_VERSION=${{env.GO_VERSION}}" --build-arg "BUILD_NUMBER=$GITHUB_RUN_NUMBER" --build-arg "BUILD_DATE=${{ steps.info.outputs.build_date }}" --build-arg "BUILD_TIME=${{ steps.info.outputs.build_time }}" --build-arg "BUILD_HASH=${{ steps.info.outputs.sha_short }}" --build-arg "BUILD_VERSION=${{ steps.info.outputs.build_version }}" .
+          docker tag insolar:${{ steps.info.outputs.build_version }} insolar/mainnet:${{ steps.info.outputs.build_version }}
+          docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }}
+          docker push insolar/mainnet:${{ steps.info.outputs.build_version }}

@@ -369,6 +369,12 @@ func (m *Member) depositMigrationCall(params map[string]interface{}) (interface{
 }
 
 func (m *Member) createFundCall(params map[string]interface{}) (interface{}, error) {
+	// check permissions
+	if !m.GetReference().Equal(appfoundation.GetMigrationAdminMember()) {
+		return nil, fmt.Errorf("only migration admin can call this method")
+	}
+
+	// parse args
 	lockupEndDateStr, ok := params["lockupEndDate"].(string)
 	if !ok {
 		return nil, fmt.Errorf("failed to get 'lockupEndDate' param")
@@ -379,6 +385,7 @@ func (m *Member) createFundCall(params map[string]interface{}) (interface{}, err
 		return nil, errors.Wrap(err, "failed to parse timestamp value")
 	}
 
+	// prevent double creation
 	walletObj := wallet.GetObject(m.Wallet)
 	found, dRef, err := walletObj.FindDeposit(depositContract.PublicAllocation2DepositName)
 	if err != nil {
@@ -388,6 +395,7 @@ func (m *Member) createFundCall(params map[string]interface{}) (interface{}, err
 		return nil, fmt.Errorf("fund already created depositRef=%s", dRef.String())
 	}
 
+	// fund creation
 	_, err = walletObj.CreateFund(lockupEndDate)
 	return map[string]interface{}{}, err
 }
