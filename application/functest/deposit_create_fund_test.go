@@ -20,30 +20,53 @@ import (
 )
 
 func TestDepositCreateFund(t *testing.T) {
-	lockupEndDate := time.Now().Unix()
+	t.Run("happy_path", func(t *testing.T) {
+		lockupEndDate := time.Now().Unix()
 
-	// make call
-	err := registerCreateFundCall(t, map[string]interface{}{
-		"lockupEndDate": strconv.FormatInt(lockupEndDate, 10),
+		// make call
+		err := registerCreateFundCall(t, map[string]interface{}{
+			"lockupEndDate": strconv.FormatInt(lockupEndDate, 10),
+		})
+		require.NoError(t, err)
+
+		_, deposits := getBalanceAndDepositsNoErr(t, &MigrationAdmin, MigrationAdmin.Ref)
+		require.Contains(t, deposits, "genesis_deposit2")
+
+		// check double creation
+		err = registerCreateFundCall(t, map[string]interface{}{
+			"lockupEndDate": strconv.FormatInt(lockupEndDate, 10),
+		})
+		require.Error(t, err)
+		requesterErr, ok := err.(*requester.Error)
+		require.True(t, ok)
+		trace := strings.Join(requesterErr.Data.Trace, ": ")
+		require.Contains(t, trace, "fund already created")
 	})
-	require.NoError(t, err)
 
-	_, deposits := getBalanceAndDepositsNoErr(t, &MigrationAdmin, MigrationAdmin.Ref)
-	require.Contains(t, deposits, "genesis_deposit2")
+	t.Run("without_permissions", func(t *testing.T) {
+		ordinaryMember := createMember(t)
+		lockupEndDate := time.Now().Unix()
 
-	// check double creation
-	err = registerCreateFundCall(t, map[string]interface{}{
-		"lockupEndDate": strconv.FormatInt(lockupEndDate, 10),
+		// make call
+		err := registerCreateFundMemberCall(t, map[string]interface{}{
+			"lockupEndDate": strconv.FormatInt(lockupEndDate, 10),
+		}, ordinaryMember)
+
+		// check errors
+		require.Error(t, err)
+		requesterErr, ok := err.(*requester.Error)
+		require.True(t, ok)
+		trace := strings.Join(requesterErr.Data.Trace, ": ")
+		require.Contains(t, trace, "only migration admin can call this method")
 	})
-	require.Error(t, err)
-	requesterErr, ok := err.(*requester.Error)
-	require.True(t, ok)
-	trace := strings.Join(requesterErr.Data.Trace, ": ")
-	require.Contains(t, trace, "fund already created")
 }
 
 func registerCreateFundCall(t *testing.T, params map[string]interface{}) error {
-	_, _, err := testrequest.MakeSignedRequest(launchnet.TestRPCUrl, &MigrationAdmin, "deposit.createFund", params)
+	return registerCreateFundMemberCall(t, params, &MigrationAdmin)
+}
+
+func registerCreateFundMemberCall(t *testing.T, params map[string]interface{}, member *AppUser) error {
+	_, _, err := testrequest.MakeSignedRequest(launchnet.TestRPCUrl, member, "deposit.createFund", params)
 	if err != nil {
 		return err
 	}
