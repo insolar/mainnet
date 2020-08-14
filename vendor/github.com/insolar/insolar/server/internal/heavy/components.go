@@ -11,6 +11,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,7 +20,9 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/dgraph-io/badger"
+	"github.com/gbrlsnchs/jwt/v3"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	component "github.com/insolar/component-manager"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/pkg/errors"
@@ -28,8 +31,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-
-	"github.com/gbrlsnchs/jwt/v3"
 
 	"github.com/insolar/insolar/api"
 	"github.com/insolar/insolar/applicationbase/genesis"
@@ -300,9 +301,10 @@ func initWithPostgres(
 		APIWrapper = api.NewWrapper(API, AdminAPIRunner)
 	}
 
+	metricsRegistry := metrics.GetInsolarRegistry(c.NodeRole)
 	metricsComp := metrics.NewMetrics(
 		cfg.Metrics,
-		metrics.GetInsolarRegistry(c.NodeRole),
+		metricsRegistry,
 		c.NodeRole,
 	)
 
@@ -421,13 +423,18 @@ func initWithPostgres(
 		recordExporter = exporter.NewRecordServer(PulsesPostgres, RecordsPostgres, RecordsPostgres, PostgresJetKeeper, cfg.Exporter.Auth)
 		pulseExporter = exporter.NewPulseServer(PulsesPostgres, PostgresJetKeeper, NodesPostgres, cfg.Exporter.Auth)
 
-		grpcServer, err := newGRPCServer(cfg.Exporter)
+		grpcMetrics := grpc_prometheus.NewServerMetrics()
+		grpcMetrics.EnableHandlingTimeHistogram()
+		metricsRegistry.MustRegister(grpcMetrics)
+
+		grpcServer, err := newGRPCServer(cfg.Exporter, grpcMetrics)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to initiate a GRPC server")
 		}
 		exporter.RegisterRecordExporterServer(grpcServer, recordExporter)
 		exporter.RegisterPulseExporterServer(grpcServer, pulseExporter)
 
+		grpcMetrics.InitializeMetrics(grpcServer)
 		lis, err := net.Listen("tcp", cfg.Exporter.Addr)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to open port for Exporter")
@@ -666,9 +673,10 @@ func initWithBadger(
 		APIWrapper = api.NewWrapper(API, AdminAPIRunner)
 	}
 
+	metricsRegistry := metrics.GetInsolarRegistry(c.NodeRole)
 	metricsComp := metrics.NewMetrics(
 		cfg.Metrics,
-		metrics.GetInsolarRegistry(c.NodeRole),
+		metricsRegistry,
 		c.NodeRole,
 	)
 
@@ -765,12 +773,18 @@ func initWithBadger(
 		recordExporter = exporter.NewRecordServer(Pulses, Records, Records, JetKeeper, cfg.Exporter.Auth)
 		pulseExporter = exporter.NewPulseServer(Pulses, JetKeeper, Nodes, cfg.Exporter.Auth)
 
-		grpcServer, err := newGRPCServer(cfg.Exporter)
+		grpcMetrics := grpc_prometheus.NewServerMetrics()
+		grpcMetrics.EnableHandlingTimeHistogram()
+		metricsRegistry.MustRegister(grpcMetrics)
+
+		grpcServer, err := newGRPCServer(cfg.Exporter, grpcMetrics)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to initiate a GRPC server")
 		}
 		exporter.RegisterRecordExporterServer(grpcServer, recordExporter)
 		exporter.RegisterPulseExporterServer(grpcServer, pulseExporter)
+
+		grpcMetrics.InitializeMetrics(grpcServer)
 
 		lis, err := net.Listen("tcp", cfg.Exporter.Addr)
 		if err != nil {
@@ -828,8 +842,9 @@ var (
 	jwtIss string
 	jwtKey *jwt.HMACSHA
 )
+var allowedVersionContract int64
 
-func newGRPCServer(cfg configuration.Exporter) (*grpc.Server, error) {
+func newGRPCServer(cfg configuration.Exporter, grpcMetrics *grpc_prometheus.ServerMetrics) (*grpc.Server, error) {
 	if cfg.Auth.Required {
 		jwtIss = cfg.Auth.Issuer
 		key := []byte(cfg.Auth.Secret)
@@ -837,9 +852,18 @@ func newGRPCServer(cfg configuration.Exporter) (*grpc.Server, error) {
 			return nil, errors.New("exporter.auth.secret must be 512-bit")
 		}
 		jwtKey = jwt.NewHS512(key)
-		return grpc.NewServer(grpc.UnaryInterceptor(authUnaryIntcp), grpc.StreamInterceptor(authStreamIntcp)), nil
+
+		server := grpc.NewServer(
+			grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(grpcMetrics.UnaryServerInterceptor(), authUnaryIntcp)),
+			grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(grpcMetrics.StreamServerInterceptor(), authStreamIntcp)),
+		)
+		return server, nil
 	}
-	return grpc.NewServer(), nil
+
+	return grpc.NewServer(
+		grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
+	), nil
 }
 
 func newComponents(
@@ -849,7 +873,12 @@ func newComponents(
 	genesisOptions genesis.Options,
 	genesisOnly bool,
 	apiOptions api.Options,
+	contractVersion int64,
 ) (*components, error) {
+	if contractVersion <= 0 {
+		return nil, errors.Errorf("incorrect allowed contract version application: %v", contractVersion)
+	}
+	allowedVersionContract = contractVersion
 	heavyCfg := cfg.GetNodeConfig()
 	switch realCfg := heavyCfg.(type) {
 	case *configuration.ConfigHeavyPg:
@@ -974,7 +1003,10 @@ func authorize(ctx context.Context) (context.Context, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	err = validateObserverVersion(md)
+	if err != nil {
+		return nil, err
+	}
 	newMD := md.Copy()
 	newMD.Set(exporter.ObsID, sub)
 	return metadata.NewIncomingContext(ctx, newMD), nil
@@ -1000,4 +1032,43 @@ func validateJWT(token string) (string, error) {
 	}
 
 	return payload.Subject, nil
+}
+
+func validateObserverVersion(metaDataFromRequest metadata.MD) error {
+	typeClient, ok := metaDataFromRequest[exporter.KeyClientType]
+	if !ok || len(typeClient) == 0 || typeClient[0] == exporter.Unknown.String() {
+		return status.Error(codes.InvalidArgument, "unknown type client")
+	}
+
+	switch typeClient[0] {
+	case exporter.ValidateHeavyVersion.String():
+	case exporter.ValidateContractVersion.String():
+		err := compareAllowedVersion(exporter.KeyClientVersionContract, allowedVersionContract, metaDataFromRequest)
+		if err != nil {
+			return err
+		}
+	default:
+		return status.Error(codes.InvalidArgument, "unknown type client")
+	}
+	// validate protocol version from client
+	err := compareAllowedVersion(exporter.KeyClientVersionHeavy, exporter.AllowedOnHeavyVersion, metaDataFromRequest)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func compareAllowedVersion(nameVersion string, allowedVersion int64, metaDataFromRequest metadata.MD) error {
+	versionClientMD, ok := metaDataFromRequest[nameVersion]
+	if !ok || len(versionClientMD) == 0 {
+		return status.Error(codes.InvalidArgument, fmt.Sprintf("unknown %s ", nameVersion))
+	}
+	versionClient, err := strconv.ParseInt(versionClientMD[0], 10, 64)
+	if err != nil || versionClient < 0 {
+		return status.Error(codes.InvalidArgument, fmt.Sprintf("incorrect format of the %s", nameVersion))
+	}
+	if versionClient == 0 || versionClient < allowedVersion {
+		return exporter.ErrDeprecatedClientVersion
+	}
+	return nil
 }
