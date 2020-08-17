@@ -9,11 +9,9 @@ package functest
 
 import (
 	"strconv"
-	"strings"
 	"testing"
 	"time"
 
-	"github.com/insolar/insolar/api/requester"
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
 	"github.com/insolar/insolar/applicationbase/testutils/testrequest"
 	"github.com/stretchr/testify/require"
@@ -21,31 +19,20 @@ import (
 
 func TestDepositCreateFund(t *testing.T) {
 	lockupEndDate := time.Now().Unix()
-
-	// make call
-	err := registerCreateFundCall(t, map[string]interface{}{
+	ref, err := registerCreateFundCall(t, map[string]interface{}{
 		"lockupEndDate": strconv.FormatInt(lockupEndDate, 10),
 	})
 	require.NoError(t, err)
+	require.NotNil(t, ref)
 
 	_, deposits := getBalanceAndDepositsNoErr(t, &MigrationAdmin, MigrationAdmin.Ref)
 	require.Contains(t, deposits, "genesis_deposit2")
-
-	// check double creation
-	err = registerCreateFundCall(t, map[string]interface{}{
-		"lockupEndDate": strconv.FormatInt(lockupEndDate, 10),
-	})
-	require.Error(t, err)
-	requesterErr, ok := err.(*requester.Error)
-	require.True(t, ok)
-	trace := strings.Join(requesterErr.Data.Trace, ": ")
-	require.Contains(t, trace, "fund already created")
 }
 
-func registerCreateFundCall(t *testing.T, params map[string]interface{}) error {
-	_, _, err := testrequest.MakeSignedRequest(launchnet.TestRPCUrl, &MigrationAdmin, "deposit.createFund", params)
+func registerCreateFundCall(t *testing.T, params map[string]interface{}) (string, error) {
+	res, err := testrequest.SignedRequest(t, launchnet.TestRPCUrl, &MigrationAdmin, "deposit.createFund", params)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return res.(string), nil
 }

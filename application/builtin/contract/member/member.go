@@ -6,18 +6,17 @@
 package member
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
+	"encoding/json"
 
-	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
-	"github.com/insolar/insolar/insolar"
-	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/pkg/errors"
+	"github.com/insolar/insolar/insolar"
+	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
+	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 
 	"github.com/insolar/mainnet/application/appfoundation"
-	depositContract "github.com/insolar/mainnet/application/builtin/contract/deposit"
 	walletContract "github.com/insolar/mainnet/application/builtin/contract/wallet"
 	"github.com/insolar/mainnet/application/builtin/proxy/account"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
@@ -349,7 +348,7 @@ func (m *Member) depositTransferToDepositCall(params map[string]interface{}) (in
 	if err != nil {
 		return nil, fmt.Errorf("failed to get request reference: %s", err.Error())
 	}
-	return nil, depositObj.TransferToDeposit(amountStr, *toDepositRef, m.GetReference(), *request, *toMemberRef, string(appfoundation.TTypeAllocation))
+	return nil, depositObj.TransferToDeposit(amountStr, *toDepositRef, m.GetReference(), *request, *toMemberRef)
 }
 
 func (m *Member) depositMigrationCall(params map[string]interface{}) (interface{}, error) {
@@ -379,17 +378,7 @@ func (m *Member) createFundCall(params map[string]interface{}) (interface{}, err
 		return nil, errors.Wrap(err, "failed to parse timestamp value")
 	}
 
-	walletObj := wallet.GetObject(m.Wallet)
-	found, dRef, err := walletObj.FindDeposit(depositContract.PublicAllocation2DepositName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to find deposit: %s", err.Error())
-	}
-	if found {
-		return nil, fmt.Errorf("fund already created depositRef=%s", dRef.String())
-	}
-
-	_, err = walletObj.CreateFund(lockupEndDate)
-	return map[string]interface{}{}, err
+	return wallet.GetObject(m.Wallet).CreateFund(lockupEndDate)
 }
 
 func (m *Member) accountTransferToDepositCall(params map[string]interface{}) (interface{}, error) {
