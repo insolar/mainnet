@@ -516,7 +516,7 @@ func INSMETHOD_TransferToDeposit(object []byte, data []byte) (newState []byte, r
 		return
 	}
 
-	args := make([]interface{}, 6)
+	args := make([]interface{}, 5)
 	var args0 string
 	args[0] = &args0
 	var args1 insolar.Reference
@@ -527,8 +527,6 @@ func INSMETHOD_TransferToDeposit(object []byte, data []byte) (newState []byte, r
 	args[3] = &args3
 	var args4 insolar.Reference
 	args[4] = &args4
-	var args5 string
-	args[5] = &args5
 
 	err = ph.Deserialize(data, &args)
 	if err != nil {
@@ -568,7 +566,7 @@ func INSMETHOD_TransferToDeposit(object []byte, data []byte) (newState []byte, r
 		}
 	}()
 
-	ret0 = self.TransferToDeposit(args0, args1, args2, args3, args4, args5)
+	ret0 = self.TransferToDeposit(args0, args1, args2, args3, args4)
 
 	needRecover = false
 
