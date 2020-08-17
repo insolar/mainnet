@@ -1799,6 +1799,102 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/response-success'
                   - $ref: '#/components/schemas/response-signedRequestError'
+  '/admin-api/rpc#deposit.create':
+    post:
+      summary: deposit.create
+      description: >
+        Creates new deposit object with linear vesting and triennial lockup
+        period.
+
+
+        To invoke this method, specify the following parameters:
+
+
+        * in `params`, `reference` to the daemon's member object;
+
+        * in `callParams`:
+          * `depositReference`—reference of the target deposit used for calculating parameters of the new deposit;
+          * `memberReference`—reference to the target member object to add new one deposit.
+      operationId: deposit.create
+      tags:
+        - Daemon
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - deposit.create
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - depositReference
+                            - memberReference
+                          properties:
+                            depositReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: Reference to the target deposit object.
+                                  example: >-
+                                    insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                            memberReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: Reference to the target member object.
+                                  example: >-
+                                    insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to your `member` object. Used for
+                                identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          type: string
+                          pattern: >-
+                            ^\s*(-+BEGIN[^-]+-+\s+[a-zA-Z0-9+\/=
+                            \n]+-+END[^-]+-+|[a-zA-Z0-9+\/= \n]+)\s*$
+                          description: >
+                            Public key of your `member` object. Used to check
+                            the `<signatureString>` created by the paired
+                            private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-success'
+                  - $ref: '#/components/schemas/response-signedRequestError'
 tags:
   - name: Node
   - name: Member

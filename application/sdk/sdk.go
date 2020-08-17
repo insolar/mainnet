@@ -499,6 +499,58 @@ func (sdk *SDK) DepositTransfer(amount string, member Member, ethTxHash string) 
 	return response.TraceID, nil
 }
 
+// CreateFund method creates new public allocation 2 deposit
+func (sdk *SDK) CreateFund(lockupEndDate string) (string, error) {
+	userConfig, err := requester.CreateUserConfig(
+		sdk.migrationAdminMember.Caller,
+		sdk.migrationAdminMember.PrivateKey,
+		sdk.migrationAdminMember.PublicKey)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create user config for request")
+	}
+	response, err := sdk.DoRequest(
+		sdk.adminAPIURLs,
+		userConfig,
+		"deposit.createFund",
+		map[string]interface{}{"lockupEndDate": lockupEndDate},
+	)
+	if err != nil {
+		return "", errors.Wrap(err, "request was failed ")
+	}
+
+	return response.TraceID, nil
+}
+
+// TransferFromDepositToDeposit makes transfer all money from caller's deposit to specified deposit of other member.
+func (sdk *SDK) TransferFromDepositToDeposit(
+	from Member,
+	fromDepositName string,
+	toDepositName string,
+	toMemberRef string,
+) (string, error) {
+	userConfig, err := requester.CreateUserConfig(
+		from.GetReference(),
+		from.GetPrivateKey(),
+		from.GetPublicKey())
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create user config for request")
+	}
+	response, err := sdk.DoRequest(
+		sdk.adminAPIURLs,
+		userConfig,
+		"deposit.transferToDeposit",
+		map[string]interface{}{
+			"fromDepositName":   fromDepositName,
+			"toDepositName":     toDepositName,
+			"toMemberReference": toMemberRef,
+		},
+	)
+	if err != nil {
+		return "", errors.Wrap(err, "request was failed ")
+	}
+	return response.TraceID, nil
+}
+
 func (sdk *SDK) DoRequest(urls *ringBuffer, user *requester.UserConfigJSON, method string, params map[string]interface{}) (*requester.ContractResult, error) {
 	ctx := inslogger.ContextWithTrace(context.Background(), method)
 	logger := inslogger.FromContext(ctx)

@@ -8,7 +8,6 @@ package deposit
 import (
 	"fmt"
 	"math/big"
-	"strings"
 
 	"github.com/insolar/insolar/pulse"
 	"github.com/pkg/errors"
@@ -20,7 +19,6 @@ import (
 	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
 	"github.com/insolar/mainnet/application/builtin/proxy/member"
-	"github.com/insolar/mainnet/application/builtin/proxy/migrationdaemon"
 	"github.com/insolar/mainnet/application/builtin/proxy/wallet"
 	"github.com/insolar/mainnet/application/genesisrefs"
 )
@@ -46,23 +44,28 @@ type Deposit struct {
 }
 
 // New creates new deposit.
-func New(txHash string, lockup int64, vesting int64, vestingStep int64) (*Deposit, error) {
+func New(txHash string, lockup int64, vesting int64, vestingStep int64, balance string, pulseDepositUnHold pulse.Number, confirms []appfoundation.DaemonConfirm, amount string, vestingType appfoundation.VestingType, isConfirmed bool) (*Deposit, error) {
 
 	if vestingStep > 0 && vesting%vestingStep != 0 {
 		return nil, errors.New("vesting is not multiple of vestingStep")
 	}
 
 	migrationDaemonConfirms := make(foundation.StableMap)
+	for _, confirm := range confirms {
+		migrationDaemonConfirms[confirm.Reference] = confirm.Amount
+	}
 
 	return &Deposit{
-		Balance:                 "0",
+		Balance:                 balance,
+		PulseDepositUnHold:      pulseDepositUnHold,
 		MigrationDaemonConfirms: migrationDaemonConfirms,
-		Amount:                  "0",
+		Amount:                  amount,
 		TxHash:                  txHash,
 		Lockup:                  lockup,
 		Vesting:                 vesting,
 		VestingStep:             vestingStep,
-		VestingType:             appfoundation.DefaultVesting,
+		VestingType:             vestingType,
+		IsConfirmed:             isConfirmed,
 	}, nil
 }
 
@@ -84,21 +87,17 @@ func NewFund(lockupEndDate int64) (*Deposit, error) {
 
 // Form of Deposit that is applied in API
 type DepositOut struct {
-	Balance                 string                    `json:"balance"`
-	HoldStartDate           int64                     `json:"holdStartDate"`
-	PulseDepositUnHold      int64                     `json:"holdReleaseDate"`
-	MigrationDaemonConfirms []DaemonConfirm           `json:"confirmerReferences"`
-	Amount                  string                    `json:"amount"`
-	TxHash                  string                    `json:"ethTxHash"`
-	VestingType             appfoundation.VestingType `json:"vestingType"`
-	Lockup                  int64                     `json:"lockup"`
-	Vesting                 int64                     `json:"vesting"`
-	VestingStep             int64                     `json:"vestingStep"`
-}
-
-type DaemonConfirm struct {
-	Reference string `json:"reference"`
-	Amount    string `json:"amount"`
+	Ref                     string                        `json:"reference"`
+	Balance                 string                        `json:"balance"`
+	HoldStartDate           int64                         `json:"holdStartDate"`
+	PulseDepositUnHold      int64                         `json:"holdReleaseDate"`
+	MigrationDaemonConfirms []appfoundation.DaemonConfirm `json:"confirmerReferences"`
+	Amount                  string                        `json:"amount"`
+	TxHash                  string                        `json:"ethTxHash"`
+	VestingType             appfoundation.VestingType     `json:"vestingType"`
+	Lockup                  int64                         `json:"lockup"`
+	Vesting                 int64                         `json:"vesting"`
+	VestingStep             int64                         `json:"vestingStep"`
 }
 
 // GetTxHash gets transaction hash.
@@ -122,10 +121,10 @@ func (d *Deposit) GetPulseUnHold() (insolar.PulseNumber, error) {
 // Itself gets deposit information.
 // ins:immutable
 func (d *Deposit) Itself() (interface{}, error) {
-	var daemonConfirms = make([]DaemonConfirm, 0, len(d.MigrationDaemonConfirms))
+	var daemonConfirms = make([]appfoundation.DaemonConfirm, 0, len(d.MigrationDaemonConfirms))
 	var pulseDepositUnHold int64
 	for k, v := range d.MigrationDaemonConfirms {
-		daemonConfirms = append(daemonConfirms, DaemonConfirm{Reference: k, Amount: v})
+		daemonConfirms = append(daemonConfirms, appfoundation.DaemonConfirm{Reference: k, Amount: v})
 	}
 	t, err := d.PulseDepositUnHold.AsApproximateTime()
 	if err == nil {
@@ -136,6 +135,7 @@ func (d *Deposit) Itself() (interface{}, error) {
 		holdStartDate = 0
 	}
 	return &DepositOut{
+		Ref:                     d.GetReference().String(),
 		Balance:                 d.Balance,
 		HoldStartDate:           holdStartDate,
 		PulseDepositUnHold:      pulseDepositUnHold,
@@ -149,73 +149,75 @@ func (d *Deposit) Itself() (interface{}, error) {
 	}, nil
 }
 
-// Confirm adds confirm for deposit by migration daemon.
-func (d *Deposit) Confirm(
-	txHash string, amountStr string, fromMember insolar.Reference, request insolar.Reference, toMember insolar.Reference,
-) error {
-
-	migrationDaemonRef := fromMember.String()
+// Confirm saves confirmation of deposit by migration daemon,
+// checks confirmation sufficiency,
+// if all confirmations are collected makes transfer from fund to deposit
+// and eventually activates deposit.
+func (d *Deposit) Confirm(txHash string, proposedAmount string, migrationDaemonRef insolar.Reference, requestRef insolar.Reference, toMember insolar.Reference) (err error) {
+	// check args
 	if txHash != d.TxHash {
 		return errors.New("transaction hash is incorrect")
 	}
-	if confirmedAmount, ok := d.MigrationDaemonConfirms[migrationDaemonRef]; ok {
-		if amountStr != confirmedAmount {
+	if numericValue, ok := assertBigInt(proposedAmount); !ok {
+		return errors.New("invalid amount")
+	} else if lessOrEqualZero(numericValue) { // amount <= 0
+		return errors.New("amount must be greater than zero")
+	}
+	if migrationDaemonRef.IsEmpty() {
+		return errors.New("empty migrationDaemonRef")
+	}
+	if requestRef.IsEmpty() {
+		return errors.New("empty requestRef reference")
+	}
+	if toMember.IsEmpty() {
+		return errors.New("empty toMember reference")
+	}
+
+	// check confirmation existence
+	migrationDaemon := migrationDaemonRef.String()
+	if previousProposal, ok := d.MigrationDaemonConfirms[migrationDaemon]; ok {
+		if proposedAmount != previousProposal {
 			return fmt.Errorf(
 				"confirm from this migration daemon %s already exists with different amount: was %s, now %s",
 				migrationDaemonRef,
-				confirmedAmount,
-				amountStr,
+				previousProposal,
+				proposedAmount,
 			)
 		}
 		return nil
 	}
+
+	// save confirmation data
+	d.MigrationDaemonConfirms[migrationDaemon] = proposedAmount
 
 	if d.IsConfirmed {
-		d.MigrationDaemonConfirms[migrationDaemonRef] = amountStr
-		if amountStr != d.Amount {
-			return fmt.Errorf(
-				"migration is done for this deposit %s, but with different amount: confirmed is %s, from this daemon %s",
-				txHash,
-				d.Amount,
-				amountStr,
-			)
-		}
 		return nil
 	}
 
-	if len(d.MigrationDaemonConfirms) > 0 {
-		canConfirm, errFromConfirm := d.checkConfirm(migrationDaemonRef, amountStr)
-		if canConfirm {
-			currentPulse, err := foundation.GetPulseNumber()
-			if err != nil {
-				return errors.Wrap(err, "failed to get current pulse")
-			}
-			d.Amount = amountStr
-			d.PulseDepositUnHold = currentPulse + insolar.PulseNumber(d.Lockup)
-
-			ma := member.GetObject(appfoundation.GetMigrationAdminMember())
-			walletRef, err := ma.GetWallet()
-			if err != nil {
-				return errors.Wrap(err, "failed to get wallet")
-			}
-			ok, maDeposit, _ := wallet.GetObject(*walletRef).FindDeposit(genesisrefs.FundsDepositName)
-			if !ok {
-				return fmt.Errorf("failed to find source deposit - %s", walletRef.String())
-			}
-
-			err = deposit.GetObject(*maDeposit).TransferToDeposit(
-				amountStr, d.GetReference(), appfoundation.GetMigrationAdminMember(), request, toMember, string(appfoundation.TTypeMigration))
-			if err != nil {
-				return errors.Wrap(err, "failed to transfer from migration deposit to deposit")
-			}
-			d.IsConfirmed = true
-		}
-		if errFromConfirm != nil {
-			return errFromConfirm
-		}
+	// check confirmations sufficiency
+	if len(d.MigrationDaemonConfirms) < numConfirmation {
 		return nil
 	}
-	d.MigrationDaemonConfirms[migrationDaemonRef] = amountStr
+	amounts := d.amounts()
+	if !d.allAmountsEqual(amounts) {
+		return fmt.Errorf("some of confirmation amounts aren't equal others confirms=%v",
+			d.MigrationDaemonConfirms)
+	}
+
+	// transfer to deposit
+	err = d.acquireFundAssets(proposedAmount, requestRef, toMember)
+	if err != nil {
+		return errors.Wrap(err, "failed to acquire assets from migration admin fund")
+	}
+
+	// activate deposit
+	d.Amount = proposedAmount
+	currentPulse, err := foundation.GetPulseNumber()
+	if err != nil {
+		return errors.Wrap(err, "failed to get current pulse")
+	}
+	d.PulseDepositUnHold = currentPulse + insolar.PulseNumber(d.Lockup)
+	d.IsConfirmed = true
 	return nil
 }
 
@@ -226,7 +228,6 @@ func (d *Deposit) TransferToDeposit(
 	fromMember insolar.Reference,
 	request insolar.Reference,
 	toMember insolar.Reference,
-	txType string,
 ) error {
 	amount, ok := new(big.Int).SetString(amountStr, 10)
 	if !ok {
@@ -258,67 +259,45 @@ func (d *Deposit) TransferToDeposit(
 
 }
 
-// Check amount field in confirmation from migration daemons.
-func (d *Deposit) checkAmount(activeDaemons map[string]string, migrationDaemonRef string, amountStr string) (bool, error) {
-	confirmed := false
-	if activeDaemons == nil || len(activeDaemons) == 0 {
-		return false, errors.New("list with migration daemons member is empty")
+func (d *Deposit) amounts() []string {
+	var amounts []string
+	for _, amount := range d.MigrationDaemonConfirms {
+		amounts = append(amounts, amount)
 	}
-	amountConfirms := make(map[string]int) // amount: num of confirms
-	var errDaemon []string
-	for migrationRef, amount := range activeDaemons {
-		if amount != amountStr {
-			errDaemon = append(errDaemon, fmt.Sprintf("%s send amount %s", migrationRef, amount))
-		}
-		amountConfirms[amount] = amountConfirms[amount] + 1
-	}
-	amountConfirms[amountStr] = amountConfirms[amountStr] + 1
-	if amountConfirms[amountStr] >= numConfirmation {
-		confirmed = true
-	}
-	var err error
-	if len(errDaemon) > 0 {
-		if !confirmed {
-			errDaemon = append(errDaemon, fmt.Sprintf("%s send amount %s", migrationDaemonRef, amountStr))
-		}
-		err = fmt.Errorf("several migration daemons send different amount: %s", strings.Join(errDaemon, ": "))
-	}
-	return confirmed, err
+	return amounts
 }
 
-func (d *Deposit) checkConfirm(migrationDaemonRef string, amountStr string) (bool, error) {
-	activateDaemons := make(map[string]string)
-
-	for ref, a := range d.MigrationDaemonConfirms {
-		migrationDaemonMemberRef, err := insolar.NewObjectReferenceFromString(ref)
-		if err != nil {
-			return false, errors.New("failed to parse params.Reference")
-		}
-
-		migrationDaemonContractRef, err := appfoundation.GetMigrationDaemon(*migrationDaemonMemberRef)
-		if err != nil || migrationDaemonContractRef.IsEmpty() {
-			return false, errors.Wrap(err, "get migration daemon contract from foundation failed")
-		}
-
-		migrationDaemonContract := migrationdaemon.GetObject(migrationDaemonContractRef)
-		result, err := migrationDaemonContract.GetActivationStatus()
-
-		if err != nil {
-			return false, err
-		}
-		if result {
-			activateDaemons[ref] = a
+func (d *Deposit) allAmountsEqual(amounts []string) bool {
+	if len(amounts) < 1 {
+		return false
+	}
+	amount := amounts[0]
+	for i := 1; i < len(amounts); i++ {
+		if amounts[i] != amount {
+			return false
 		}
 	}
-	d.MigrationDaemonConfirms[migrationDaemonRef] = amountStr
-	if len(activateDaemons) > 0 {
-		canConfirm, err := d.checkAmount(activateDaemons, migrationDaemonRef, amountStr)
-		if err != nil {
-			return canConfirm, errors.Wrap(err, "failed to check amount in confirmation from migration daemon")
-		}
-		return canConfirm, nil
+	return true
+}
+
+func (d *Deposit) acquireFundAssets(amount string, requestRef insolar.Reference, toMember insolar.Reference) error {
+	ma := member.GetObject(appfoundation.GetMigrationAdminMember())
+	walletRef, err := ma.GetWallet()
+	if err != nil {
+		return errors.Wrap(err, "failed to get wallet")
 	}
-	return false, nil
+	ok, maDeposit, _ := wallet.GetObject(*walletRef).FindDeposit(genesisrefs.FundsDepositName)
+	if !ok {
+		return fmt.Errorf("failed to find source deposit - %s", walletRef.String())
+	}
+
+	err = deposit.GetObject(*maDeposit).TransferToDeposit(
+		amount, d.GetReference(), appfoundation.GetMigrationAdminMember(), requestRef, toMember,
+	)
+	if err != nil {
+		return errors.Wrap(err, "failed to transfer from migration deposit to deposit")
+	}
+	return nil
 }
 
 func (d *Deposit) availableAmount() (*big.Int, error) {
@@ -441,4 +420,12 @@ func (d *Deposit) Accept(arg appfoundation.SagaAcceptInfo) error {
 	d.Balance = b.String()
 
 	return nil
+}
+
+func assertBigInt(amount string) (*big.Int, bool) {
+	return new(big.Int).SetString(amount, 10)
+}
+
+func lessOrEqualZero(val *big.Int) bool {
+	return val.Cmp(big.NewInt(0)) <= 0
 }
