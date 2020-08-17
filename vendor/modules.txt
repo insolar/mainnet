@@ -13,6 +13,9 @@ github.com/ThreeDotsLabs/watermill/pubsub/sync
 github.com/beorn7/perks/quantile
 # github.com/cenkalti/backoff/v3 v3.0.0
 github.com/cenkalti/backoff/v3
+# github.com/codemodus/kace v0.5.1
+github.com/codemodus/kace
+github.com/codemodus/kace/ktrie
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/dgraph-io/badger v1.6.0-rc1.0.20191024172150-efb9d9d15d7f
@@ -38,6 +41,18 @@ github.com/getkin/kin-openapi/openapi3filter
 github.com/getkin/kin-openapi/pathpattern
 # github.com/ghodss/yaml v1.0.0
 github.com/ghodss/yaml
+# github.com/go-pg/pg/v9 v9.1.6
+github.com/go-pg/pg/v9
+github.com/go-pg/pg/v9/internal
+github.com/go-pg/pg/v9/internal/parser
+github.com/go-pg/pg/v9/internal/pool
+github.com/go-pg/pg/v9/orm
+github.com/go-pg/pg/v9/pgjson
+github.com/go-pg/pg/v9/types
+# github.com/go-pg/urlstruct v0.3.0
+github.com/go-pg/urlstruct
+# github.com/go-pg/zerochecker v0.1.1
+github.com/go-pg/zerochecker
 # github.com/gogo/protobuf v1.2.1
 github.com/gogo/protobuf/gogoproto
 github.com/gogo/protobuf/proto
@@ -45,7 +60,7 @@ github.com/gogo/protobuf/protoc-gen-gogo/descriptor
 github.com/gogo/protobuf/sortkeys
 # github.com/gojuno/minimock/v3 v3.0.5
 github.com/gojuno/minimock/v3
-# github.com/golang/protobuf v1.3.2
+# github.com/golang/protobuf v1.3.3
 github.com/golang/protobuf/jsonpb
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/protoc-gen-go/descriptor
@@ -318,6 +333,8 @@ github.com/jackc/pgx/v4/pgxpool
 github.com/jackc/puddle
 # github.com/jbenet/go-base58 v0.0.0-20150317085156-6237cf65f3a6
 github.com/jbenet/go-base58
+# github.com/jinzhu/inflection v1.0.0
+github.com/jinzhu/inflection
 # github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 github.com/kardianos/osext
 # github.com/lithammer/shortuuid/v3 v3.0.4
@@ -367,6 +384,9 @@ github.com/rs/zerolog/internal/cbor
 github.com/rs/zerolog/internal/json
 # github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
 github.com/satori/go.uuid
+# github.com/segmentio/encoding v0.1.10
+github.com/segmentio/encoding/ascii
+github.com/segmentio/encoding/json
 # github.com/spf13/afero v1.2.2
 github.com/spf13/afero
 github.com/spf13/afero/mem
@@ -380,7 +400,7 @@ github.com/spf13/jwalterweatherman
 github.com/spf13/pflag
 # github.com/spf13/viper v1.6.2
 github.com/spf13/viper
-# github.com/stretchr/testify v1.4.0
+# github.com/stretchr/testify v1.6.1
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
 github.com/stretchr/testify/suite
@@ -408,6 +428,15 @@ github.com/uber/jaeger-client-go/utils
 github.com/uber/jaeger-lib/metrics
 # github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8
 github.com/ugorji/go/codec
+# github.com/vmihailenco/bufpool v0.1.5
+github.com/vmihailenco/bufpool
+# github.com/vmihailenco/msgpack/v4 v4.3.7
+github.com/vmihailenco/msgpack/v4
+github.com/vmihailenco/msgpack/v4/codes
+# github.com/vmihailenco/tagparser v0.1.1
+github.com/vmihailenco/tagparser
+github.com/vmihailenco/tagparser/internal
+github.com/vmihailenco/tagparser/internal/parser
 # go.opencensus.io v0.22.0
 go.opencensus.io
 go.opencensus.io/internal
@@ -430,7 +459,7 @@ go.opencensus.io/zpages/internal
 # go.uber.org/goleak v1.0.0
 go.uber.org/goleak
 go.uber.org/goleak/internal/stack
-# golang.org/x/crypto v0.0.0-20190927123631-a832865fa7ad
+# golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
 golang.org/x/crypto/cryptobyte
 golang.org/x/crypto/cryptobyte/asn1
 golang.org/x/crypto/ed25519
@@ -440,7 +469,7 @@ golang.org/x/crypto/sha3
 # golang.org/x/lint v0.0.0-20190930215403-16217165b5de
 golang.org/x/lint
 golang.org/x/lint/golint
-# golang.org/x/net v0.0.0-20191003171128-d98b1b443823
+# golang.org/x/net v0.0.0-20200222033325-078779b8f2d8
 golang.org/x/net/context
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
@@ -449,7 +478,7 @@ golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
-# golang.org/x/sys v0.0.0-20191005200804-aed5e4c7ecf9
+# golang.org/x/sys v0.0.0-20191010194322-b09406accb47
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
@@ -481,6 +510,18 @@ golang.org/x/tools/internal/span
 # golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 golang.org/x/xerrors
 golang.org/x/xerrors/internal
+# google.golang.org/appengine v1.6.5
+google.golang.org/appengine
+google.golang.org/appengine/datastore
+google.golang.org/appengine/datastore/internal/cloudkey
+google.golang.org/appengine/datastore/internal/cloudpb
+google.golang.org/appengine/internal
+google.golang.org/appengine/internal/app_identity
+google.golang.org/appengine/internal/base
+google.golang.org/appengine/internal/datastore
+google.golang.org/appengine/internal/log
+google.golang.org/appengine/internal/modules
+google.golang.org/appengine/internal/remote_api
 # google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/api/httpbody
@@ -525,3 +566,7 @@ google.golang.org/grpc/tap
 gopkg.in/ini.v1
 # gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2
+# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+gopkg.in/yaml.v3
+# mellium.im/sasl v0.2.1
+mellium.im/sasl
