@@ -408,7 +408,7 @@ github.com/uber/jaeger-client-go/thrift-gen/agent
 github.com/uber/jaeger-client-go/thrift-gen/baggage
 # github.com/uber/jaeger-lib v2.2.0+incompatible
 github.com/uber/jaeger-lib/metrics
-# github.com/ugorji/go/codec v1.1.7
+# github.com/ugorji/go v1.1.4
 github.com/ugorji/go/codec
 # go.opencensus.io v0.22.0
 go.opencensus.io/stats
