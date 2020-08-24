@@ -49,8 +49,8 @@ func parseInputParams(cmd *cobra.Command) {
 }
 
 type DepositMember struct {
-	DepositReference []byte
-	MemberReference  []byte
+	DepositReference []byte `sql:"deposit_ref"`
+	MemberReference  []byte `sql:"member_ref"`
 }
 
 func main() {
@@ -208,11 +208,9 @@ func DepositCreatorCommand() *cobra.Command {
 			db := pg.Connect(opt)
 			defer db.Close()
 			var members []DepositMember
-			// TODO:= exclude deposit with eth hash 'genesis_deposit and genesis_deposit2'
-			// Group by eth_hash like
 			rows, err := db.Query(&members, "SELECT d.deposit_ref, d.member_ref FROM deposits d "+
-				"WHERE d.eth_hash NOT IN (SELECT SUBSTRING(d1.eth_hash, 1, LENGTH(d1.eth_hash)-2) "+
-				"FROM deposits d1 WHERE d1.eth_hash like '%_2') AND d.eth_hash != 'genesis_deposit' AND d.eth_hash != 'genesis_deposit2'")
+				"WHERE d.eth_hash != 'genesis_deposit' AND d.eth_hash != 'genesis_deposit2' "+
+				"AND d.eth_hash NOT IN (SELECT d1.eth_hash FROM deposits d1 WHERE d1.eth_hash like '%_2');")
 			if err != nil {
 				panic(err)
 			}
