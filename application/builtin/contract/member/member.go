@@ -341,7 +341,7 @@ func (m *Member) depositTransferToDepositCall(params map[string]interface{}) (in
 		return nil, errors.Wrap(err, "failed to find toDeposit object")
 	}
 	depositObj := deposit.GetObject(*fromDepositRef)
-	amountStr, err := depositObj.GetAmount()
+	amountStr, err := depositObj.GetBalance()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get deposit amount")
 	}
