@@ -45,4 +45,4 @@ To use the integrum, do the following:
         -k, --memberkeys string   Path to a key pair
         -p, --publicUrl string    URL to the public Insolar API
         -v, --verbose             Print request information
-        -w, --waitTime int        Milliseconds to wait after each transfer (default 500)
+        -w, --waitTime int        Milliseconds to wait after each deposit creation (default 500)
