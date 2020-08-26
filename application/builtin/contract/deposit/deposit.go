@@ -412,7 +412,13 @@ func (d *Deposit) availableAmount() (*big.Int, error) {
 	// Vesting steps already passed by now
 	passedSteps := uint64(int64(currentPulse-d.PulseDepositUnHold) / d.VestingStep)
 	// Amount that has been vested by now
-	vestedByNow := VestedByNow(amount, passedSteps, totalSteps)
+	vestedByNow := big.NewInt(0)
+	switch d.VestingType {
+	case appfoundation.DefaultVesting:
+		vestedByNow = VestedByNow(amount, passedSteps, totalSteps)
+	case appfoundation.LinearVesting:
+		vestedByNow = LinearVestedByNow(amount, passedSteps, totalSteps)
+	}
 	// Amount that is still locked on deposit
 	onHold := new(big.Int).Sub(amount, vestedByNow)
 	// Amount that is now available for withdrawal
