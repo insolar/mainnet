@@ -381,7 +381,7 @@ func verifyFundsMembersAndDeposits(t *testing.T, m *AppUser, expectedAmount, exp
 	}
 	deposit, ok := deposits["genesis_deposit"].(map[string]interface{})
 	if deposit["amount"] != expectedAmount {
-		return errors.New(fmt.Sprintf("deposit amount should be %s, current value: %s", expectedBalance, deposit["amount"]))
+		return errors.New(fmt.Sprintf("deposit amount should be %s, current value: %s", expectedAmount, deposit["amount"]))
 	}
 	if deposit["balance"] != expectedBalance {
 		return errors.New(fmt.Sprintf("deposit balance should be %s, current value: %s", expectedBalance, deposit["balance"]))
