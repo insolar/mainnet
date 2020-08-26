@@ -21,7 +21,7 @@ To use the integrum, do the following:
    - Insolar Platform RPC Admin endpoint as a URL parameter.
    - Insolar Platform RPC Public endpoint as `-p` option's value.
    - Path to `*_admin_member_keys.json` as the `-k` option's value.
-   - URL to DB with credentials as the `-u` option's value.
+   - URL to Observer DB with credentials as the `-u` option's value.
    
    For example:
 
@@ -40,7 +40,7 @@ To use the integrum, do the following:
     ./bin/integrum http://localhost:19001/admin-api/rpc -p http://localhost:19101/api/rpc -k 'Path to a key pair' -u postgresql://localhost:5432/postgres?sslmode=disable -v"
     
     Flags:
-        -u, --dbUrl string        URL with credential to the DB
+        -u, --dbUrl string        URL with credential to the Observer DB
         -h, --help                Help for integrum
         -k, --memberkeys string   Path to a key pair
         -p, --publicUrl string    URL to the public Insolar API
