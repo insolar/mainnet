@@ -19,41 +19,63 @@ import (
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
 	"github.com/insolar/insolar/applicationbase/testutils/testrequest"
 	"github.com/insolar/insolar/testutils"
+
+	depositContract "github.com/insolar/mainnet/application/builtin/contract/deposit"
+	"github.com/insolar/mainnet/application/genesisrefs"
 )
 
-func TestMigrationToken(t *testing.T) {
-	activeDaemons := activateDaemons(t, countTwoActiveDaemon)
-	member := createMigrationMemberForMA(t)
+func TestDepositMigration(t *testing.T) {
+	t.Run("happy_path", func(t *testing.T) {
+		activeDaemons := activateDaemons(t, countTwoActiveDaemon)
+		member := createMigrationMemberForMA(t)
 
-	ethHash := testutils.RandomEthHash()
+		const insAmount = "1000"
+		const xnsAmount = "10000"
+		ethHash := testutils.RandomEthHash()
+		additionalDepositHash := ethHash + "_2"
+		initialMainFundBalance := getMainFundBalance(t)
+		initialFund2Balance := getFund2Balance(t)
 
-	deposit := migrate(t, member.Ref, "1000", ethHash, member.MigrationAddress, 0)
-	firstMemberBalance := deposit["balance"].(string)
+		// create new deposit and make first call deposit.Confirm
+		deposit := migrate(t, member.Ref, insAmount, ethHash, member.MigrationAddress, 0)
 
-	require.Equal(t, "0", firstMemberBalance)
-	firstMABalance, err := getAdminDepositBalance(t, &MigrationAdmin, MigrationAdmin.Ref)
-	require.NoError(t, err)
+		// check balances
+		mainDepositBalance := getDepositBalanceNoErr(t, member, member.Ref, ethHash)
+		require.Equal(t, big.NewInt(0), mainDepositBalance)
+		require.Equal(t, initialMainFundBalance, getMainFundBalance(t))
+		require.Equal(t, initialFund2Balance, getFund2Balance(t))
 
-	for i := 1; i < len(activeDaemons); i++ {
-		deposit = migrate(t, member.Ref, "1000", ethHash, member.MigrationAddress, i)
-	}
+		// make rest deposit.Confirm calls
+		for i := 1; i < len(activeDaemons); i++ {
+			deposit = migrate(t, member.Ref, insAmount, ethHash, member.MigrationAddress, i)
+		}
 
-	confirmations := deposit["confirmerReferences"].(map[string]interface{})
+		// check confirmation amounts
+		confirmations := deposit["confirmerReferences"].(map[string]interface{})
+		for _, amount := range confirmations {
+			require.Equal(t, xnsAmount, amount)
+		}
 
-	for _, daemons := range activeDaemons {
-		require.Equal(t, "10000", confirmations[daemons.Ref])
-	}
+		// check balances
+		numericXNSAmount, ok := new(big.Int).SetString(xnsAmount, 10)
+		require.True(t, ok)
+		mainDepositBalance = getDepositBalanceNoErr(t, member, member.Ref, ethHash)
+		additionalDepositBalance := getDepositBalanceNoErr(t, member, member.Ref, additionalDepositHash)
+		require.Equal(t, numericXNSAmount, mainDepositBalance)
+		require.Equal(t, numericXNSAmount, additionalDepositBalance)
+		diff := new(big.Int).Sub(initialMainFundBalance, getMainFundBalance(t))
+		require.Equal(t, numericXNSAmount, diff)
+		diff = new(big.Int).Sub(initialFund2Balance, getFund2Balance(t))
+		require.Equal(t, numericXNSAmount, diff)
+	})
+}
 
-	require.Equal(t, ethHash, deposit["ethTxHash"])
-	require.Equal(t, "10000", deposit["amount"])
+func getMainFundBalance(t *testing.T) *big.Int {
+	return getDepositBalanceNoErr(t, &MigrationAdmin, MigrationAdmin.Ref, genesisrefs.FundsDepositName)
+}
 
-	secondMemberBalance := deposit["balance"].(string)
-	require.Equal(t, "10000", secondMemberBalance)
-	secondMABalance, err := getAdminDepositBalance(t, &MigrationAdmin, MigrationAdmin.Ref)
-	require.NoError(t, err)
-
-	dif := new(big.Int).Sub(firstMABalance, secondMABalance)
-	require.Equal(t, "10000", dif.String())
+func getFund2Balance(t *testing.T) *big.Int {
+	return getDepositBalanceNoErr(t, &MigrationAdmin, MigrationAdmin.Ref, depositContract.PublicAllocation2DepositName)
 }
 
 func TestMigrationTokenOneActiveDaemon(t *testing.T) {

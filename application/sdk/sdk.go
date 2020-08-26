@@ -17,6 +17,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/insolar/insolar/applicationbase/genesisrefs"
 	"github.com/insolar/insolar/insolar/secrets"
 	"github.com/pkg/errors"
 
@@ -61,14 +62,18 @@ var DefaultOptions = Options{
 
 // SDK is used to send messages to API
 type SDK struct {
-	adminAPIURLs           *ringBuffer
-	publicAPIURLs          *ringBuffer
-	rootMember             *requester.UserConfigJSON
-	migrationAdminMember   *requester.UserConfigJSON
-	migrationDaemonMembers []*requester.UserConfigJSON
-	feeMember              *requester.UserConfigJSON
-	logLevel               string
-	options                Options
+	adminAPIURLs                 *ringBuffer
+	publicAPIURLs                *ringBuffer
+	rootMember                   *requester.UserConfigJSON
+	migrationAdminMember         *requester.UserConfigJSON
+	enterpriseMembers            []*requester.UserConfigJSON
+	migrationDaemonMembers       []*requester.UserConfigJSON
+	applicationIncentivesMembers []*requester.UserConfigJSON
+	foundationMembers            []*requester.UserConfigJSON
+	networkIncentivesMembers     []*requester.UserConfigJSON
+	feeMember                    *requester.UserConfigJSON
+	logLevel                     string
+	options                      Options
 }
 
 // NewSDK creates insSDK object
@@ -137,6 +142,46 @@ func NewSDK(adminUrls []string, publicUrls []string, memberKeysDirPath string, o
 		result.migrationDaemonMembers = append(result.migrationDaemonMembers, m)
 	}
 
+	for i := 0; i < application.GenesisAmountEnterpriseMembers; i++ {
+		m, err := getMember(
+			filepath.Join(memberKeysDirPath, bootstrap.GetFundPath(i, "enterprise_")),
+			genesisrefs.GenesisRef(application.GenesisNameEnterpriseMembers[i]).String())
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("failed to get enterprise member; member's index: '%d'", i))
+		}
+		result.enterpriseMembers = append(result.enterpriseMembers, m)
+	}
+
+	for i := 0; i < application.GenesisAmountApplicationIncentivesMembers; i++ {
+		m, err := getMember(
+			filepath.Join(memberKeysDirPath, bootstrap.GetFundPath(i, "application_incentives_")),
+			genesisrefs.GenesisRef(application.GenesisNameApplicationIncentivesMembers[i]).String())
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("failed to get application incentives member; member's index: '%d'", i))
+		}
+		result.applicationIncentivesMembers = append(result.applicationIncentivesMembers, m)
+	}
+
+	for i := 0; i < application.GenesisAmountFoundationMembers; i++ {
+		m, err := getMember(
+			filepath.Join(memberKeysDirPath, bootstrap.GetFundPath(i, "foundation_")),
+			genesisrefs.GenesisRef(application.GenesisNameFoundationMembers[i]).String())
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("failed to get foundation member; member's index: '%d'", i))
+		}
+		result.foundationMembers = append(result.foundationMembers, m)
+	}
+
+	for i := 0; i < application.GenesisAmountNetworkIncentivesMembers; i++ {
+		m, err := getMember(
+			filepath.Join(memberKeysDirPath, bootstrap.GetFundPath(i, "network_incentives_")),
+			genesisrefs.GenesisRef(application.GenesisNameNetworkIncentivesMembers[i]).String())
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("failed to get network incentives member; member's index: '%d'", i))
+		}
+		result.networkIncentivesMembers = append(result.networkIncentivesMembers, m)
+	}
+
 	return result, nil
 }
 
@@ -187,6 +232,54 @@ func (sdk *SDK) GetMigrationAdminMember() Member {
 func (sdk *SDK) GetMigrationDaemonMembers() []Member {
 	r := make([]Member, len(sdk.migrationDaemonMembers))
 	for i, m := range sdk.migrationDaemonMembers {
+		r[i] = &CommonMember{
+			Reference:  m.Caller,
+			PrivateKey: m.PrivateKey,
+			PublicKey:  m.PublicKey,
+		}
+	}
+	return r
+}
+
+func (sdk *SDK) GetEnterpriseMembers() []Member {
+	r := make([]Member, len(sdk.enterpriseMembers))
+	for i, m := range sdk.enterpriseMembers {
+		r[i] = &CommonMember{
+			Reference:  m.Caller,
+			PrivateKey: m.PrivateKey,
+			PublicKey:  m.PublicKey,
+		}
+	}
+	return r
+}
+
+func (sdk *SDK) GetApplicationIncentivesMembers() []Member {
+	r := make([]Member, len(sdk.applicationIncentivesMembers))
+	for i, m := range sdk.applicationIncentivesMembers {
+		r[i] = &CommonMember{
+			Reference:  m.Caller,
+			PrivateKey: m.PrivateKey,
+			PublicKey:  m.PublicKey,
+		}
+	}
+	return r
+}
+
+func (sdk *SDK) GetFoundationMembers() []Member {
+	r := make([]Member, len(sdk.foundationMembers))
+	for i, m := range sdk.foundationMembers {
+		r[i] = &CommonMember{
+			Reference:  m.Caller,
+			PrivateKey: m.PrivateKey,
+			PublicKey:  m.PublicKey,
+		}
+	}
+	return r
+}
+
+func (sdk *SDK) GetNetworkIncentivesMembers() []Member {
+	r := make([]Member, len(sdk.networkIncentivesMembers))
+	for i, m := range sdk.networkIncentivesMembers {
 		r[i] = &CommonMember{
 			Reference:  m.Caller,
 			PrivateKey: m.PrivateKey,
@@ -518,6 +611,36 @@ func (sdk *SDK) CreateFund(lockupEndDate string) (string, error) {
 		return "", errors.Wrap(err, "request was failed ")
 	}
 
+	return response.TraceID, nil
+}
+
+// TransferFromAccountToDeposit makes transfer money from caller's account to specified deposit of other member.
+func (sdk *SDK) TransferFromAccountToDeposit(
+	from Member,
+	toDepositName string,
+	toMemberRef string,
+	amount string,
+) (string, error) {
+	userConfig, err := requester.CreateUserConfig(
+		from.GetReference(),
+		from.GetPrivateKey(),
+		from.GetPublicKey())
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create user config for request")
+	}
+	response, err := sdk.DoRequest(
+		sdk.adminAPIURLs,
+		userConfig,
+		"account.transferToDeposit",
+		map[string]interface{}{
+			"toDepositName":     toDepositName,
+			"toMemberReference": toMemberRef,
+			"amount":            amount,
+		},
+	)
+	if err != nil {
+		return "", errors.Wrap(err, "request was failed ")
+	}
 	return response.TraceID, nil
 }
 
