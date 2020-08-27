@@ -208,17 +208,27 @@ func DepositCreatorCommand() *cobra.Command {
 			db := pg.Connect(opt)
 			defer db.Close()
 			var members []DepositMember
-			rows, err := db.Query(&members, "SELECT d.deposit_ref, d.member_ref FROM deposits d "+
-				"WHERE d.eth_hash != 'genesis_deposit' AND d.eth_hash != 'genesis_deposit2' "+
-				"AND d.eth_hash NOT IN (SELECT d1.eth_hash FROM deposits d1 WHERE d1.eth_hash like '%_2');")
+			err = db.Model().
+				Table("deposits").
+				Column("deposit_ref", "member_ref").
+				Where("status = 'confirmed'").
+				Where("eth_hash != 'genesis_deposit'").
+				Where("eth_hash != 'genesis_deposit2'").
+				Where("eth_hash not like E'%\\_2'").
+				Where(`not exists (
+					select 1 
+					from deposits as inn
+					where inn.eth_hash = concat("deposits".eth_hash, '_2')
+				)`).
+				Select(&members)
 			if err != nil {
 				panic(err)
 			}
 
-			if rows.RowsAffected() == 0 {
+			if len(members) == 0 {
 				return errors.New("Members without second deposit not found")
 			}
-			fmt.Println(rows.RowsAffected())
+			fmt.Println(len(members))
 
 			request := &requester.ContractRequest{
 				Request: requester.Request{
