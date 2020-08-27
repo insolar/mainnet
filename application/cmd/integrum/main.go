@@ -228,7 +228,6 @@ func DepositCreatorCommand() *cobra.Command {
 			if len(members) == 0 {
 				return errors.New("Members without second deposit not found")
 			}
-			fmt.Println(len(members))
 
 			request := &requester.ContractRequest{
 				Request: requester.Request{
