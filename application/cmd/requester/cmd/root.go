@@ -113,7 +113,7 @@ func getContextWithLogger() context.Context {
 	return ctx
 }
 
-func createUserConfig(privateKey crypto.PrivateKey) (*requester.UserConfigJSON, error) {
+func createUserConfig(reference string, privateKey crypto.PrivateKey) (*requester.UserConfigJSON, error) {
 	privateKeyBytes, err := secrets.ExportPrivateKeyPEM(privateKey)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to export private key")
@@ -126,7 +126,7 @@ func createUserConfig(privateKey crypto.PrivateKey) (*requester.UserConfigJSON, 
 	}
 	publicKeyStr := string(publicKey)
 
-	return requester.CreateUserConfig("", privateKeyStr, publicKeyStr)
+	return requester.CreateUserConfig(reference, privateKeyStr, publicKeyStr)
 }
 
 // requireUrlArg returns an error if there is not url args.
@@ -163,7 +163,7 @@ func GetRequesterCommand() *cobra.Command {
 			ctx := getContextWithLogger()
 			requester.SetVerbose(verbose)
 
-			userConfig, e := createUserConfig(memberPrivateKey)
+			userConfig, e := createUserConfig(request.Params.Reference, memberPrivateKey)
 			if e != nil {
 				return e
 			}
