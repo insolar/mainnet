@@ -19,8 +19,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var IsDepositFundCreated bool
+
 func TestDepositCreateFund(t *testing.T) {
 	t.Run("happy_path", func(t *testing.T) {
+		if IsDepositFundCreated {
+			// run this test only once
+			t.Skip("fund was already created in previous run")
+		}
+
+		IsDepositFundCreated = true
+
 		lockupEndDate := time.Now().Unix()
 
 		// make call
