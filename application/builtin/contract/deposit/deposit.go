@@ -113,6 +113,12 @@ func (d *Deposit) GetAmount() (string, error) {
 	return d.Amount, nil
 }
 
+// GetBalance gets balance.
+// ins:immutable
+func (d *Deposit) GetBalance() (string, error) {
+	return d.Balance, nil
+}
+
 // Return pulse of unhold deposit.
 // ins:immutable
 func (d *Deposit) GetPulseUnHold() (insolar.PulseNumber, error) {

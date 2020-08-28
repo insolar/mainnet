@@ -8,10 +8,11 @@ package executor
 import (
 	"time"
 
-	"github.com/insolar/insolar/instrumentation/insmetrics"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/tag"
+
+	"github.com/insolar/insolar/instrumentation/insmetrics"
 )
 
 var TagJetID = insmetrics.MustTagKey("jet_id_heavy")
@@ -196,7 +197,7 @@ func init() {
 			Description: statRecordInDrop.Description(),
 			Measure:     statRecordInDrop,
 			TagKeys:     []tag.Key{TagJetID},
-			Aggregation: view.Count(),
+			Aggregation: view.LastValue(),
 		},
 	)
 	if err != nil {
