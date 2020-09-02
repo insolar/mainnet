@@ -345,6 +345,84 @@ func (r *Deposit) GetAmount() (string, error) {
 	return ret0, nil
 }
 
+// GetBalance is proxy generated method
+func (r *Deposit) GetBalanceAsMutable() (string, error) {
+	var args [0]interface{}
+
+	var argsSerialized []byte
+
+	ret := make([]interface{}, 2)
+	var ret0 string
+	ret[0] = &ret0
+	var ret1 *foundation.Error
+	ret[1] = &ret1
+
+	err := common.CurrentProxyCtx.Serialize(args, &argsSerialized)
+	if err != nil {
+		return ret0, err
+	}
+
+	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, false, false, "GetBalance", argsSerialized, *PrototypeReference)
+	if err != nil {
+		return ret0, err
+	}
+
+	resultContainer := foundation.Result{
+		Returns: ret,
+	}
+	err = common.CurrentProxyCtx.Deserialize(res, &resultContainer)
+	if err != nil {
+		return ret0, err
+	}
+	if resultContainer.Error != nil {
+		err = resultContainer.Error
+		return ret0, err
+	}
+	if ret1 != nil {
+		return ret0, ret1
+	}
+	return ret0, nil
+}
+
+// GetBalanceAsImmutable is proxy generated method
+func (r *Deposit) GetBalance() (string, error) {
+	var args [0]interface{}
+
+	var argsSerialized []byte
+
+	ret := make([]interface{}, 2)
+	var ret0 string
+	ret[0] = &ret0
+	var ret1 *foundation.Error
+	ret[1] = &ret1
+
+	err := common.CurrentProxyCtx.Serialize(args, &argsSerialized)
+	if err != nil {
+		return ret0, err
+	}
+
+	res, err := common.CurrentProxyCtx.RouteCall(r.Reference, true, false, "GetBalance", argsSerialized, *PrototypeReference)
+	if err != nil {
+		return ret0, err
+	}
+
+	resultContainer := foundation.Result{
+		Returns: ret,
+	}
+	err = common.CurrentProxyCtx.Deserialize(res, &resultContainer)
+	if err != nil {
+		return ret0, err
+	}
+	if resultContainer.Error != nil {
+		err = resultContainer.Error
+		return ret0, err
+	}
+	if ret1 != nil {
+		return ret0, ret1
+	}
+	return ret0, nil
+}
+
 // GetPulseUnHold is proxy generated method
 func (r *Deposit) GetPulseUnHoldAsMutable() (insolar.PulseNumber, error) {
 	var args [0]interface{}
@@ -586,13 +664,14 @@ func (r *Deposit) ConfirmAsImmutable(txHash string, proposedAmount string, migra
 }
 
 // TransferToDeposit is proxy generated method
-func (r *Deposit) TransferToDeposit(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference, toMember insolar.Reference) error {
-	var args [5]interface{}
+func (r *Deposit) TransferToDeposit(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference, toMember insolar.Reference, txType string) error {
+	var args [6]interface{}
 	args[0] = amountStr
 	args[1] = toDeposit
 	args[2] = fromMember
 	args[3] = request
 	args[4] = toMember
+	args[5] = txType
 
 	var argsSerialized []byte
 
@@ -628,13 +707,14 @@ func (r *Deposit) TransferToDeposit(amountStr string, toDeposit insolar.Referenc
 }
 
 // TransferToDepositAsImmutable is proxy generated method
-func (r *Deposit) TransferToDepositAsImmutable(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference, toMember insolar.Reference) error {
-	var args [5]interface{}
+func (r *Deposit) TransferToDepositAsImmutable(amountStr string, toDeposit insolar.Reference, fromMember insolar.Reference, request insolar.Reference, toMember insolar.Reference, txType string) error {
+	var args [6]interface{}
 	args[0] = amountStr
 	args[1] = toDeposit
 	args[2] = fromMember
 	args[3] = request
 	args[4] = toMember
+	args[5] = txType
 
 	var argsSerialized []byte
 

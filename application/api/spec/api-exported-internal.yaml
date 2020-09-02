@@ -1803,7 +1803,10 @@ paths:
     post:
       summary: deposit.create
       description: >
-        Creates new deposit object with linear vesting and triennial lockup
+        Utility method that only the migration admin member can call.
+
+
+        Creates a new deposit object with linear vesting and triennial lockup
         period.
 
 
@@ -1813,8 +1816,8 @@ paths:
         * in `params`, `reference` to the daemon's member object;
 
         * in `callParams`:
-          * `depositReference`—reference of the target deposit used for calculating parameters of the new deposit;
-          * `memberReference`—reference to the target member object to add new one deposit.
+          * `depositReference`—reference to an existing deposit with the old vesting type to calculate the parameters of a new deposit;
+          * `memberReference`—reference to the target member object to add a deposit with a new vesting type to.
       operationId: deposit.create
       tags:
         - Daemon
@@ -1850,7 +1853,10 @@ paths:
                             depositReference:
                               allOf:
                                 - $ref: '#/components/schemas/reference'
-                                - description: Reference to the target deposit object.
+                                - description: >-
+                                    Reference to an exsiting deposit with the
+                                    "old" vesting type. This deposit is used to
+                                    calculate the parameters of a new one.
                                   example: >-
                                     insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
                             memberReference:
@@ -1863,7 +1869,7 @@ paths:
                           allOf:
                             - $ref: '#/components/schemas/reference'
                             - description: >-
-                                Reference to your `member` object. Used for
+                                Reference to `migrationAdminMember`. Used for
                                 identification.
                               example: >-
                                 insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
@@ -1873,9 +1879,9 @@ paths:
                             ^\s*(-+BEGIN[^-]+-+\s+[a-zA-Z0-9+\/=
                             \n]+-+END[^-]+-+|[a-zA-Z0-9+\/= \n]+)\s*$
                           description: >
-                            Public key of your `member` object. Used to check
-                            the `<signatureString>` created by the paired
-                            private key. Format: a [PEM
+                            Public key of the `migrationAdminMember` object.
+                            Used to check the `<signatureString>` created by the
+                            paired private key. Format: a [PEM
                             key](https://tools.ietf.org/html/rfc1421) in a
                             Base64 string.
                           example: >-

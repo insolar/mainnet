@@ -114,6 +114,12 @@ func (d *Deposit) GetAmount() (string, error) {
 	return d.Amount, nil
 }
 
+// GetBalance gets balance.
+// ins:immutable
+func (d *Deposit) GetBalance() (string, error) {
+	return d.Balance, nil
+}
+
 // Return pulse of unhold deposit.
 // ins:immutable
 func (d *Deposit) GetPulseUnHold() (insolar.PulseNumber, error) {
@@ -236,6 +242,7 @@ func (d *Deposit) TransferToDeposit(
 	fromMember insolar.Reference,
 	request insolar.Reference,
 	toMember insolar.Reference,
+	txType string,
 ) error {
 	amount, ok := new(big.Int).SetString(amountStr, 10)
 	if !ok {
@@ -300,7 +307,12 @@ func (d *Deposit) acquireFundAssets(amount string, requestRef insolar.Reference,
 	}
 
 	err = deposit.GetObject(*maDeposit).TransferToDeposit(
-		amount, d.GetReference(), appfoundation.GetMigrationAdminMember(), requestRef, toMember,
+		amount,
+		d.GetReference(),
+		appfoundation.GetMigrationAdminMember(),
+		requestRef,
+		toMember,
+		string(appfoundation.TTypeMigration),
 	)
 	if err != nil {
 		return errors.Wrap(err, "failed to transfer from migration deposit to deposit")
@@ -377,6 +389,7 @@ func (d *Deposit) createAdditionalDeposit(requestRef insolar.Reference, targetMe
 		maRef,
 		requestRef,
 		targetMember,
+		string(appfoundation.TTypeMigration),
 	)
 }
 

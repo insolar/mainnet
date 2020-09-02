@@ -11,6 +11,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,17 +20,18 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/dgraph-io/badger"
+	"github.com/gbrlsnchs/jwt/v3"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	component "github.com/insolar/component-manager"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.opencensus.io/stats"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-
-	"github.com/gbrlsnchs/jwt/v3"
 
 	"github.com/insolar/insolar/api"
 	"github.com/insolar/insolar/applicationbase/genesis"
@@ -300,9 +302,10 @@ func initWithPostgres(
 		APIWrapper = api.NewWrapper(API, AdminAPIRunner)
 	}
 
+	metricsRegistry := metrics.GetInsolarRegistry(c.NodeRole)
 	metricsComp := metrics.NewMetrics(
 		cfg.Metrics,
-		metrics.GetInsolarRegistry(c.NodeRole),
+		metricsRegistry,
 		c.NodeRole,
 	)
 
@@ -421,18 +424,23 @@ func initWithPostgres(
 		recordExporter = exporter.NewRecordServer(PulsesPostgres, RecordsPostgres, RecordsPostgres, PostgresJetKeeper, cfg.Exporter.Auth)
 		pulseExporter = exporter.NewPulseServer(PulsesPostgres, PostgresJetKeeper, NodesPostgres, cfg.Exporter.Auth)
 
-		grpcServer, err := newGRPCServer(cfg.Exporter)
+		grpcMetrics := grpc_prometheus.NewServerMetrics()
+		grpcMetrics.EnableHandlingTimeHistogram()
+		metricsRegistry.MustRegister(grpcMetrics, statContractVersionClient, statHeavyVersionClient)
+
+		grpcServer, err := newGRPCServer(cfg.Exporter, grpcMetrics)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to initiate a GRPC server")
 		}
 		exporter.RegisterRecordExporterServer(grpcServer, recordExporter)
 		exporter.RegisterPulseExporterServer(grpcServer, pulseExporter)
 
+		grpcMetrics.InitializeMetrics(grpcServer)
 		lis, err := net.Listen("tcp", cfg.Exporter.Addr)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to open port for Exporter")
 		}
-
+		setPlatformVersionMetrics(allowedVersionContract)
 		go func() {
 			if err := grpcServer.Serve(lis); err != nil {
 				panic(fmt.Errorf("exporter failed to serve: %s", err))
@@ -666,9 +674,10 @@ func initWithBadger(
 		APIWrapper = api.NewWrapper(API, AdminAPIRunner)
 	}
 
+	metricsRegistry := metrics.GetInsolarRegistry(c.NodeRole)
 	metricsComp := metrics.NewMetrics(
 		cfg.Metrics,
-		metrics.GetInsolarRegistry(c.NodeRole),
+		metricsRegistry,
 		c.NodeRole,
 	)
 
@@ -765,18 +774,24 @@ func initWithBadger(
 		recordExporter = exporter.NewRecordServer(Pulses, Records, Records, JetKeeper, cfg.Exporter.Auth)
 		pulseExporter = exporter.NewPulseServer(Pulses, JetKeeper, Nodes, cfg.Exporter.Auth)
 
-		grpcServer, err := newGRPCServer(cfg.Exporter)
+		grpcMetrics := grpc_prometheus.NewServerMetrics()
+		grpcMetrics.EnableHandlingTimeHistogram()
+		metricsRegistry.MustRegister(grpcMetrics, statContractVersionClient, statHeavyVersionClient)
+
+		grpcServer, err := newGRPCServer(cfg.Exporter, grpcMetrics)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to initiate a GRPC server")
 		}
 		exporter.RegisterRecordExporterServer(grpcServer, recordExporter)
 		exporter.RegisterPulseExporterServer(grpcServer, pulseExporter)
 
+		grpcMetrics.InitializeMetrics(grpcServer)
+
 		lis, err := net.Listen("tcp", cfg.Exporter.Addr)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to open port for Exporter")
 		}
-
+		setPlatformVersionMetrics(allowedVersionContract)
 		go func() {
 			if err := grpcServer.Serve(lis); err != nil {
 				panic(fmt.Errorf("exporter failed to serve: %s", err))
@@ -828,8 +843,13 @@ var (
 	jwtIss string
 	jwtKey *jwt.HMACSHA
 )
+var allowedVersionContract int64
 
-func newGRPCServer(cfg configuration.Exporter) (*grpc.Server, error) {
+func newGRPCServer(cfg configuration.Exporter, grpcMetrics *grpc_prometheus.ServerMetrics) (*grpc.Server, error) {
+	streamInterceptors := []grpc.StreamServerInterceptor{grpcMetrics.StreamServerInterceptor()}
+	unaryInterceptors := []grpc.UnaryServerInterceptor{grpcMetrics.UnaryServerInterceptor()}
+
+	// add authorization interceptor
 	if cfg.Auth.Required {
 		jwtIss = cfg.Auth.Issuer
 		key := []byte(cfg.Auth.Secret)
@@ -837,9 +857,19 @@ func newGRPCServer(cfg configuration.Exporter) (*grpc.Server, error) {
 			return nil, errors.New("exporter.auth.secret must be 512-bit")
 		}
 		jwtKey = jwt.NewHS512(key)
-		return grpc.NewServer(grpc.UnaryInterceptor(authUnaryIntcp), grpc.StreamInterceptor(authStreamIntcp)), nil
+		unaryInterceptors = append(unaryInterceptors, authUnaryIntcp)
+		streamInterceptors = append(streamInterceptors, authStreamIntcp)
 	}
-	return grpc.NewServer(), nil
+	// add  interceptor for validate version
+	if cfg.CheckVersion {
+		unaryInterceptors = append(unaryInterceptors, validateVersionUnaryIntcp)
+		streamInterceptors = append(streamInterceptors, validateVersionStreamIntcp)
+	}
+
+	return grpc.NewServer(
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(unaryInterceptors...)),
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(streamInterceptors...)),
+	), nil
 }
 
 func newComponents(
@@ -849,7 +879,12 @@ func newComponents(
 	genesisOptions genesis.Options,
 	genesisOnly bool,
 	apiOptions api.Options,
+	contractVersion int64,
 ) (*components, error) {
+	if contractVersion <= 0 {
+		return nil, errors.Errorf("incorrect allowed contract version application: %v", contractVersion)
+	}
+	allowedVersionContract = contractVersion
 	heavyCfg := cfg.GetNodeConfig()
 	switch realCfg := heavyCfg.(type) {
 	case *configuration.ConfigHeavyPg:
@@ -960,6 +995,22 @@ func authStreamIntcp(srv interface{}, stream grpc.ServerStream, info *grpc.Strea
 	return handler(srv, wrapped)
 }
 
+func validateVersionUnaryIntcp(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	err := validateClientVersion(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return handler(ctx, req)
+}
+
+func validateVersionStreamIntcp(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	err := validateClientVersion(stream.Context())
+	if err != nil {
+		return err
+	}
+	return handler(srv, stream)
+}
+
 func authorize(ctx context.Context) (context.Context, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -974,7 +1025,6 @@ func authorize(ctx context.Context) (context.Context, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	newMD := md.Copy()
 	newMD.Set(exporter.ObsID, sub)
 	return metadata.NewIncomingContext(ctx, newMD), nil
@@ -1000,4 +1050,57 @@ func validateJWT(token string) (string, error) {
 	}
 
 	return payload.Subject, nil
+}
+
+func validateClientVersion(ctx context.Context) error {
+	observerID := exporter.ObsUnknown
+	metaData, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return status.Error(codes.InvalidArgument, "failed to retrieve metadata")
+	}
+	if _, isContain := metaData[exporter.ObsID]; isContain && ok {
+		observerID = metaData.Get(exporter.ObsID)[0]
+	}
+	typeClient, ok := metaData[exporter.KeyClientType]
+	if !ok || len(typeClient) == 0 || typeClient[0] == exporter.Unknown.String() {
+		statContractVersionClient.WithLabelValues(observerID).Set(0)
+		return status.Error(codes.InvalidArgument, "unknown type client")
+	}
+
+	switch typeClient[0] {
+	case exporter.ValidateHeavyVersion.String():
+	case exporter.ValidateContractVersion.String():
+		// validate contract version from client
+		err := compareAllowedVersion(exporter.KeyClientVersionContract, allowedVersionContract, metaData, statContractVersionClient.WithLabelValues(observerID))
+		if err != nil {
+			return err
+		}
+	default:
+		return status.Error(codes.InvalidArgument, "unknown type client")
+	}
+	// validate heavy version from client
+	err := compareAllowedVersion(exporter.KeyClientVersionHeavy, exporter.AllowedOnHeavyVersion, metaData, statHeavyVersionClient.WithLabelValues(observerID))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func compareAllowedVersion(nameVersion string, allowedVersion int64, metaDataFromRequest metadata.MD, vec prometheus.Gauge) error {
+	versionClientMD, ok := metaDataFromRequest[nameVersion]
+	if !ok || len(versionClientMD) == 0 {
+		vec.Set(float64(0))
+		return status.Error(codes.InvalidArgument, fmt.Sprintf("unknown %s ", nameVersion))
+	}
+	versionClient, err := strconv.ParseInt(versionClientMD[0], 10, 64)
+	if err != nil || versionClient < 0 {
+		vec.Set(float64(0))
+		return status.Error(codes.InvalidArgument, fmt.Sprintf("incorrect format of the %s", nameVersion))
+	}
+	vec.Set(float64(versionClient))
+	if versionClient == 0 || versionClient < allowedVersion {
+		return status.Error(codes.PermissionDenied, exporter.ErrDeprecatedClientVersion.Error())
+	}
+
+	return nil
 }

@@ -21,7 +21,6 @@ import (
 	"github.com/insolar/insolar/applicationbase/testutils/testresponse"
 	"github.com/insolar/insolar/insolar/secrets"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
-
 	"github.com/insolar/mainnet/application/genesisrefs"
 
 	"github.com/insolar/insolar/api/requester"

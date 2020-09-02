@@ -157,7 +157,7 @@ func TestMigrationDaemonTransferDeposit(t *testing.T) {
 		require.Equal(t, oldBalance.String(), newBalance.String())
 		require.Equal(t, oldDepositStr, newDepositStr)
 	} else {
-		_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
+		_, _, err = testrequest.MakeSignedRequest(launchnet.TestRPCUrlPublic, m,
 			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
 		)
 		require.NoError(t, err)

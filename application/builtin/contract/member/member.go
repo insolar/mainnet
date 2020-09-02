@@ -344,7 +344,7 @@ func (m *Member) depositTransferToDepositCall(params map[string]interface{}) (in
 		return nil, errors.Wrap(err, "failed to find toDeposit object")
 	}
 	depositObj := deposit.GetObject(*fromDepositRef)
-	amountStr, err := depositObj.GetAmount()
+	amountStr, err := depositObj.GetBalance()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get deposit amount")
 	}
@@ -352,7 +352,7 @@ func (m *Member) depositTransferToDepositCall(params map[string]interface{}) (in
 	if err != nil {
 		return nil, fmt.Errorf("failed to get request reference: %s", err.Error())
 	}
-	return nil, depositObj.TransferToDeposit(amountStr, *toDepositRef, m.GetReference(), *request, *toMemberRef)
+	return nil, depositObj.TransferToDeposit(amountStr, *toDepositRef, m.GetReference(), *request, *toMemberRef, string(appfoundation.TTypeAllocation))
 }
 
 func (m *Member) depositMigrationCall(params map[string]interface{}) (interface{}, error) {
@@ -372,6 +372,12 @@ func (m *Member) depositMigrationCall(params map[string]interface{}) (interface{
 }
 
 func (m *Member) createFundCall(params map[string]interface{}) (interface{}, error) {
+	// check permissions
+	if !m.GetReference().Equal(appfoundation.GetMigrationAdminMember()) {
+		return nil, fmt.Errorf("only migration admin can call this method")
+	}
+
+	// parse args
 	lockupEndDateStr, ok := params["lockupEndDate"].(string)
 	if !ok {
 		return nil, fmt.Errorf("failed to get 'lockupEndDate' param")
@@ -382,7 +388,19 @@ func (m *Member) createFundCall(params map[string]interface{}) (interface{}, err
 		return nil, errors.Wrap(err, "failed to parse timestamp value")
 	}
 
-	return wallet.GetObject(m.Wallet).CreateFund(lockupEndDate)
+	// prevent double creation
+	walletObj := wallet.GetObject(m.Wallet)
+	found, dRef, err := walletObj.FindDeposit(depositContract.PublicAllocation2DepositName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find deposit: %s", err.Error())
+	}
+	if found {
+		return nil, fmt.Errorf("fund already created depositRef=%s", dRef.String())
+	}
+
+	// fund creation
+	_, err = walletObj.CreateFund(lockupEndDate)
+	return map[string]interface{}{}, err
 }
 
 func (m *Member) depositCreateCall(params map[string]interface{}) (interface{}, error) {
@@ -489,6 +507,7 @@ func (m *Member) depositCreateCall(params map[string]interface{}) (interface{}, 
 		m.GetReference(),
 		*request,
 		*targetMember,
+		string(appfoundation.TTypeMigration),
 	)
 }
 

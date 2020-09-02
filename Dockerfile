@@ -25,6 +25,7 @@ RUN  set -eux; \
      groupadd -r insolar --gid=999; \
      useradd -r -g insolar --uid=999 --shell=/bin/bash insolar
 COPY --from=build /go/src/github.com/insolar/mainnet/application/api/spec/api-exported.yaml /app/api-exported.yaml
+COPY --from=build /go/src/github.com/insolar/mainnet/application/api/spec/api-exported-internal.yaml /app/api-exported-internal.yaml
 
 # add script and configs required for network bootstrap
 ADD scripts/kube/bootstrap/* /app/bootstrap/
