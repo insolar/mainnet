@@ -140,7 +140,12 @@ func GetMigrationShardGenesisContractState(name string, migrationAddresses []str
 	}
 }
 
-func GetMigrationAdminGenesisContractState(lockup int64, vesting int64, vestingStep int64, maShardCount int) genesis.ContractState {
+func GetMigrationAdminGenesisContractState(
+	lockup int64,
+	vesting int64,
+	vestingStep int64,
+	maShardCount int,
+) genesis.ContractState {
 	return genesis.ContractState{
 		Name:       application.GenesisNameMigrationAdmin,
 		Prototype:  application.GenesisNameMigrationAdmin,
@@ -149,6 +154,11 @@ func GetMigrationAdminGenesisContractState(lockup int64, vesting int64, vestingS
 			MigrationAddressShards: genesisrefs.ContractMigrationAddressShards(maShardCount),
 			MigrationAdminMember:   genesisrefs.ContractMigrationAdminMember,
 			VestingParams: &migrationadmin.VestingParams{
+				Lockup:      lockup,
+				Vesting:     vesting,
+				VestingStep: vestingStep,
+			},
+			LinearVestingParams: &migrationadmin.VestingParams{
 				Lockup:      lockup,
 				Vesting:     vesting,
 				VestingStep: vestingStep,
