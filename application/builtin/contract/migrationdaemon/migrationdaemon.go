@@ -11,6 +11,7 @@ import (
 
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
+	"github.com/insolar/insolar/pulse"
 	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
 	"github.com/insolar/mainnet/application/builtin/proxy/member"
@@ -105,7 +106,15 @@ func (md *MigrationDaemon) depositMigration(
 
 	w := wallet.GetObject(*tokenHolderWallet)
 	vestingParams, _ := migrationAdminContract.GetDepositParameters()
-	depositRef, err := w.FindOrCreateDeposit(txHash, vestingParams.Lockup, vestingParams.Vesting, vestingParams.VestingStep)
+	emptyConfirms := []appfoundation.DaemonConfirm{}
+	const (
+		ZeroBalance                 = "0"
+		UndefinedDepositUnholdPulse = pulse.Number(0)
+		ZeroAmount                  = "0"
+		DefaultVestingType          = appfoundation.DefaultVesting
+		NotConfirmed                = false
+	)
+	depositRef, err := w.FindOrCreateDeposit(txHash, vestingParams.Lockup, vestingParams.Vesting, vestingParams.VestingStep, ZeroBalance, UndefinedDepositUnholdPulse, emptyConfirms, ZeroAmount, DefaultVestingType, NotConfirmed)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get or create deposit: %s", err.Error())
 	}

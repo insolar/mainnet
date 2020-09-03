@@ -668,6 +668,214 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/response-daemon-status-yaml'
                   - $ref: '#/components/schemas/response-signedRequestError'
+  '/admin-api/rpc#staking.initialize':
+    post:
+      summary: staking.initialize
+      description: >
+        Utility method that only the root member can call.
+
+
+        Registers a pre-existing member as staking admin and activates the
+        Staking Manager contract. The staking service requires this contract to
+        operate.
+
+
+        To invoke this method, specify a `reference` to a pre-created member in
+        `callParams`. This member becomes the staking admin.
+      operationId: staking-initialize
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - staking.initialize
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - reference
+                          properties:
+                            reference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: >-
+                                    Reference to a pre-existing member to
+                                    register as staking admin.
+                                  example: >-
+                                    insolar:1AfNjPWh7Ut-P7Ky7Mj7HLCte3gjGXi4RpXNxTvrhlww
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to `rootMember`. Can be acquired by
+                                the `network.getInfo` status request. Used for
+                                identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          description: >
+                            Public key of the `rootMember` object. Used to check
+                            the `<signatureString>` created by the paired
+                            private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-success'
+                  - $ref: '#/components/schemas/response-signedRequestError'
+  '/admin-api/rpc#staking.reward':
+    post:
+      summary: staking.reward
+      description: >
+        Utility method that only a pre-created `stakingAdminMember` can call.
+
+
+        Transfers a reward (funds without fee) to the member who participated in
+        staking from a foundation deposit or service manager's current account.
+
+
+        To invoke this method, specify in `callParams`:
+
+
+        * `toMemberReference`—reference to the current account of a member who
+        participated in staking
+
+        * `rewardID`—unique identifier used for tracking rewards
+
+        * `fromAccountReference`—reference to withdraw XNS coins from
+
+        * `amount`—the amount of rewards
+      operationId: staking-reward
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - staking.reward
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - toMemberReference
+                            - rewardID
+                            - fromAccountReference
+                            - amount
+                          properties:
+                            toMemberReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: Reference to a member.
+                                  example: >-
+                                    insolar:1AfNjPWh7Ut-P7Ky7Mj7HLCte3gjGXi4RpXNxTvrhlww
+                            rewardID:
+                              type: string
+                              description: >-
+                                Identifier used for tracking the paid interest
+                                on the observer node.
+                              pattern: >-
+                                ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+                              example: 09559110-db49-4fc5-a6f3-3f629bffc236
+                            fromAccountReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: >-
+                                    Reference to a foundation deposit account or
+                                    staking manager's current account.
+                                  example: >-
+                                    insolar:1AfNjPWh7Ut-P7Ky7Mj7HLCte3gjGXi4RpXNxTvrhlww
+                            amount:
+                              type: string
+                              description: >
+                                Amount of XNS coin fractions to transfer—a whole
+                                number. The smallest fraction of XNS is
+                                `1/10^10`. To specify the amount in fractions,
+                                multiply XNS by `10^10`. For example: `0.1 XNS =
+                                0.1 * 10^10 = 1000000000`.
+                              example: '1000000000'
+                              pattern: '^[1-9][0-9]*$'
+                              minLength: 1
+                              maxLength: 20
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to `stakingAdminMember`. Used for
+                                identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          description: >
+                            Public key of the `stakingAdminMember` object. Used
+                            to check the `<signatureString>` created by the
+                            paired private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-success'
+                  - $ref: '#/components/schemas/response-signedRequestError'
   '/admin-api/rpc#migration.addAddresses':
     post:
       summary: migration.addAddresses
@@ -992,6 +1200,308 @@ paths:
                     id: 1
                     result:
                       specification: as a free-form JSON object
+  '/admin-api/rpc#staking.authorize':
+    post:
+      summary: staking.authorize
+      description: >
+        Utility method that only a pre-created `stakingAdminMember` can call.
+
+
+        Authorize (`"authorized": true`) or not (`false`) a staking request
+        (bid) from a member.
+
+
+        The staking process consists of the following steps:
+
+
+        1. Member calls the `staking.stake` method—creates a bid.
+
+
+        2. Staking service checks if the bid does not topple over the node's
+        capacity limit.
+
+
+        3. If the bid is under the limit, the service approves the bid by
+        calling this request.
+      operationId: staking-authorize
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - staking.authorize
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - stakeReference
+                            - bidID
+                            - authorized
+                          properties:
+                            stakeReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: Reference to a member's staking account.
+                                  example: >-
+                                    insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                            bidID:
+                              type: string
+                              description: >-
+                                Unique identificator of a staking request from a
+                                member.
+                              pattern: >-
+                                ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+                              example: 09559110-db49-4fc5-a6f3-3f629bffc236
+                            authorized:
+                              type: boolean
+                              description: >
+                                Authorization for this bid. If `true`, the
+                                permission to stake is granted.
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to a `stakingAdminMember` object. Used
+                                for identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          type: string
+                          pattern: >-
+                            ^\s*(-+BEGIN[^-]+-+\s+[a-zA-Z0-9+\/=
+                            \n]+-+END[^-]+-+|[a-zA-Z0-9+\/= \n]+)\s*$
+                          description: >
+                            Public key of a `stakingAdminMember` object. Used to
+                            check the `<signatureString>` created by the paired
+                            private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-success'
+                  - $ref: '#/components/schemas/response-signedRequestError'
+  '/admin-api/rpc#staking.release':
+    post:
+      summary: staking.release
+      description: >
+        Utility method that only a pre-created `stakingAdminMember` can call.
+
+
+        Releases the funds that were requested for withdrawal by a member.
+
+
+        The withdrawal process consists of the following steps:
+
+
+        1. Member calls the `staking.withdraw` method—creates a withdrawal
+        request.
+
+
+        2. Funds to withdraw are locked for 7 days.
+
+
+        3. Staking service checks if the 7-day period has passed and, if yes,
+        releases the funds—transfers them to the member's current account.
+      operationId: staking-release
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - staking.release
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - stakeReference
+                            - withdrawalID
+                          properties:
+                            stakeReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: Reference to a member's staking account.
+                                  example: >-
+                                    insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                            withdrawalID:
+                              type: string
+                              description: >-
+                                Unique identifier of a withdrawal request from a
+                                member.
+                              pattern: >-
+                                ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+                              example: 09559110-db49-4fc5-a6f3-3f629bffc236
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to a `stakingAdminMember` object. Used
+                                for identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          type: string
+                          pattern: >-
+                            ^\s*(-+BEGIN[^-]+-+\s+[a-zA-Z0-9+\/=
+                            \n]+-+END[^-]+-+|[a-zA-Z0-9+\/= \n]+)\s*$
+                          description: >
+                            Public key of a `stakingAdminMember` object. Used to
+                            check the `<signatureString>` created by the paired
+                            private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-success'
+                  - $ref: '#/components/schemas/response-signedRequestError'
+  '/admin-api/rpc#staking.set-rate':
+    post:
+      summary: staking.setRate
+      description: |
+        Utility method that only a pre-created `stakingAdminMember` can call.
+
+        Sets inflation rate.
+
+        To invoke this method, specify in `callParams`:
+
+        * `rate` in the range from 0 to 20 (%)
+        * `timestamp` (current) from which to start using the specified rate
+      operationId: staking-set-rate
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - staking.setRate
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - rate
+                            - timestamp
+                          properties:
+                            rate:
+                              type: string
+                              description: Rate value to set. Can be from `0` to `20` (%).
+                              example: '11'
+                              pattern: '^(20|1[0-9]|[0-9])$'
+                            timestamp:
+                              type: string
+                              description: >-
+                                Timestamp (current) from which to start using
+                                the specified rate.
+                              example: '1593676004'
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to `stakingAdminMember`. Used for
+                                identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          description: >
+                            Public key of the `stakingAdminMember` object. Used
+                            to check the `<signatureString>` created by the
+                            paired private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-success'
+                  - $ref: '#/components/schemas/response-signedRequestError'
   '/admin-api/rpc#account.transferToDeposit':
     post:
       summary: account.transferToDeposit
@@ -1289,10 +1799,113 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/response-success'
                   - $ref: '#/components/schemas/response-signedRequestError'
+  '/admin-api/rpc#deposit.create':
+    post:
+      summary: deposit.create
+      description: >
+        Utility method that only the migration admin member can call.
+
+
+        Creates a new deposit object with linear vesting and triennial lockup
+        period.
+
+
+        To invoke this method, specify the following parameters:
+
+
+        * in `params`, `reference` to the daemon's member object;
+
+        * in `callParams`:
+          * `depositReference`—reference to an existing deposit with the old vesting type to calculate the parameters of a new deposit;
+          * `memberReference`—reference to the target member object to add a deposit with a new vesting type to.
+      operationId: deposit.create
+      tags:
+        - Daemon
+      parameters:
+        - $ref: '#/components/parameters/digestHeader'
+        - $ref: '#/components/parameters/signatureHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/request-contractCall'
+                - type: object
+                  required:
+                    - params
+                  properties:
+                    params:
+                      required:
+                        - callParams
+                        - reference
+                        - publicKey
+                      properties:
+                        callSite:
+                          enum:
+                            - deposit.create
+                        callParams:
+                          description: Parameters of the contract's internal method.
+                          required:
+                            - depositReference
+                            - memberReference
+                          properties:
+                            depositReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: >-
+                                    Reference to an exsiting deposit with the
+                                    "old" vesting type. This deposit is used to
+                                    calculate the parameters of a new one.
+                                  example: >-
+                                    insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                            memberReference:
+                              allOf:
+                                - $ref: '#/components/schemas/reference'
+                                - description: Reference to the target member object.
+                                  example: >-
+                                    insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        reference:
+                          allOf:
+                            - $ref: '#/components/schemas/reference'
+                            - description: >-
+                                Reference to `migrationAdminMember`. Used for
+                                identification.
+                              example: >-
+                                insolar:1GlDeBOnc7Ar5N34ShBdkx_SAVOfnZJKUCoQMi0_OcvE
+                        publicKey:
+                          type: string
+                          pattern: >-
+                            ^\s*(-+BEGIN[^-]+-+\s+[a-zA-Z0-9+\/=
+                            \n]+-+END[^-]+-+|[a-zA-Z0-9+\/= \n]+)\s*$
+                          description: >
+                            Public key of the `migrationAdminMember` object.
+                            Used to check the `<signatureString>` created by the
+                            paired private key. Format: a [PEM
+                            key](https://tools.ietf.org/html/rfc1421) in a
+                            Base64 string.
+                          example: >-
+                            -----BEGIN PUBLIC KEY-----
+
+                            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMSbA4KvO/jlwY+8WFDEdwhCLlsEC
+
+                            F3/GYvu9iTWHwCctx1wTbGGjNLY03EjXyYxaf8coNbSbZeu+jXcWeMHG0A==
+
+                            -----END PUBLIC KEY-----
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/response-success'
+                  - $ref: '#/components/schemas/response-signedRequestError'
 tags:
   - name: Node
   - name: Member
   - name: Daemon
+  - name: Staking
   - name: Address
   - name: Specification
 components:
