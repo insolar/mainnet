@@ -261,10 +261,19 @@ func (d *Deposit) TransferToDeposit(
 	}
 	d.Balance = newBalance.String()
 	destination := deposit.GetObject(toDeposit)
+
+	// We will use the reference of the current request as the transaction ID.
+	txID, err := foundation.GetRequestReference()
+	if err != nil {
+		return errors.Wrap(err, "failed to get current request reference")
+	}
+	if txID == nil {
+		return errors.New("invalid logical context. request reference is nil")
+	}
 	acceptDepositErr := destination.Accept(appfoundation.SagaAcceptInfo{
 		Amount:     amountStr,
 		FromMember: fromMember,
-		Request:    request,
+		Request:    *txID,
 	})
 	if acceptDepositErr == nil {
 		return nil
