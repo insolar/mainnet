@@ -12,8 +12,6 @@ import (
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/insolar/insolar/logicrunner/common"
-	"github.com/insolar/insolar/pulse"
-	"github.com/insolar/mainnet/application/appfoundation"
 )
 
 // PrototypeReference to prototype of this contract
@@ -563,18 +561,12 @@ func (r *Wallet) FindDeposit(transactionHash string) (bool, *insolar.Reference, 
 }
 
 // FindOrCreateDeposit is proxy generated method
-func (r *Wallet) FindOrCreateDeposit(txHash string, lockup int64, vesting int64, vestingStep int64, balance string, pulseDepositUnHold pulse.Number, confirms []appfoundation.DaemonConfirm, amount string, vestingType appfoundation.VestingType, isConfirmed bool) (*insolar.Reference, error) {
-	var args [10]interface{}
-	args[0] = txHash
+func (r *Wallet) FindOrCreateDeposit(transactionHash string, lockup int64, vesting int64, vestingStep int64) (*insolar.Reference, error) {
+	var args [4]interface{}
+	args[0] = transactionHash
 	args[1] = lockup
 	args[2] = vesting
 	args[3] = vestingStep
-	args[4] = balance
-	args[5] = pulseDepositUnHold
-	args[6] = confirms
-	args[7] = amount
-	args[8] = vestingType
-	args[9] = isConfirmed
 
 	var argsSerialized []byte
 
@@ -612,18 +604,12 @@ func (r *Wallet) FindOrCreateDeposit(txHash string, lockup int64, vesting int64,
 }
 
 // FindOrCreateDepositAsImmutable is proxy generated method
-func (r *Wallet) FindOrCreateDepositAsImmutable(txHash string, lockup int64, vesting int64, vestingStep int64, balance string, pulseDepositUnHold pulse.Number, confirms []appfoundation.DaemonConfirm, amount string, vestingType appfoundation.VestingType, isConfirmed bool) (*insolar.Reference, error) {
-	var args [10]interface{}
-	args[0] = txHash
+func (r *Wallet) FindOrCreateDepositAsImmutable(transactionHash string, lockup int64, vesting int64, vestingStep int64) (*insolar.Reference, error) {
+	var args [4]interface{}
+	args[0] = transactionHash
 	args[1] = lockup
 	args[2] = vesting
 	args[3] = vestingStep
-	args[4] = balance
-	args[5] = pulseDepositUnHold
-	args[6] = confirms
-	args[7] = amount
-	args[8] = vestingType
-	args[9] = isConfirmed
 
 	var argsSerialized []byte
 

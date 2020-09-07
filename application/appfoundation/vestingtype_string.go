@@ -13,12 +13,11 @@ func _() {
 	_ = x[Vesting2-2]
 	_ = x[Vesting3-3]
 	_ = x[Vesting4-4]
-	_ = x[LinearVesting-5]
 }
 
-const _VestingType_name = "DefaultVestingVesting1Vesting2Vesting3Vesting4LinearVesting"
+const _VestingType_name = "DefaultVestingVesting1Vesting2Vesting3Vesting4"
 
-var _VestingType_index = [...]uint8{0, 14, 22, 30, 38, 46, 59}
+var _VestingType_index = [...]uint8{0, 14, 22, 30, 38, 46}
 
 func (i VestingType) String() string {
 	if i < 0 || i >= VestingType(len(_VestingType_index)-1) {

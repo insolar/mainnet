@@ -12,7 +12,6 @@ import (
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/insolar/insolar/logicrunner/common"
-	"github.com/insolar/insolar/pulse"
 	"github.com/insolar/mainnet/application/appfoundation"
 	"github.com/pkg/errors"
 )
@@ -845,7 +844,7 @@ func INSCONSTRUCTOR_New(ref insolar.Reference, data []byte) (state []byte, resul
 	ph := common.CurrentProxyCtx
 	ph.SetSystemError(nil)
 
-	args := make([]interface{}, 10)
+	args := make([]interface{}, 4)
 	var args0 string
 	args[0] = &args0
 	var args1 int64
@@ -854,18 +853,6 @@ func INSCONSTRUCTOR_New(ref insolar.Reference, data []byte) (state []byte, resul
 	args[2] = &args2
 	var args3 int64
 	args[3] = &args3
-	var args4 string
-	args[4] = &args4
-	var args5 pulse.Number
-	args[5] = &args5
-	var args6 []appfoundation.DaemonConfirm
-	args[6] = &args6
-	var args7 string
-	args[7] = &args7
-	var args8 appfoundation.VestingType
-	args[8] = &args8
-	var args9 bool
-	args[9] = &args9
 
 	err = ph.Deserialize(data, &args)
 	if err != nil {
@@ -905,7 +892,7 @@ func INSCONSTRUCTOR_New(ref insolar.Reference, data []byte) (state []byte, resul
 		}
 	}()
 
-	ret0, ret1 = New(args0, args1, args2, args3, args4, args5, args6, args7, args8, args9)
+	ret0, ret1 = New(args0, args1, args2, args3)
 
 	needRecover = false
 
