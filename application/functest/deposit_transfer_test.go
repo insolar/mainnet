@@ -8,7 +8,6 @@
 package functest
 
 import (
-	"fmt"
 	"math/big"
 	"strings"
 	"testing"
@@ -16,13 +15,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/insolar/insolar/api/requester"
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
 	"github.com/insolar/insolar/applicationbase/testutils/testrequest"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
 	"github.com/insolar/insolar/testutils"
 )
 
+// TODO: https://insolar.atlassian.net/browse/WLT-768
 func TestDepositTransferToken(t *testing.T) {
 	ethHash := testutils.RandomEthHash()
 
@@ -115,47 +114,4 @@ func TestDepositTransferNotEnoughConfirms(t *testing.T) {
 		"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": ethHash})
 	data := checkConvertRequesterError(t, err).Data
 	require.Contains(t, data.Trace, "not enough balance for transfer")
-}
-
-func TestDepositTransfer(t *testing.T) {
-	t.Run("from_deposit_2", func(t *testing.T) {
-		ethHash := testutils.RandomEthHash()
-		member := fullMigration(t, ethHash)
-
-		deposit2 := fmt.Sprintf("%s_2", ethHash)
-
-		err := registerDepositTransferCall(t, member, deposit2, "1000")
-
-		// We expect error here
-		// cause hold period for additional deposit equals hold period of base deposit
-		// plus hardcoded 3 year's period.
-		require.Error(t, err)
-		requesterError, ok := err.(*requester.Error)
-		require.True(t, ok)
-		trace := strings.Join(requesterError.Data.Trace, ": ")
-		require.Contains(t, trace, "hold period didn't end")
-
-	})
-}
-
-func registerDepositTransferCall(t *testing.T, member *AppUser, ethHash, amount string) error {
-	method := "deposit.transfer"
-	_, _, err := testrequest.MakeSignedRequest(launchnet.TestRPCUrlPublic, member, method,
-		map[string]interface{}{
-			"amount":    amount,
-			"ethTxHash": ethHash,
-		},
-	)
-
-	if err != nil {
-		var suffix string
-		requesterError, ok := err.(*requester.Error)
-		if ok {
-			suffix = " [" + strings.Join(requesterError.Data.Trace, ": ") + "]"
-		}
-		t.Log("[" + method + "]" + err.Error() + suffix)
-		return err
-	}
-
-	return nil
 }

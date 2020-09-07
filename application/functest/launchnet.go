@@ -7,21 +7,15 @@ package functest
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"strconv"
-	"time"
 
-	"github.com/insolar/insolar/insolar/defaults"
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/pkg/errors"
 
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
-
 	"github.com/insolar/mainnet/application"
-	"github.com/insolar/mainnet/application/builtin/contract/deposit"
-	"github.com/insolar/mainnet/application/genesisrefs"
 	"github.com/insolar/mainnet/application/sdk"
 )
 
@@ -203,124 +197,10 @@ func SetInfo() error {
 	if err != nil {
 		return errors.Wrap(err, "[ setInfo ] error sending request")
 	}
-
-	err = PostGenesis()
-	if err != nil {
-		return errors.Wrap(err, "[ setInfo ] failed to execute post genesis")
-	}
 	return nil
 }
 
 func AfterSetup() {
 	Root.Ref = info.RootMember
 	MigrationAdmin.Ref = info.MigrationAdminMember
-}
-
-func PostGenesis() error {
-	fmt.Println("[ PostGenesis ] starting...")
-	err := preparePublicAllocation2()
-	if err != nil {
-		return errors.Wrap(err, "failed to create fund public allocation 2")
-	}
-	return nil
-}
-
-func preparePublicAllocation2() error {
-	insSDK, err := sdk.NewSDK(
-		[]string{launchnet.TestRPCUrl},
-		[]string{launchnet.TestRPCUrlPublic},
-		defaults.LaunchnetConfigDir(),
-		sdk.DefaultOptions)
-	if err != nil {
-		return errors.Wrap(err, "SDK is not initialized")
-	}
-
-	lockupEndDate := time.Now().Unix()
-	_, err = insSDK.CreateFund(strconv.FormatInt(lockupEndDate, 10))
-	if err != nil {
-		return errors.Wrap(err, "failed to call deposit.createFund")
-	}
-
-	migrationAdmin := insSDK.GetMigrationAdminMember()
-
-	for i, donor := range insSDK.GetEnterpriseMembers() {
-		err := transferFromAccountToDeposit(
-			insSDK,
-			donor,
-			deposit.PublicAllocation2DepositName,
-			migrationAdmin.GetReference(),
-			application.EnterpriseDistributionAmount,
-		)
-		if err != nil {
-			return errors.Wrapf(err, "failed to transfer money from enterprise member #%d", i)
-		}
-	}
-
-	for i, donor := range insSDK.GetApplicationIncentivesMembers() {
-		err = transferFromDepositToDeposit(
-			insSDK,
-			donor,
-			genesisrefs.FundsDepositName,
-			deposit.PublicAllocation2DepositName,
-			migrationAdmin.GetReference(),
-		)
-		if err != nil {
-			return errors.Wrapf(err, "failed to transfer money from application incentives member #%d", i)
-		}
-	}
-
-	for i, donor := range insSDK.GetFoundationMembers() {
-		err = transferFromDepositToDeposit(
-			insSDK,
-			donor,
-			genesisrefs.FundsDepositName,
-			deposit.PublicAllocation2DepositName,
-			migrationAdmin.GetReference(),
-		)
-		if err != nil {
-			return errors.Wrapf(err, "failed to transfer money from foundation member #%d", i)
-		}
-	}
-
-	for i, donor := range insSDK.GetNetworkIncentivesMembers() {
-		err = transferFromDepositToDeposit(
-			insSDK,
-			donor,
-			genesisrefs.FundsDepositName,
-			deposit.PublicAllocation2DepositName,
-			migrationAdmin.GetReference(),
-		)
-		if err != nil {
-			return errors.Wrapf(err, "failed to transfer money from network incentives member #%d", i)
-		}
-	}
-
-	return nil
-}
-
-func transferFromDepositToDeposit(insSDK *sdk.SDK,
-	from sdk.Member,
-	fromDepositName string,
-	toDepositName string,
-	toMemberRef string) error {
-
-	_, err := insSDK.TransferFromDepositToDeposit(from, fromDepositName, toDepositName, toMemberRef)
-	if err != nil {
-		return errors.Wrap(err, "failed to call deposit.transferToDeposit")
-	}
-	return nil
-}
-
-func transferFromAccountToDeposit(insSDK *sdk.SDK,
-	from sdk.Member,
-	toDepositName string,
-	toMemberRef string,
-	amount string,
-) error {
-
-	_, err := insSDK.TransferFromAccountToDeposit(from, toDepositName, toMemberRef, amount)
-	if err != nil {
-		return errors.Wrap(err, "failed to call account.transferToDeposit")
-	}
-	return nil
 }

@@ -32,11 +32,17 @@ func TestDepositCreateFund(t *testing.T) {
 
 		lockupEndDate := time.Now().Unix()
 
+		// make call
+		err := registerCreateFundCall(t, map[string]interface{}{
+			"lockupEndDate": strconv.FormatInt(lockupEndDate, 10),
+		})
+		require.NoError(t, err)
+
 		_, deposits := getBalanceAndDepositsNoErr(t, &MigrationAdmin, MigrationAdmin.Ref)
 		require.Contains(t, deposits, "genesis_deposit2")
 
 		// check double creation
-		err := registerCreateFundCall(t, map[string]interface{}{
+		err = registerCreateFundCall(t, map[string]interface{}{
 			"lockupEndDate": strconv.FormatInt(lockupEndDate, 10),
 		})
 		require.Error(t, err)

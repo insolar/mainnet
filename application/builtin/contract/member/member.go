@@ -14,7 +14,6 @@ import (
 	"github.com/insolar/insolar/applicationbase/builtin/proxy/nodedomain"
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
-	"github.com/insolar/insolar/pulse"
 	"github.com/pkg/errors"
 
 	"github.com/insolar/mainnet/application/appfoundation"
@@ -162,8 +161,6 @@ func (m *Member) Call(signedRequest []byte) (interface{}, error) {
 		return m.depositTransferToDepositCall(params)
 	case "deposit.createFund":
 		return m.createFundCall(params)
-	case "deposit.create":
-		return m.depositCreateCall(params)
 	// account.*
 	case "account.transferToDeposit":
 		return m.accountTransferToDepositCall(params)
@@ -401,114 +398,6 @@ func (m *Member) createFundCall(params map[string]interface{}) (interface{}, err
 	// fund creation
 	_, err = walletObj.CreateFund(lockupEndDate)
 	return map[string]interface{}{}, err
-}
-
-func (m *Member) depositCreateCall(params map[string]interface{}) (interface{}, error) {
-	// check permissions
-	if !m.GetReference().Equal(appfoundation.GetMigrationAdminMember()) {
-		return nil, fmt.Errorf("only migration admin can call this method")
-	}
-
-	// parse RPC CallParams
-	depositRefStr, ok := params["depositReference"].(string)
-	if !ok {
-		return nil, fmt.Errorf("failed to get 'depositReference' param")
-	}
-	targetDeposit, err := insolar.NewObjectReferenceFromString(depositRefStr)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to cast depositReference from string")
-	}
-
-	memberRefStr, ok := params["memberReference"].(string)
-	if !ok {
-		return nil, fmt.Errorf("failed to get 'memberReference' param")
-	}
-	targetMember, err := insolar.NewObjectReferenceFromString(memberRefStr)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to cast memberReference from string")
-	}
-
-	// get target deposit info
-	depositInfoMap, err := deposit.GetObject(*targetDeposit).Itself()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get deposit itself")
-	}
-
-	depositInfoJson, err := json.Marshal(depositInfoMap)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal depositInfoMap=%v", depositInfoMap)
-	}
-	depositInfo := &deposit.DepositOut{}
-	err = json.Unmarshal(depositInfoJson, depositInfo)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal depositInfo=%s", string(depositInfoJson))
-	}
-
-	// calc new vesting parameters
-	vestingParams, err := migrationadmin.GetObject(appfoundation.GetMigrationAdmin()).GetLinearDepositParameters()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get linear deposit parameters")
-	}
-	pulseDepositUnHold := pulse.Number(depositInfo.HoldStartDate + vestingParams.Lockup)
-
-	// get target wallet object
-	targetWallet, err := member.GetObject(*targetMember).GetWallet()
-	if err != nil {
-		if strings.Contains(err.Error(), "index not found") {
-			return nil, fmt.Errorf("target member does not exist")
-		}
-		return nil, errors.Wrap(err, "failed to get target wallet")
-	}
-	targetWalletObj := wallet.GetObject(*targetWallet)
-
-	// check that target deposit is affiliated with a target member
-	found, actualDepositRef, err := targetWalletObj.FindDeposit(depositInfo.TxHash)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to check target deposit existence")
-	}
-	if !found || actualDepositRef == nil {
-		return nil, fmt.Errorf("actual deposit ref is nil or deposit doesn't exist")
-	}
-	if !actualDepositRef.Equal(*targetDeposit) {
-		return nil, fmt.Errorf("actual deposit ref doesn't equal target deposit")
-	}
-
-	// try to create new deposit
-	newTxHash := depositInfo.TxHash + "_2"
-	const (
-		ZeroBalance    = "0"
-		FullyConfirmed = true
-	)
-	found, _, err = targetWalletObj.FindDeposit(newTxHash)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to check existence of linear deposit")
-	}
-	if found {
-		return nil, errors.New("linear deposit is already created")
-	}
-	newDeposit, err := targetWalletObj.FindOrCreateDeposit(newTxHash, vestingParams.Lockup, vestingParams.Vesting, vestingParams.VestingStep, ZeroBalance, pulseDepositUnHold, depositInfo.MigrationDaemonConfirms, depositInfo.Amount, appfoundation.LinearVesting, FullyConfirmed)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to find or create deposit")
-	}
-
-	// migrate money to new deposit
-	fund, err := m.getDepositReferenceByName(depositContract.PublicAllocation2DepositName, m.GetReference())
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to find allocation deposit")
-	}
-
-	request, err := foundation.GetRequestReference()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get request reference")
-	}
-	return nil, deposit.GetObject(*fund).TransferToDeposit(
-		depositInfo.Amount,
-		*newDeposit,
-		m.GetReference(),
-		*request,
-		*targetMember,
-		string(appfoundation.TTypeMigration),
-	)
 }
 
 func (m *Member) accountTransferToDepositCall(params map[string]interface{}) (interface{}, error) {

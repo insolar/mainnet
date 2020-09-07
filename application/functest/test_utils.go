@@ -52,7 +52,6 @@ type rpcInfoResponse struct {
 }
 
 func checkConvertRequesterError(t *testing.T, err error) *requester.Error {
-	require.Error(t, err)
 	rv, ok := err.(*requester.Error)
 	require.Truef(t, ok, "got wrong error %T (expected *requester.Error) with text '%s'", err, err.Error())
 	return rv
@@ -109,11 +108,7 @@ func getAdminDepositBalance(t *testing.T, caller *AppUser, reference string) (*b
 
 func getDepositBalance(t *testing.T, caller *AppUser, reference string, ethHash string) (*big.Int, error) {
 	_, deposits := getBalanceAndDepositsNoErr(t, caller, reference)
-	mapFace, ok := deposits[ethHash]
-	if !ok {
-		return nil, fmt.Errorf("deposit with this ethHash is missing in the wallet")
-	}
-	mapd, ok := mapFace.(map[string]interface{})
+	mapd, ok := deposits[ethHash].(map[string]interface{})
 	if !ok {
 		return nil, fmt.Errorf("can't parse deposit")
 	}
@@ -122,12 +117,6 @@ func getDepositBalance(t *testing.T, caller *AppUser, reference string, ethHash 
 		return nil, fmt.Errorf("can't parse deposit balance")
 	}
 	return amount, nil
-}
-
-func getDepositBalanceNoErr(t *testing.T, caller *AppUser, reference string, ethHash string) *big.Int {
-	balance, err := getDepositBalance(t, caller, reference, ethHash)
-	require.NoError(t, err)
-	return balance
 }
 
 func getBalanceAndDepositsNoErr(t *testing.T, caller *AppUser, reference string) (*big.Int, map[string]interface{}) {
@@ -205,15 +194,11 @@ func migrate(t *testing.T, memberRef string, amount string, tx string, ma string
 const migrationAmount = "360000"
 
 func fullMigration(t *testing.T, txHash string) *AppUser {
-	return fullMigrationAmount(t, txHash, migrationAmount)
-}
-
-func fullMigrationAmount(t *testing.T, txHash string, amount string) *AppUser {
 	activeDaemons := activateDaemons(t, countTwoActiveDaemon)
 
 	member := createMigrationMemberForMA(t)
 	for i := range activeDaemons {
-		migrate(t, member.Ref, amount, txHash, member.MigrationAddress, i)
+		migrate(t, member.Ref, migrationAmount, txHash, member.MigrationAddress, i)
 	}
 	return member
 }
@@ -364,7 +349,7 @@ func getAddressCount(t *testing.T, startWithIndex int) map[int]int {
 	return migrationShardsMap
 }
 
-func verifyFundsMembersAndDeposits(t *testing.T, m *AppUser, expectedAmount, expectedBalance string) error {
+func verifyFundsMembersAndDeposits(t *testing.T, m *AppUser, expectedBalance string) error {
 	res2, err := testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m, "member.get", nil)
 	if err != nil {
 		return err
@@ -379,8 +364,8 @@ func verifyFundsMembersAndDeposits(t *testing.T, m *AppUser, expectedAmount, exp
 		return errors.New("balance should be zero, current value: " + balance.String())
 	}
 	deposit, ok := deposits["genesis_deposit"].(map[string]interface{})
-	if deposit["amount"] != expectedAmount {
-		return errors.New(fmt.Sprintf("deposit amount should be %s, current value: %s", expectedAmount, deposit["amount"]))
+	if deposit["amount"] != expectedBalance {
+		return errors.New(fmt.Sprintf("deposit amount should be %s, current value: %s", expectedBalance, deposit["amount"]))
 	}
 	if deposit["balance"] != expectedBalance {
 		return errors.New(fmt.Sprintf("deposit balance should be %s, current value: %s", expectedBalance, deposit["balance"]))
