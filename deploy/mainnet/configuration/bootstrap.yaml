@@ -1,0 +1,41 @@
+---
+members_keys_dir: "/var/data/bootstrap/configs/"
+discovery_keys_dir: "/var/data/bootstrap/discovery-keys/"
+certificates_out_dir: "/var/data/bootstrap/certs/"
+certificate_name_offset_from_zero: True
+keys_name_format: "node-%d.json"
+reuse_keys: false
+heavy_genesis_config_file: "/var/data/bootstrap/heavy_genesis.json"
+root_balance: "5000000000000000000"
+md_balance: "5000000000000000000"
+lockup_pulse_period: 0
+pk_shard_count: 10
+ma_shard_count: 10
+vesting_pulse_period: 21920
+vesting_pulse_step: 20
+majority_rule: 5
+min_roles:
+  heavy_material: 1
+  virtual: 2
+  light_material: 2
+discovery_nodes:
+  -
+    host: "heavy-0.platform-network:13831"
+    role: "heavy_material"
+    cert_name: "heavy-0.json"
+  -
+    host: "virtual-0.platform-network:13831"
+    role: "virtual"
+    cert_name: "virtual-0.json"
+  -
+    host: "virtual-1.platform-network:13831"
+    role: "virtual"
+    cert_name: "virtual-1.json"
+  -
+    host: "light-0.platform-network:13831"
+    role: "light_material"
+    cert_name: "light-0.json"
+  -
+    host: "light-1.platform-network:13831"
+    role: "light_material"
+    cert_name: "light-1.json"

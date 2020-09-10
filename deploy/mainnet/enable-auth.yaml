@@ -1,0 +1,28 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: heavy
+spec:
+  template:
+    spec:
+      containers:
+        - name: insolar
+          env:
+            - name: INSOLAR_EXPORTER_AUTH_REQUIRED
+              value: "true"
+            - name: INSOLAR_EXPORTER_CHECKVERSION
+              value: "true"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: observer-replicator
+spec:
+  template:
+    spec:
+      containers:
+        - name: observer-replicator
+          env:
+            - name: OBSERVER_REPLICATOR_AUTH_REQUIRED
+              value: "true"

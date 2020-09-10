@@ -1,0 +1,17 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: block-explorer
+spec:
+  template:
+    spec:
+      containers:
+        - name: block-explorer
+          env:
+            - { name: BLOCK_EXPLORER_REPLICATOR_AUTH_INSECURETLS, value: 'true' }
+            - { name: BLOCK_EXPLORER_REPLICATOR_AUTH_REQUIRED, value: 'true' }
+            - { name: BLOCK_EXPLORER_REPLICATOR_AUTH_URL, value: 'http://auth-service:8080/auth/token' }
+            - { name: BLOCK_EXPLORER_REPLICATOR_AUTH_LOGIN, value: 'replicator' }
+            - { name: BLOCK_EXPLORER_REPLICATOR_AUTH_PASSWORD, value: 'replicator' }
+            - { name: BLOCK_EXPLORER_REPLICATOR_ADDR, value: heavy-0.platform-network.insolar.svc.cluster.local:5678 }

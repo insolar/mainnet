@@ -1,0 +1,25 @@
+---
+namespace: insolar
+bases:
+  - https://github.com/insolar/gitops/mainnet/base/5node
+  - https://github.com/insolar/gitops/mainnet/base/observer
+  - https://github.com/insolar/gitops/mainnet/base/auth-service
+patches:
+  - enable-auth.yaml
+resources:
+  - external-svc.yaml
+images:
+  - name: insolar/mainnet
+    newTag: mainnet_tag
+  - name: insolar/mainnet-observer
+    newTag: v4.1.5
+  - name: registry.insolar.io/auth-service
+    newName: insolar/auth-service
+    newTag: v1.0.0
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+- name: bootstrap-yaml
+  behavior: replace
+  files:
+  - bootstrap.yaml=configuration/bootstrap.yaml

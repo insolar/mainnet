@@ -1,0 +1,74 @@
+name: heavy-clients-version-check
+on:
+  push:
+    branches:
+      - OPS-321
+env:
+  KUBECONFIG: k3s.yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: initialize variables
+        id: info
+        run: |
+          # echo ::set-output name=MAINNET_VERSION::${GITHUB_REF/refs\/tags\//}
+          echo ::set-output name=MAINNET_VERSION::v1.10.3
+      - name: checkout code
+        uses: actions/checkout@master
+        with:
+          ref: ${{ github.ref }}
+      - name: spin up k3s
+        uses: insolar/k3s-gha@v0.1
+        with:
+          kubectl_version: "v1.18.2"
+          k3s_tag: "v1.17.4-k3s1"
+      - name: set PAT for github http auth
+        run: |
+          git config --global url."https://${{secrets.INS_SERVICE_PAT}}@github.com/".insteadOf "https://github.com/"
+          kubectl create ns insolar && kubectl -n insolar create secret generic ins-service-pat --from-literal=INS_SERVICE_PAT=${{secrets.INS_SERVICE_PAT}}
+      - name: set mainnet image version
+        run: sed -i -e 's/mainnet_tag/${{ steps.info.outputs.MAINNET_VERSION }}/g' deploy/mainnet/kustomization.yaml
+      - name: deploy insolar-mainnet
+        run:  kubectl apply -k deploy/block-explorer
+      - name: wait for bootstrap completion
+        run: |
+          echo "waiting for bootstrap completion…"
+          for attempt in {1..120}; do
+            STATUS=$(kubectl -n insolar get po bootstrap -o jsonpath='{.status.phase}')
+            [[ "${STATUS}" == "Succeeded" ]] && exit 0 || sleep 1
+          done
+          exit 1
+      - name: wait for insolar network initialization
+        run: |
+          echo "waiting for insolar network initialization…"
+          for try in {0..90}; do
+            if kubectl -n insolar exec -i deploy/pulsewatcher -- bash -c 'pulsewatcher -c /etc/pulsewatcher/pulsewatcher.yaml -s' | grep 'READY' | grep -v 'NOT'; then
+              exit 0
+            else
+              sleep 1
+            fi
+          done
+          exit 1
+      - name: wait for observer-replicator pod to be up and running
+        run: kubectl -n insolar rollout status sts/observer-replicator -w --timeout=90s
+      - name: wait for generic-block-explorer pod to be up and running
+        run: kubectl -n insolar rollout status deployment/block-explorer -w --timeout=90s
+      - name: collect logs
+        run: |
+          kubectl logs -l app!='block-explorer-frontend' -n insolar --all-containers=true > out.log
+          exit 0
+      - name: Send failure notification to Slack
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.ACTIONS_NOTIFICATIONS_SLACK_HOOK_URL }}
+      - name: Upload logs to artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: logs
+          path: "**/*.log"

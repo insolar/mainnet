@@ -1,0 +1,71 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: observer-api-external
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 80
+      nodePort: 32190
+  selector:
+    role: observer-api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: virtual-0-external
+spec:
+  type: NodePort
+  selector:
+    statefulset.kubernetes.io/pod-name: virtual-0
+  ports:
+    - name: public-api
+      port: 19101
+      nodePort: 32191
+    - name: admin-api
+      port: 19001
+      nodePort: 32192
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: virtual-1-external
+spec:
+  type: NodePort
+  selector:
+    statefulset.kubernetes.io/pod-name: virtual-1
+  ports:
+    - name: public-api
+      port: 19101
+      nodePort: 32193
+    - name: admin-api
+      port: 19001
+      nodePort: 32194
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: heavy-0-external
+spec:
+  type: NodePort
+  selector:
+    statefulset.kubernetes.io/pod-name: heavy-0
+  ports:
+    - name: exporter-api
+      port: 5678
+      nodePort: 32195
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service-external
+spec:
+  type: NodePort
+  selector:
+    app: auth-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      nodePort: 32010
