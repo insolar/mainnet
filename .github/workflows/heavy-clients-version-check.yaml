@@ -2,7 +2,7 @@ name: heavy-clients-version-check
 on:
   push:
     branches:
-      - OPS-321
+      - master
 env:
   KUBECONFIG: k3s.yaml
 jobs:
@@ -12,8 +12,7 @@ jobs:
       - name: initialize variables
         id: info
         run: |
-          # echo ::set-output name=MAINNET_VERSION::${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=MAINNET_VERSION::v1.10.3
+          echo ::set-output name=MAINNET_VERSION::${GITHUB_REF/refs\/tags\//}
       - name: checkout code
         uses: actions/checkout@master
         with:
