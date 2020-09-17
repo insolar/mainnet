@@ -1,7 +1,7 @@
 ---
 namespace: insolar
 bases:
-  - https://github.com/insolar/go-autotests/deploy/mainnet?ref=OPS-354-mainnet-observer-autotests-on-pr
+  - https://github.com/insolar/gitops/mainnet/overlays/autotests?ref=OPS-354-mainnet-overlay-autotests
 images:
   - name: insolar/mainnet
     newName: localhost/mainnet
