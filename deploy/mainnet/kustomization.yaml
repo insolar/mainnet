@@ -1,0 +1,10 @@
+---
+namespace: insolar
+bases:
+  - https://github.com/insolar/go-autotests/deploy/mainnet?ref=OPS-354-mainnet-observer-autotests-on-pr
+images:
+  - name: insolar/mainnet
+    newName: localhost/mainnet
+    newTag: local
+generatorOptions:
+  disableNameSuffixHash: true
