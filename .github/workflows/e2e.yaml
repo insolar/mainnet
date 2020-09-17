@@ -73,6 +73,7 @@ jobs:
           done
       - name: run autotests
         run: |
+          kubectl -n insolar get po
           kubectl -n insolar exec go-autotests -- /bin/sh -c 'git config --global url."https://${INS_SERVICE_PAT}@github.com".insteadOf "https://github.com"'
           kubectl -n insolar exec go-autotests -- make ${{matrix.target}} > logs.log
       - name: display logs
