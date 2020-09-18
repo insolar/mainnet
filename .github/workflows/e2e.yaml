@@ -71,7 +71,7 @@ jobs:
             --docker-username=${{ secrets.INS_REGISTRY_USERNAME }} \
             --docker-password=${{ secrets.INS_REGISTRY_PASSWORD }}
           # patch sa
-          kubectl patch sa default -p '{"imagePullSecrets":[{"name":"ins-registry"}]}'
+          kubectl -n insolar patch sa default -p '{"imagePullSecrets":[{"name":"ins-registry"}]}'
           kubectl -n insolar apply -k deploy/autotests
       - name: wait for pod initialization
         run: |
