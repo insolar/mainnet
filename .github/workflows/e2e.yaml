@@ -28,10 +28,11 @@ jobs:
           tar -xf go-test-parser.tar.gz -C $GITHUB_WORKSPACE/bin/
           chmod +x bin/go-test-parser
           echo "::add-path::$GITHUB_WORKSPACE/bin"
-          cd bin
+      - name: TMP_exec
+        run: |
           touch logs.log
           echo 'kokoko' > logs.log
-          cd ..
+          ls -al
           ls -al $GITHUB_WORKSPACE/bin/
           go-test-parser logs.log -o report
       - name: build mainnet image
