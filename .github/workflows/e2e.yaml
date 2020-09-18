@@ -21,20 +21,6 @@ jobs:
           go-version: '1.12'
       - name: checkout code
         uses: actions/checkout@master
-      - name: TMP
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/bin
-          curl -L -s "https://github.com/Tsovak/go-test-parser/releases/download/v1.0.2/go-test-parser_v1.0.2_Linux_x86_64.tar.gz" -o go-test-parser.tar.gz
-          tar -xf go-test-parser.tar.gz -C $GITHUB_WORKSPACE/bin/
-          chmod +x bin/go-test-parser
-          echo "::add-path::$GITHUB_WORKSPACE/bin"
-      - name: TMP_exec
-        run: |
-          touch logs.log
-          echo 'kokoko' > logs.log
-          ls -al
-          ls -al $GITHUB_WORKSPACE/bin/
-          go-test-parser logs.log -o report
       - name: build mainnet image
         run: docker build -t localhost/mainnet:local .
       - name: spin up k3s
@@ -101,7 +87,7 @@ jobs:
       - name: display logs
         if: always()
         run: cat logs.log
-      - name: create tests report
+      - name: Download go-test-parser
         if: failure()
         run: |
           mkdir -p $GITHUB_WORKSPACE/bin
@@ -109,6 +95,9 @@ jobs:
           tar -xf go-test-parser.tar.gz -C $GITHUB_WORKSPACE/bin/
           chmod +x bin/go-test-parser
           echo "::add-path::$GITHUB_WORKSPACE/bin"
+      - name: Create tests report
+        if: failure()
+        run: |
           go-test-parser logs.log -o report
       - name: Upload report to artifacts
         if: failure()
