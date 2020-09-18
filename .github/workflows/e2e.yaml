@@ -22,7 +22,7 @@ jobs:
       - name: checkout code
         uses: actions/checkout@master
       - name: build mainnet image
-        run: docker build -t localhost/mainnet:local .
+        run: docker build -t localhost/mainnet:local --build-arg "BUILD_VERSION=autotests .
       - name: spin up k3s
         uses: insolar/k3s-gha@v0.1
         with:
