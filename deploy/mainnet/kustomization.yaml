@@ -1,7 +1,7 @@
 ---
 namespace: insolar
 bases:
-  - https://github.com/insolar/gitops/mainnet/overlays/autotests?ref=OPS-354-mainnet-overlay-autotests
+  - https://github.com/insolar/gitops/mainnet/overlays/autotests?ref=REL-57
 images:
   - name: insolar/mainnet
     newName: localhost/mainnet
