@@ -88,7 +88,7 @@ jobs:
         if: always()
         run: cat logs.log
       - name: Download go-test-parser
-        if: always()
+        if: failure()
         run: |
           mkdir -p $GITHUB_WORKSPACE/bin
           curl -L -s "https://github.com/Tsovak/go-test-parser/releases/download/v1.0.4/go-test-parser_v1.0.4_Linux_x86_64.tar.gz" -o go-test-parser.tar.gz
@@ -96,11 +96,11 @@ jobs:
           chmod +x bin/go-test-parser
           echo "::add-path::$GITHUB_WORKSPACE/bin"
       - name: Create tests report
-        if: always()
+        if: failure()
         run: |
           go-test-parser logs.log -o report
       - name: Upload report to artifacts
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v2
         with:
           name: ${{matrix.target}}
