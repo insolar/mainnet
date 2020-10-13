@@ -38,6 +38,14 @@ jobs:
       - name: test_unit
         run: make test_unit
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
+      - name: Send failure notification to Slack
+        if: failure() && github.event_name == 'schedule'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.ACTIONS_NOTIFICATIONS_SLACK_HOOK_URL }}
   slow-tests:
     name: slow-tests
     runs-on: ubuntu-latest
@@ -68,6 +76,14 @@ jobs:
       - name: test_slow
         run: make test_slow
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
+      - name: Send failure notification to Slack
+        if: failure() && github.event_name == 'schedule'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.ACTIONS_NOTIFICATIONS_SLACK_HOOK_URL }}
   codegen:
     name: codegen
     runs-on: ubuntu-latest
@@ -162,6 +178,14 @@ jobs:
         with:
           name: logs-badger
           path: logs-badger.tar.gz
+      - name: Send failure notification to Slack
+        if: failure() && github.event_name == 'schedule'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.ACTIONS_NOTIFICATIONS_SLACK_HOOK_URL }}
   func-tests-pgsql:
     runs-on: ubuntu-latest
     name: func-tests-pgsql
@@ -204,3 +228,11 @@ jobs:
         with:
           name: logs-pgsql
           path: logs-pgsql.tar.gz
+      - name: Send failure notification to Slack
+        if: failure() && github.event_name == 'schedule'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.ACTIONS_NOTIFICATIONS_SLACK_HOOK_URL }}
