@@ -9,7 +9,6 @@ package functest
 
 import (
 	"math/big"
-	"strings"
 	"testing"
 	"time"
 
@@ -33,40 +32,14 @@ func TestDepositTransferToken(t *testing.T) {
 	anon := func() *foundation.Error {
 		_, _, err := testrequest.MakeSignedRequest(launchnet.TestRPCUrlPublic, member,
 			"deposit.transfer", map[string]interface{}{"amount": "1000", "ethTxHash": ethHash})
-
-		data := checkConvertRequesterError(t, err).Data
-		for _, v := range data.Trace {
-			if !strings.Contains(v, "hold period didn't end") {
-				return nil
-			}
-		}
-		return &foundation.Error{S: err.Error()}
-	}
-
-	err := waitUntilRequestProcessed(anon, time.Second*30, time.Second, 30)
-	require.NoError(t, err)
-	anon = func() *foundation.Error {
-		_, _, err := testrequest.MakeSignedRequest(launchnet.TestRPCUrlPublic, member,
-			"deposit.transfer", map[string]interface{}{"amount": "1000", "ethTxHash": ethHash})
 		if err == nil {
 			return nil
 		}
 		return &foundation.Error{S: err.Error()}
 	}
-	err = waitUntilRequestProcessed(anon, time.Second*30, time.Second, 30)
+	err := waitUntilRequestProcessed(anon, time.Second*30, time.Second, 30)
 	require.NoError(t, err)
 	checkBalanceFewTimes(t, member, member.Ref, secondBalance)
-}
-
-func TestDepositTransferBeforeUnhold(t *testing.T) {
-	ethHash := testutils.RandomEthHash()
-
-	member := fullMigration(t, ethHash)
-
-	_, err := testrequest.SignedRequestWithEmptyRequestRef(t, launchnet.TestRPCUrlPublic, member,
-		"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": ethHash})
-	data := checkConvertRequesterError(t, err).Data
-	require.Contains(t, data.Trace, "hold period didn't end", "check lockup_pulse_period param at bootstrap.yaml: it maybe too low")
 }
 
 func TestDepositTransferBiggerAmount(t *testing.T) {
