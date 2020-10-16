@@ -29,6 +29,14 @@ func INS_META_INFO() []map[string]string {
 		result = append(result, info)
 	}
 
+	{
+		info := make(map[string]string, 3)
+		info["Type"] = "SagaInfo"
+		info["MethodName"] = "AcceptBurn"
+		info["RollbackMethodName"] = "INS_FLAG_NO_ROLLBACK_METHOD"
+		result = append(result, info)
+	}
+
 	return result
 }
 
@@ -494,6 +502,88 @@ func INSMETHOD_Accept(object []byte, data []byte) (newState []byte, result []byt
 	return
 }
 
+func INSMETHOD_AcceptBurn(object []byte, data []byte) (newState []byte, result []byte, err error) {
+	ph := common.CurrentProxyCtx
+	ph.SetSystemError(nil)
+
+	self := new(Member)
+
+	if len(object) == 0 {
+		err = &foundation.Error{S: "[ FakeAcceptBurn ] ( INSMETHOD_* ) ( Generated Method ) Object is nil"}
+		return
+	}
+
+	err = ph.Deserialize(object, self)
+	if err != nil {
+		err = &foundation.Error{S: "[ FakeAcceptBurn ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Data: " + err.Error()}
+		return
+	}
+
+	args := make([]interface{}, 1)
+	var args0 appfoundation.SagaAcceptInfo
+	args[0] = &args0
+
+	err = ph.Deserialize(data, &args)
+	if err != nil {
+		err = &foundation.Error{S: "[ FakeAcceptBurn ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Arguments: " + err.Error()}
+		return
+	}
+
+	var ret0 error
+
+	serializeResults := func() error {
+		return ph.Serialize(
+			foundation.Result{Returns: []interface{}{ret0}},
+			&result,
+		)
+	}
+
+	needRecover := true
+	defer func() {
+		if !needRecover {
+			return
+		}
+		if r := recover(); r != nil {
+			recoveredError := errors.Wrap(errors.Errorf("%v", r), "Failed to execute method (panic)")
+			recoveredError = ph.MakeErrorSerializable(recoveredError)
+
+			if PanicIsLogicalError {
+				ret0 = recoveredError
+
+				newState = object
+				err = serializeResults()
+				if err == nil {
+					newState = object
+				}
+			} else {
+				err = recoveredError
+			}
+		}
+	}()
+
+	ret0 = self.AcceptBurn(args0)
+
+	needRecover = false
+
+	if ph.GetSystemError() != nil {
+		return nil, nil, ph.GetSystemError()
+	}
+
+	err = ph.Serialize(self, &newState)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	ret0 = ph.MakeErrorSerializable(ret0)
+
+	err = serializeResults()
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func INSCONSTRUCTOR_New(ref insolar.Reference, data []byte) (state []byte, result []byte, err error) {
 	ph := common.CurrentProxyCtx
 	ph.SetSystemError(nil)
@@ -585,6 +675,7 @@ func Initialize() insolar.ContractWrapper {
 			"Call":                INSMETHOD_Call,
 			"GetMigrationAddress": INSMETHOD_GetMigrationAddress,
 			"Accept":              INSMETHOD_Accept,
+			"AcceptBurn":          INSMETHOD_AcceptBurn,
 
 			"GetCode":      INSMETHOD_GetCode,
 			"GetPrototype": INSMETHOD_GetPrototype,
