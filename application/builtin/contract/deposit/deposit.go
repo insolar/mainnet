@@ -22,7 +22,7 @@ import (
 	"github.com/insolar/mainnet/application/builtin/proxy/member"
 	"github.com/insolar/mainnet/application/builtin/proxy/migrationdaemon"
 	"github.com/insolar/mainnet/application/builtin/proxy/wallet"
-	"github.com/insolar/mainnet/application/genesisrefs"
+	"github.com/insolar/mainnet/application/genesis"
 )
 
 const (
@@ -204,7 +204,7 @@ func (d *Deposit) Confirm(
 			if err != nil {
 				return errors.Wrap(err, "failed to get wallet")
 			}
-			ok, maDeposit, _ := wallet.GetObject(*walletRef).FindDeposit(genesisrefs.FundsDepositName)
+			ok, maDeposit, _ := wallet.GetObject(*walletRef).FindDeposit(genesis.FundsDepositName)
 			if !ok {
 				return fmt.Errorf("failed to find source deposit - %s", walletRef.String())
 			}

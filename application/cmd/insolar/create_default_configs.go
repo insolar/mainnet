@@ -14,7 +14,7 @@ import (
 	bootstrapbase "github.com/insolar/insolar/applicationbase/bootstrap"
 	pulsewatcher "github.com/insolar/insolar/cmd/pulsewatcher/config"
 	"github.com/insolar/insolar/configuration"
-	"github.com/insolar/mainnet/application/bootstrap"
+	"github.com/insolar/mainnet/application/genesis/contracts"
 )
 
 func writePulsarConfig(outputDir string) {

@@ -27,7 +27,7 @@ import (
 	"github.com/insolar/mainnet/application/builtin/proxy/migrationdaemon"
 	"github.com/insolar/mainnet/application/builtin/proxy/rootdomain"
 	"github.com/insolar/mainnet/application/builtin/proxy/wallet"
-	"github.com/insolar/mainnet/application/genesisrefs"
+	"github.com/insolar/mainnet/application/genesis"
 )
 
 const (
@@ -475,7 +475,7 @@ func (m *Member) coinBurnCall(params map[string]interface{}) (interface{}, error
 
 // Platform methods.
 func (m *Member) registerNode(public string, role string) (interface{}, error) {
-	root := genesisrefs.ContractRootMember
+	root := genesis.ContractRootMember
 	if m.GetReference() != root {
 		return "", fmt.Errorf("only root member can register node")
 	}
@@ -540,7 +540,7 @@ func (m *Member) contractCreateMemberCall(key string) (*CreateResponse, error) {
 
 func (m *Member) contractCreateMember(key string, migrationAddress string) (*member.Member, error) {
 
-	rootDomain := rootdomain.GetObject(appfoundation.GetRootDomain())
+	rootDomain := rootdomain.GetObject(genesis.GetRootDomain())
 
 	created, err := m.createMember(key, migrationAddress)
 	if err != nil {
@@ -560,19 +560,19 @@ func (m *Member) createMember(key string, migrationAddress string) (*member.Memb
 	}
 
 	aHolder := account.New(ACCOUNT_START_VALUE)
-	accountRef, err := aHolder.AsChild(appfoundation.GetRootDomain())
+	accountRef, err := aHolder.AsChild(genesis.GetRootDomain())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create account for member: %s", err.Error())
 	}
 
 	wHolder := wallet.New(accountRef.Reference)
-	walletRef, err := wHolder.AsChild(appfoundation.GetRootDomain())
+	walletRef, err := wHolder.AsChild(genesis.GetRootDomain())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create wallet for member: %s", err.Error())
 	}
 
 	memberHolder := member.New(key, migrationAddress, walletRef.Reference)
-	created, err := memberHolder.AsChild(appfoundation.GetRootDomain())
+	created, err := memberHolder.AsChild(genesis.GetRootDomain())
 	if err != nil {
 		return nil, fmt.Errorf("failed to save as child: %s", err.Error())
 	}
@@ -591,7 +591,7 @@ type GetResponse struct {
 }
 
 func (m *Member) memberGet(publicKey string) (interface{}, error) {
-	rootDomain := rootdomain.GetObject(appfoundation.GetRootDomain())
+	rootDomain := rootdomain.GetObject(genesis.GetRootDomain())
 	ref, err := rootDomain.GetMemberByPublicKey(publicKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get reference by public key: %s", err.Error())

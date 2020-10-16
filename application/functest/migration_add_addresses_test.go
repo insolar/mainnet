@@ -18,8 +18,8 @@ import (
 
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
 	"github.com/insolar/insolar/insolar/defaults"
-	"github.com/insolar/mainnet/application/bootstrap"
 	"github.com/insolar/mainnet/application/cmd/insolar/insolarcmd"
+	"github.com/insolar/mainnet/application/genesis/contracts"
 )
 
 func TestAddMigrationAddresses(t *testing.T) {
@@ -29,7 +29,7 @@ func TestAddMigrationAddresses(t *testing.T) {
 		t.Skip(extraAddrsDir, "extra addresses dir already exists")
 	}
 
-	bootCfg, err := bootstrap.ParseContractsConfig(filepath.Join(defaults.LaunchnetDir(), "bootstrap.yaml"))
+	bootCfg, err := contracts.ParseContractsConfig(filepath.Join(defaults.LaunchnetDir(), "bootstrap.yaml"))
 	require.NoError(t, err, "bootstrap config parse")
 
 	shardsCount := bootCfg.MAShardCount
