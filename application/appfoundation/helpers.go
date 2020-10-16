@@ -24,19 +24,9 @@ func GetMigrationAdminMember() insolar.Reference {
 	return genesis.ContractMigrationAdminMember
 }
 
-// Get reference RootMember contract.
-func GetRootMember() insolar.Reference {
-	return genesisrefs.ContractRootMember
-}
-
 // Get reference on MigrationAdmin contract.
 func GetMigrationAdmin() insolar.Reference {
 	return genesis.ContractMigrationAdmin
-}
-
-// Get reference on RootDomain contract.
-func GetRootDomain() insolar.Reference {
-	return genesisrefs.ContractRootDomain
 }
 
 // Get reference on  migrationdaemon contract by  migration member.

@@ -3,18 +3,17 @@
 // This material is licensed under the Insolar License version 1.0,
 // available at https://github.com/insolar/mainnet/blob/master/LICENSE.md.
 
-package main
+package genesis
 
 import (
 	"github.com/insolar/insolar/api"
-	"github.com/insolar/mainnet/application/genesisrefs"
 	"github.com/pkg/errors"
 )
 
 // initAPIInfoResponse creates application-specific data,
 // that will be included in response from /admin-api/rpc#network.getInfo
 func initAPIInfoResponse() (map[string]interface{}, error) {
-	rootDomain := genesisrefs.ContractRootDomain
+	rootDomain := ContractRootDomain
 	if rootDomain.IsEmpty() {
 		return nil, errors.New("rootDomain ref is nil")
 	}

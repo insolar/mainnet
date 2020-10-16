@@ -3,7 +3,7 @@
 // This material is licensed under the Insolar License version 1.0,
 // available at https://github.com/insolar/mainnet/blob/master/LICENSE.md.
 
-package bootstrap
+package contracts
 
 import (
 	"bytes"
@@ -20,8 +20,8 @@ import (
 	"github.com/insolar/insolar/insolar/secrets"
 	"github.com/insolar/insolar/instrumentation/inslogger"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
-	"github.com/insolar/mainnet/application"
 	"github.com/insolar/mainnet/application/appfoundation"
+	"github.com/insolar/mainnet/application/genesis"
 )
 
 func readMigrationAddresses(config *ContractsConfig) ([][]string, error) {
@@ -79,7 +79,7 @@ func CreateGenesisContractsConfig(ctx context.Context, configFile string) (map[s
 		return nil, errors.Wrap(err, "couldn't get migration admin keys")
 	}
 	migrationDaemonPublicKeys := []string{}
-	for i := 0; i < application.GenesisAmountMigrationDaemonMembers; i++ {
+	for i := 0; i < genesis.GenesisAmountMigrationDaemonMembers; i++ {
 		k, err := secrets.GetPublicKeyFromFile(config.MembersKeysDir + GetMigrationDaemonPath(i))
 		if err != nil {
 			return nil, errors.Wrap(err, "couldn't get migration daemon keys")
@@ -88,7 +88,7 @@ func CreateGenesisContractsConfig(ctx context.Context, configFile string) (map[s
 	}
 
 	networkIncentivesPublicKeys := []string{}
-	for i := 0; i < application.GenesisAmountNetworkIncentivesMembers; i++ {
+	for i := 0; i < genesis.GenesisAmountNetworkIncentivesMembers; i++ {
 		k, err := secrets.GetPublicKeyFromFile(
 			filepath.Join(config.MembersKeysDir, GetFundPath(i, "network_incentives_")))
 		if err != nil {
@@ -98,7 +98,7 @@ func CreateGenesisContractsConfig(ctx context.Context, configFile string) (map[s
 	}
 
 	applicationIncentivesPublicKeys := []string{}
-	for i := 0; i < application.GenesisAmountApplicationIncentivesMembers; i++ {
+	for i := 0; i < genesis.GenesisAmountApplicationIncentivesMembers; i++ {
 		k, err := secrets.GetPublicKeyFromFile(
 			filepath.Join(config.MembersKeysDir, GetFundPath(i, "application_incentives_")))
 		if err != nil {
@@ -108,7 +108,7 @@ func CreateGenesisContractsConfig(ctx context.Context, configFile string) (map[s
 	}
 
 	foundationPublicKeys := []string{}
-	for i := 0; i < application.GenesisAmountFoundationMembers; i++ {
+	for i := 0; i < genesis.GenesisAmountFoundationMembers; i++ {
 		k, err := secrets.GetPublicKeyFromFile(
 			filepath.Join(config.MembersKeysDir, GetFundPath(i, "foundation_")))
 		if err != nil {
@@ -118,7 +118,7 @@ func CreateGenesisContractsConfig(ctx context.Context, configFile string) (map[s
 	}
 
 	enterprisePublicKeys := []string{}
-	for i := 0; i < application.GenesisAmountEnterpriseMembers; i++ {
+	for i := 0; i < genesis.GenesisAmountEnterpriseMembers; i++ {
 		k, err := secrets.GetPublicKeyFromFile(
 			filepath.Join(config.MembersKeysDir, GetFundPath(i, "enterprise_")))
 		if err != nil {

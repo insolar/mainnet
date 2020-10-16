@@ -36,7 +36,7 @@ func writeBootstrapConfig(outputDir string) {
 		panic(err)
 	}
 
-	rawApp, err := yaml.Marshal(bootstrap.ContractsConfig{})
+	rawApp, err := yaml.Marshal(contracts.ContractsConfig{})
 	if err != nil {
 		panic(err)
 	}

@@ -3,7 +3,7 @@
 // This material is licensed under the Insolar License version 1.0,
 // available at https://github.com/insolar/mainnet/blob/master/LICENSE.md.
 
-package application
+package genesis
 
 import (
 	"strconv"
