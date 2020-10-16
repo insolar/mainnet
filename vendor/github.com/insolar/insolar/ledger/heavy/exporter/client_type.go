@@ -1,9 +1,9 @@
 package exporter
 
 const (
-	KeyClientType            = "client-type"
-	KeyClientVersionHeavy    = "heavy-version"
-	KeyClientVersionContract = "contract-version"
+	KeyClientType            = "client_type"
+	KeyClientVersionHeavy    = "heavy_version"
+	KeyClientVersionContract = "contract_version"
 )
 
 const AllowedOnHeavyVersion = 2
