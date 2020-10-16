@@ -1,10 +1,10 @@
 module github.com/insolar/mainnet
 
-go 1.12
+go 1.15
 
 require (
 	github.com/google/gops v0.3.6
-	github.com/insolar/insolar v1.8.2
+	github.com/insolar/insolar v1.9.0
 	github.com/insolar/x-crypto v0.0.0-20191031140942-75fab8a325f6
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v0.0.5
@@ -17,3 +17,5 @@ require (
 )
 
 replace github.com/insolar/mainnet => ./
+
+replace github.com/ugorji/go v1.1.4 => github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43
