@@ -10,6 +10,7 @@ package functest
 import (
 	"encoding/json"
 	"math/big"
+	"strings"
 	"testing"
 
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
@@ -43,6 +44,55 @@ func TestCoinBurn(t *testing.T) {
 		expectedBurned, _ := new(big.Int).SetString(amount, 10)
 		actualBurned := new(big.Int).Sub(becameBurned, wasBurned)
 		require.Equal(t, expectedBurned, actualBurned)
+	})
+
+	t.Run("not_enough_balance", func(t *testing.T) {
+		donor := createMember(t) // initial zero balance
+		wasBalance := getBalanceNoErr(t, donor, donor.Ref)
+
+		const amount = "12345"
+
+		// Let's check how many coins have already been burned.
+		wasBurned := getBurnedBalance(t)
+
+		// burning amount
+		err := coinBurn(amount, donor)
+		require.Error(t, err)
+		trace := checkConvertRequesterError(t, err).Data.Trace
+		require.Contains(t, strings.Join(trace, ":"), "not enough balance to burn")
+
+		// We expect that the balance has not changed.
+		becameBalance := getBalanceNoErr(t, donor, donor.Ref)
+		require.Equal(t, wasBalance, becameBalance)
+
+		// BurnedBalance should stay the same.
+		becameBurned := getBurnedBalance(t)
+		require.Equal(t, wasBurned, becameBurned)
+	})
+
+	t.Run("invalid_amount", func(t *testing.T) {
+		donor := createMember(t) // initial zero balance
+		wasBalance := getBalanceNoErr(t, donor, donor.Ref)
+
+		const amount = "invalid_amount"
+
+		// Let's check how many coins have already been burned.
+		wasBurned := getBurnedBalance(t)
+
+		// burning amount
+		err := coinBurn(amount, donor)
+		require.Error(t, err)
+		trace := checkConvertRequesterError(t, err).Data.Trace
+		require.Contains(t, strings.Join(trace, ":"),
+			"request don't pass OpenAPI schema validation")
+
+		// We expect that the balance has not changed.
+		becameBalance := getBalanceNoErr(t, donor, donor.Ref)
+		require.Equal(t, wasBalance, becameBalance)
+
+		// BurnedBalance should stay the same.
+		becameBurned := getBurnedBalance(t)
+		require.Equal(t, wasBurned, becameBurned)
 	})
 }
 

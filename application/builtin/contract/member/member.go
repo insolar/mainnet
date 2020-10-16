@@ -241,7 +241,7 @@ func (m *Member) getBalanceCall(params map[string]interface{}) (interface{}, err
 		return nil, fmt.Errorf("failed to get deposits: %s", err.Error())
 	}
 
-	var burnedBalance string
+	burnedBalance := "0"
 	accRef, err := m.GetAccount(walletContract.Burned)
 	if err == nil && accRef != nil {
 		burnedBalance, err = burnedaccount.GetObject(*accRef).GetBalance()
