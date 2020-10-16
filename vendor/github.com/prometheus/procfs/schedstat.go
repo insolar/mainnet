@@ -26,7 +26,7 @@ var (
 	procLineRE = regexp.MustCompile(`(\d+) (\d+) (\d+)`)
 )
 
-// Schedstat contains scheduler statistics from /proc/schedstat
+// Schedstat contains scheduler statistics from /proc/schedstats
 //
 // See
 // https://www.kernel.org/doc/Documentation/scheduler/sched-stats.txt
@@ -36,6 +36,7 @@ var (
 // jiffies when they are actually in nanoseconds since 2.6.23 with the
 // introduction of CFS. A fix to the documentation is pending. See
 // https://lore.kernel.org/patchwork/project/lkml/list/?series=403473
+
 type Schedstat struct {
 	CPUs []*SchedstatCPU
 }
@@ -56,7 +57,6 @@ type ProcSchedstat struct {
 	RunTimeslices      uint64
 }
 
-// Schedstat reads data from /proc/schedstat
 func (fs FS) Schedstat() (*Schedstat, error) {
 	file, err := os.Open(fs.proc.Path("schedstat"))
 	if err != nil {
