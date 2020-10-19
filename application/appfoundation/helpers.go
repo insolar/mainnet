@@ -9,44 +9,34 @@ import (
 	"regexp"
 
 	"github.com/insolar/insolar/insolar"
-	"github.com/insolar/mainnet/application/genesisrefs"
+	"github.com/insolar/mainnet/application/genesis"
 )
 
 const AllowedVersionSmartContract = 2
 
 // Get reference CostCenter contract.
 func GetCostCenter() insolar.Reference {
-	return genesisrefs.ContractCostCenter
+	return genesis.ContractCostCenter
 }
 
 // Get reference MigrationAdminMember contract.
 func GetMigrationAdminMember() insolar.Reference {
-	return genesisrefs.ContractMigrationAdminMember
-}
-
-// Get reference RootMember contract.
-func GetRootMember() insolar.Reference {
-	return genesisrefs.ContractRootMember
+	return genesis.ContractMigrationAdminMember
 }
 
 // Get reference on MigrationAdmin contract.
 func GetMigrationAdmin() insolar.Reference {
-	return genesisrefs.ContractMigrationAdmin
-}
-
-// Get reference on RootDomain contract.
-func GetRootDomain() insolar.Reference {
-	return genesisrefs.ContractRootDomain
+	return genesis.ContractMigrationAdmin
 }
 
 // Get reference on  migrationdaemon contract by  migration member.
 func GetMigrationDaemon(migrationMember insolar.Reference) (insolar.Reference, error) {
-	return genesisrefs.ContractMigrationMap[migrationMember], nil
+	return genesis.ContractMigrationMap[migrationMember], nil
 }
 
 // Check member is migration daemon member or not
 func IsMigrationDaemonMember(member insolar.Reference) bool {
-	for _, mDaemonMember := range genesisrefs.ContractMigrationDaemonMembers {
+	for _, mDaemonMember := range genesis.ContractMigrationDaemonMembers {
 		if mDaemonMember.Equal(member) {
 			return true
 		}

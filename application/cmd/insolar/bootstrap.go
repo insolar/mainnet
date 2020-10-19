@@ -8,10 +8,9 @@ package main
 import (
 	"context"
 
-	"github.com/spf13/cobra"
-
 	basebootstrap "github.com/insolar/insolar/applicationbase/bootstrap"
-	"github.com/insolar/mainnet/application/bootstrap"
+	"github.com/insolar/mainnet/application/genesis/contracts"
+	"github.com/spf13/cobra"
 )
 
 func bootstrapCommand() *cobra.Command {
@@ -26,7 +25,7 @@ func bootstrapCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.Background()
 
-			contractsConfig, err := bootstrap.CreateGenesisContractsConfig(ctx, configPath)
+			contractsConfig, err := contracts.CreateGenesisContractsConfig(ctx, configPath)
 			check("failed to create genesis contracts config", err)
 
 			config, err := basebootstrap.ParseConfig(configPath)

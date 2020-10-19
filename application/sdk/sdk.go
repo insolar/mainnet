@@ -24,8 +24,8 @@ import (
 	"github.com/insolar/insolar/api/requester"
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/instrumentation/inslogger"
-	"github.com/insolar/mainnet/application"
-	"github.com/insolar/mainnet/application/bootstrap"
+	"github.com/insolar/mainnet/application/genesis"
+	"github.com/insolar/mainnet/application/genesis/contracts"
 )
 
 type ringBuffer struct {
@@ -124,13 +124,13 @@ func NewSDK(adminUrls []string, publicUrls []string, memberKeysDirPath string, o
 		options:                options,
 	}
 
-	if len(response.MigrationDaemonMembers) < application.GenesisAmountMigrationDaemonMembers {
-		return nil, errors.New(fmt.Sprintf("need at least '%d' migration daemons", application.GenesisAmountActiveMigrationDaemonMembers))
+	if len(response.MigrationDaemonMembers) < genesis.GenesisAmountMigrationDaemonMembers {
+		return nil, errors.New(fmt.Sprintf("need at least '%d' migration daemons", genesis.GenesisAmountActiveMigrationDaemonMembers))
 	}
 
-	for i := 0; i < application.GenesisAmountMigrationDaemonMembers; i++ {
+	for i := 0; i < genesis.GenesisAmountMigrationDaemonMembers; i++ {
 		m, err := getMember(
-			filepath.Join(memberKeysDirPath, bootstrap.GetMigrationDaemonPath(i)), response.MigrationDaemonMembers[i])
+			filepath.Join(memberKeysDirPath, contracts.GetMigrationDaemonPath(i)), response.MigrationDaemonMembers[i])
 		if err != nil {
 			return nil, errors.Wrap(err, fmt.Sprintf("failed to get migration daemon member; member's index: '%d'", i))
 		}

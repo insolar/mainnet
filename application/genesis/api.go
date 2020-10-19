@@ -3,28 +3,27 @@
 // This material is licensed under the Insolar License version 1.0,
 // available at https://github.com/insolar/mainnet/blob/master/LICENSE.md.
 
-package main
+package genesis
 
 import (
 	"github.com/insolar/insolar/api"
-	"github.com/insolar/mainnet/application/genesisrefs"
 	"github.com/pkg/errors"
 )
 
 // initAPIInfoResponse creates application-specific data,
 // that will be included in response from /admin-api/rpc#network.getInfo
 func initAPIInfoResponse() (map[string]interface{}, error) {
-	rootDomain := genesisrefs.ContractRootDomain
+	rootDomain := ContractRootDomain
 	if rootDomain.IsEmpty() {
 		return nil, errors.New("rootDomain ref is nil")
 	}
 
-	rootMember := genesisrefs.ContractRootMember
+	rootMember := ContractRootMember
 	if rootMember.IsEmpty() {
 		return nil, errors.New("rootMember ref is nil")
 	}
 
-	migrationDaemonMembers := genesisrefs.ContractMigrationDaemonMembers
+	migrationDaemonMembers := ContractMigrationDaemonMembers
 	migrationDaemonMembersStrs := make([]string, 0)
 	for _, r := range migrationDaemonMembers {
 		if r.IsEmpty() {
@@ -33,11 +32,11 @@ func initAPIInfoResponse() (map[string]interface{}, error) {
 		migrationDaemonMembersStrs = append(migrationDaemonMembersStrs, r.String())
 	}
 
-	migrationAdminMember := genesisrefs.ContractMigrationAdminMember
+	migrationAdminMember := ContractMigrationAdminMember
 	if migrationAdminMember.IsEmpty() {
 		return nil, errors.New("migration admin member ref is nil")
 	}
-	feeMember := genesisrefs.ContractFeeMember
+	feeMember := ContractFeeMember
 	if feeMember.IsEmpty() {
 		return nil, errors.New("feeMember ref is nil")
 	}
@@ -51,7 +50,7 @@ func initAPIInfoResponse() (map[string]interface{}, error) {
 }
 
 // initAPIOptions creates options object, that contains application-specific settings for api component.
-func initAPIOptions() (api.Options, error) {
+func InitAPIOptions() (api.Options, error) {
 	apiInfoResponse, err := initAPIInfoResponse()
 	if err != nil {
 		return api.Options{}, err
@@ -82,7 +81,7 @@ func initAPIOptions() (api.Options, error) {
 		AdminContractMethods: adminContractMethods,
 		ContractMethods:      contractMethods,
 		InfoResponse:         apiInfoResponse,
-		RootReference:        genesisrefs.ContractRootMember,
+		RootReference:        ContractRootMember,
 		ProxyToRootMethods:   proxyToRootMethods,
 	}, nil
 }

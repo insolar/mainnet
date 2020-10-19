@@ -17,14 +17,12 @@ import (
 
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
 	"github.com/insolar/insolar/applicationbase/testutils/testrequest"
-
-	"github.com/insolar/mainnet/application"
-	"github.com/insolar/mainnet/application/genesisrefs"
+	"github.com/insolar/mainnet/application/genesis"
 )
 
 func TestFoundationMemberCreate(t *testing.T) {
 	for _, m := range Foundation {
-		err := verifyFundsMembersAndDeposits(t, m, application.FoundationDistributionAmount)
+		err := verifyFundsMembersAndDeposits(t, m, genesis.FoundationDistributionAmount)
 		if err != nil {
 			require.NoError(t, err)
 		}
@@ -33,7 +31,7 @@ func TestFoundationMemberCreate(t *testing.T) {
 
 func TestEnterpriseMemberCreate(t *testing.T) {
 	for _, m := range Enterprise {
-		err := verifyFundsMembersExist(t, m, application.EnterpriseDistributionAmount)
+		err := verifyFundsMembersExist(t, m, genesis.EnterpriseDistributionAmount)
 		if err != nil {
 			require.NoError(t, err)
 		}
@@ -42,9 +40,9 @@ func TestEnterpriseMemberCreate(t *testing.T) {
 
 func TestNetworkIncentivesMemberCreate(t *testing.T) {
 	// for speed up test check only last member
-	m := NetworkIncentives[application.GenesisAmountNetworkIncentivesMembers-1]
+	m := NetworkIncentives[genesis.GenesisAmountNetworkIncentivesMembers-1]
 
-	err := verifyFundsMembersAndDeposits(t, m, application.NetworkIncentivesDistributionAmount)
+	err := verifyFundsMembersAndDeposits(t, m, genesis.NetworkIncentivesDistributionAmount)
 	if err != nil {
 		require.NoError(t, err)
 	}
@@ -52,7 +50,7 @@ func TestNetworkIncentivesMemberCreate(t *testing.T) {
 
 func TestApplicationIncentivesMemberCreate(t *testing.T) {
 	for _, m := range ApplicationIncentives {
-		err := verifyFundsMembersAndDeposits(t, m, application.AppIncentivesDistributionAmount)
+		err := verifyFundsMembersAndDeposits(t, m, genesis.AppIncentivesDistributionAmount)
 		if err != nil {
 			require.NoError(t, err)
 		}
@@ -64,7 +62,7 @@ func checkBalanceAndDepositFewTimes(t *testing.T, m *AppUser, expectedBalance st
 	var depositStr string
 	for i := 0; i < times; i++ {
 		balance, deposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
-		depositStr = deposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
+		depositStr = deposits[genesis.FundsDepositName].(map[string]interface{})["balance"].(string)
 		if balance.String() == expectedBalance && depositStr == expectedDeposit {
 			return
 		}
@@ -78,7 +76,7 @@ func checkBalanceAndDepositFewTimes(t *testing.T, m *AppUser, expectedBalance st
 
 func TestNetworkIncentivesTransferDeposit(t *testing.T) {
 	// for speed up test check only last member
-	lastIdx := application.GenesisAmountNetworkIncentivesMembers - 1
+	lastIdx := genesis.GenesisAmountNetworkIncentivesMembers - 1
 	m := NetworkIncentives[lastIdx]
 
 	res2, err := testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m, "member.get", nil)
@@ -88,10 +86,10 @@ func TestNetworkIncentivesTransferDeposit(t *testing.T) {
 	require.True(t, ok, fmt.Sprintf("failed to decode: expected map[string]interface{}, got %T", res2))
 
 	_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
-		"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+		"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesis.FundsDepositName},
 	)
 	require.NoError(t, err)
-	depositAmount, ok := new(big.Int).SetString(application.NetworkIncentivesDistributionAmount, 10)
+	depositAmount, ok := new(big.Int).SetString(genesis.NetworkIncentivesDistributionAmount, 10)
 	require.True(t, ok, "can't parse NetworkIncentivesDistributionAmount")
 	checkBalanceAndDepositFewTimes(t, m, "100", depositAmount.Sub(depositAmount, big.NewInt(100)).String())
 }
@@ -105,10 +103,10 @@ func TestApplicationIncentivesTransferDeposit(t *testing.T) {
 		require.True(t, ok, fmt.Sprintf("failed to decode: expected map[string]interface{}, got %T", res2))
 
 		_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
-			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesis.FundsDepositName},
 		)
 		require.NoError(t, err)
-		depositAmount, ok := new(big.Int).SetString(application.AppIncentivesDistributionAmount, 10)
+		depositAmount, ok := new(big.Int).SetString(genesis.AppIncentivesDistributionAmount, 10)
 		require.True(t, ok, "can't parse AppIncentivesDistributionAmount")
 		checkBalanceAndDepositFewTimes(t, m, "100", depositAmount.Sub(depositAmount, big.NewInt(100)).String())
 	}
@@ -123,10 +121,10 @@ func TestFoundationTransferDeposit(t *testing.T) {
 		require.True(t, ok, fmt.Sprintf("failed to decode: expected map[string]interface{}, got %T", res2))
 
 		_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
-			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesis.FundsDepositName},
 		)
 		require.NoError(t, err)
-		depositAmount, ok := new(big.Int).SetString(application.FoundationDistributionAmount, 10)
+		depositAmount, ok := new(big.Int).SetString(genesis.FoundationDistributionAmount, 10)
 		require.True(t, ok, "can't parse FoundationDistributionAmount")
 		checkBalanceAndDepositFewTimes(t, m, "100", depositAmount.Sub(depositAmount, big.NewInt(100)).String())
 	}
@@ -142,14 +140,14 @@ func TestMigrationDaemonTransferDeposit(t *testing.T) {
 	m.Ref = decodedRes2["reference"].(string)
 
 	oldBalance, deposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
-	oldDepositStr := deposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
+	oldDepositStr := deposits[genesis.FundsDepositName].(map[string]interface{})["balance"].(string)
 
 	_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
-		"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+		"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesis.FundsDepositName},
 	)
 	require.NoError(t, err)
 	newBalance, newDeposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
-	newDepositStr := newDeposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
+	newDepositStr := newDeposits[genesis.FundsDepositName].(map[string]interface{})["balance"].(string)
 	amount := int64(100)
 	require.Equal(t, oldBalance.Add(oldBalance, big.NewInt(amount)).String(), newBalance.String())
 	oldDeposit, ok := new(big.Int).SetString(oldDepositStr, 10)
