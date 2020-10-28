@@ -28,7 +28,7 @@ These steps are detailed below.
 
 ### Install
 
-1. Install Golang programming tools v1.15. For example, from [golang.org](http://golang.org/). Set the [$GOPATH environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
+1. Install Golang programming tools v1.12. For example, from [golang.org](http://golang.org/). Set the [$GOPATH environment variable](https://github.com/golang/go/wiki/SettingGOPATH).
 
 2. Download the MainNet package:
 
