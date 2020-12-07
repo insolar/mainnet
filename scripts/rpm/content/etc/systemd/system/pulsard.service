@@ -1,0 +1,19 @@
+[Unit]
+Description=pulsard
+After=network.target
+
+[Service]
+LimitNOFILE=500000
+LimitNPROC=500000
+OOMScoreAdjust=-1000
+Nice=-20
+WorkingDirectory=/opt/insolar
+User=insolar
+Type=simple
+ExecStart=/usr/local/bin/pulsard --config /etc/insolar/pulsar.yaml
+KillSignal=SIGKILL
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

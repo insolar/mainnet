@@ -17,12 +17,15 @@ import (
 
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
 	"github.com/insolar/insolar/applicationbase/testutils/testrequest"
-	"github.com/insolar/mainnet/application/genesis"
+
+	"github.com/insolar/mainnet/application"
+	"github.com/insolar/mainnet/application/genesisrefs"
+	"github.com/insolar/mainnet/cmd/insolard/genesisstate"
 )
 
 func TestFoundationMemberCreate(t *testing.T) {
 	for _, m := range Foundation {
-		err := verifyFundsMembersAndDeposits(t, m, genesis.FoundationDistributionAmount)
+		err := verifyFundsMembersAndDeposits(t, m, application.FoundationDistributionAmount)
 		if err != nil {
 			require.NoError(t, err)
 		}
@@ -31,7 +34,7 @@ func TestFoundationMemberCreate(t *testing.T) {
 
 func TestEnterpriseMemberCreate(t *testing.T) {
 	for _, m := range Enterprise {
-		err := verifyFundsMembersExist(t, m, genesis.EnterpriseDistributionAmount)
+		err := verifyFundsMembersExist(t, m, application.EnterpriseDistributionAmount)
 		if err != nil {
 			require.NoError(t, err)
 		}
@@ -40,9 +43,9 @@ func TestEnterpriseMemberCreate(t *testing.T) {
 
 func TestNetworkIncentivesMemberCreate(t *testing.T) {
 	// for speed up test check only last member
-	m := NetworkIncentives[genesis.GenesisAmountNetworkIncentivesMembers-1]
+	m := NetworkIncentives[application.GenesisAmountNetworkIncentivesMembers-1]
 
-	err := verifyFundsMembersAndDeposits(t, m, genesis.NetworkIncentivesDistributionAmount)
+	err := verifyFundsMembersAndDeposits(t, m, application.NetworkIncentivesDistributionAmount)
 	if err != nil {
 		require.NoError(t, err)
 	}
@@ -50,7 +53,7 @@ func TestNetworkIncentivesMemberCreate(t *testing.T) {
 
 func TestApplicationIncentivesMemberCreate(t *testing.T) {
 	for _, m := range ApplicationIncentives {
-		err := verifyFundsMembersAndDeposits(t, m, genesis.AppIncentivesDistributionAmount)
+		err := verifyFundsMembersAndDeposits(t, m, application.AppIncentivesDistributionAmount)
 		if err != nil {
 			require.NoError(t, err)
 		}
@@ -62,7 +65,7 @@ func checkBalanceAndDepositFewTimes(t *testing.T, m *AppUser, expectedBalance st
 	var depositStr string
 	for i := 0; i < times; i++ {
 		balance, deposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
-		depositStr = deposits[genesis.FundsDepositName].(map[string]interface{})["balance"].(string)
+		depositStr = deposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
 		if balance.String() == expectedBalance && depositStr == expectedDeposit {
 			return
 		}
@@ -76,7 +79,7 @@ func checkBalanceAndDepositFewTimes(t *testing.T, m *AppUser, expectedBalance st
 
 func TestNetworkIncentivesTransferDeposit(t *testing.T) {
 	// for speed up test check only last member
-	lastIdx := genesis.GenesisAmountNetworkIncentivesMembers - 1
+	lastIdx := application.GenesisAmountNetworkIncentivesMembers - 1
 	m := NetworkIncentives[lastIdx]
 
 	res2, err := testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m, "member.get", nil)
@@ -85,48 +88,78 @@ func TestNetworkIncentivesTransferDeposit(t *testing.T) {
 	m.Ref = decodedRes2["reference"].(string)
 	require.True(t, ok, fmt.Sprintf("failed to decode: expected map[string]interface{}, got %T", res2))
 
-	_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
-		"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesis.FundsDepositName},
-	)
-	require.NoError(t, err)
-	depositAmount, ok := new(big.Int).SetString(genesis.NetworkIncentivesDistributionAmount, 10)
-	require.True(t, ok, "can't parse NetworkIncentivesDistributionAmount")
-	checkBalanceAndDepositFewTimes(t, m, "100", depositAmount.Sub(depositAmount, big.NewInt(100)).String())
-}
+	if time.Now().Unix() < time.Unix(genesisstate.NetworkIncentivesUnholdStartDate, 0).AddDate(0, lastIdx, 0).Unix() {
+		_, err = testrequest.SignedRequestWithEmptyRequestRef(t, launchnet.TestRPCUrlPublic, m,
+			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+		)
+		data := checkConvertRequesterError(t, err).Data
+		require.Contains(t, data.Trace, "hold period didn't end")
 
-func TestApplicationIncentivesTransferDeposit(t *testing.T) {
-	for _, m := range ApplicationIncentives {
-		res2, err := testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m, "member.get", nil)
-		require.NoError(t, err)
-		decodedRes2, ok := res2.(map[string]interface{})
-		m.Ref = decodedRes2["reference"].(string)
-		require.True(t, ok, fmt.Sprintf("failed to decode: expected map[string]interface{}, got %T", res2))
-
+		checkBalanceAndDepositFewTimes(t, m, "0", application.NetworkIncentivesDistributionAmount)
+	} else {
 		_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
-			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesis.FundsDepositName},
+			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
 		)
 		require.NoError(t, err)
-		depositAmount, ok := new(big.Int).SetString(genesis.AppIncentivesDistributionAmount, 10)
-		require.True(t, ok, "can't parse AppIncentivesDistributionAmount")
+		depositAmount, ok := new(big.Int).SetString(application.NetworkIncentivesDistributionAmount, 10)
+		require.True(t, ok, "can't parse NetworkIncentivesDistributionAmount")
 		checkBalanceAndDepositFewTimes(t, m, "100", depositAmount.Sub(depositAmount, big.NewInt(100)).String())
 	}
 }
 
-func TestFoundationTransferDeposit(t *testing.T) {
-	for _, m := range Foundation {
+func TestApplicationIncentivesTransferDeposit(t *testing.T) {
+	for i, m := range ApplicationIncentives {
 		res2, err := testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m, "member.get", nil)
 		require.NoError(t, err)
 		decodedRes2, ok := res2.(map[string]interface{})
 		m.Ref = decodedRes2["reference"].(string)
 		require.True(t, ok, fmt.Sprintf("failed to decode: expected map[string]interface{}, got %T", res2))
 
-		_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
-			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesis.FundsDepositName},
-		)
+		if time.Now().Unix() < time.Unix(genesisstate.ApplicationIncentivesUnholdStartDate, 0).AddDate(0, i, 0).Unix() {
+			_, err = testrequest.SignedRequestWithEmptyRequestRef(t, launchnet.TestRPCUrlPublic, m,
+				"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+			)
+			data := checkConvertRequesterError(t, err).Data
+			require.Contains(t, data.Trace, "hold period didn't end")
+
+			checkBalanceAndDepositFewTimes(t, m, "0", application.AppIncentivesDistributionAmount)
+		} else {
+			_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
+				"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+			)
+			require.NoError(t, err)
+			depositAmount, ok := new(big.Int).SetString(application.AppIncentivesDistributionAmount, 10)
+			require.True(t, ok, "can't parse AppIncentivesDistributionAmount")
+			checkBalanceAndDepositFewTimes(t, m, "100", depositAmount.Sub(depositAmount, big.NewInt(100)).String())
+		}
+	}
+}
+
+func TestFoundationTransferDeposit(t *testing.T) {
+	for i, m := range Foundation {
+		res2, err := testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m, "member.get", nil)
 		require.NoError(t, err)
-		depositAmount, ok := new(big.Int).SetString(genesis.FoundationDistributionAmount, 10)
-		require.True(t, ok, "can't parse FoundationDistributionAmount")
-		checkBalanceAndDepositFewTimes(t, m, "100", depositAmount.Sub(depositAmount, big.NewInt(100)).String())
+		decodedRes2, ok := res2.(map[string]interface{})
+		m.Ref = decodedRes2["reference"].(string)
+		require.True(t, ok, fmt.Sprintf("failed to decode: expected map[string]interface{}, got %T", res2))
+
+		if time.Now().Unix() < time.Unix(genesisstate.FoundationUnholdStartDate, 0).AddDate(0, i, 0).Unix() {
+			_, err = testrequest.SignedRequestWithEmptyRequestRef(t, launchnet.TestRPCUrlPublic, m,
+				"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+			)
+			data := checkConvertRequesterError(t, err).Data
+			require.Contains(t, data.Trace, "hold period didn't end")
+
+			checkBalanceAndDepositFewTimes(t, m, "0", application.FoundationDistributionAmount)
+		} else {
+			_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
+				"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+			)
+			require.NoError(t, err)
+			depositAmount, ok := new(big.Int).SetString(application.FoundationDistributionAmount, 10)
+			require.True(t, ok, "can't parse FoundationDistributionAmount")
+			checkBalanceAndDepositFewTimes(t, m, "100", depositAmount.Sub(depositAmount, big.NewInt(100)).String())
+		}
 	}
 }
 
@@ -140,17 +173,30 @@ func TestMigrationDaemonTransferDeposit(t *testing.T) {
 	m.Ref = decodedRes2["reference"].(string)
 
 	oldBalance, deposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
-	oldDepositStr := deposits[genesis.FundsDepositName].(map[string]interface{})["balance"].(string)
+	oldDepositStr := deposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
 
-	_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
-		"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesis.FundsDepositName},
-	)
-	require.NoError(t, err)
-	newBalance, newDeposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
-	newDepositStr := newDeposits[genesis.FundsDepositName].(map[string]interface{})["balance"].(string)
-	amount := int64(100)
-	require.Equal(t, oldBalance.Add(oldBalance, big.NewInt(amount)).String(), newBalance.String())
-	oldDeposit, ok := new(big.Int).SetString(oldDepositStr, 10)
-	require.True(t, ok, "can't parse oldDepositStr")
-	require.Equal(t, oldDeposit.Sub(oldDeposit, big.NewInt(amount)).String(), newDepositStr)
+	if time.Now().Unix() < genesisstate.MigrationDaemonUnholdDate {
+		_, err = testrequest.SignedRequestWithEmptyRequestRef(t, launchnet.TestRPCUrlPublic, m,
+			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+		)
+		data := checkConvertRequesterError(t, err).Data
+		require.Contains(t, data.Trace, "hold period didn't end")
+
+		newBalance, newDeposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
+		newDepositStr := newDeposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
+		require.Equal(t, oldBalance.String(), newBalance.String())
+		require.Equal(t, oldDepositStr, newDepositStr)
+	} else {
+		_, err = testrequest.SignedRequest(t, launchnet.TestRPCUrlPublic, m,
+			"deposit.transfer", map[string]interface{}{"amount": "100", "ethTxHash": genesisrefs.FundsDepositName},
+		)
+		require.NoError(t, err)
+		newBalance, newDeposits := getBalanceAndDepositsNoErr(t, m, m.Ref)
+		newDepositStr := newDeposits[genesisrefs.FundsDepositName].(map[string]interface{})["balance"].(string)
+		amount := int64(100)
+		require.Equal(t, oldBalance.Add(oldBalance, big.NewInt(amount)).String(), newBalance.String())
+		oldDeposit, ok := new(big.Int).SetString(oldDepositStr, 10)
+		require.True(t, ok, "can't parse oldDepositStr")
+		require.Equal(t, oldDeposit.Sub(oldDeposit, big.NewInt(amount)).String(), newDepositStr)
+	}
 }
