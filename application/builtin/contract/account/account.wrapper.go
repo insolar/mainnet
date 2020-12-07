@@ -415,92 +415,6 @@ func INSMETHOD_ReallocateToDeposit(object []byte, data []byte) (newState []byte,
 	return
 }
 
-func INSMETHOD_Burn(object []byte, data []byte) (newState []byte, result []byte, err error) {
-	ph := common.CurrentProxyCtx
-	ph.SetSystemError(nil)
-
-	self := new(Account)
-
-	if len(object) == 0 {
-		err = &foundation.Error{S: "[ FakeBurn ] ( INSMETHOD_* ) ( Generated Method ) Object is nil"}
-		return
-	}
-
-	err = ph.Deserialize(object, self)
-	if err != nil {
-		err = &foundation.Error{S: "[ FakeBurn ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Data: " + err.Error()}
-		return
-	}
-
-	args := make([]interface{}, 3)
-	var args0 string
-	args[0] = &args0
-	var args1 insolar.Reference
-	args[1] = &args1
-	var args2 insolar.Reference
-	args[2] = &args2
-
-	err = ph.Deserialize(data, &args)
-	if err != nil {
-		err = &foundation.Error{S: "[ FakeBurn ] ( INSMETHOD_* ) ( Generated Method ) Can't deserialize args.Arguments: " + err.Error()}
-		return
-	}
-
-	var ret0 error
-
-	serializeResults := func() error {
-		return ph.Serialize(
-			foundation.Result{Returns: []interface{}{ret0}},
-			&result,
-		)
-	}
-
-	needRecover := true
-	defer func() {
-		if !needRecover {
-			return
-		}
-		if r := recover(); r != nil {
-			recoveredError := errors.Wrap(errors.Errorf("%v", r), "Failed to execute method (panic)")
-			recoveredError = ph.MakeErrorSerializable(recoveredError)
-
-			if PanicIsLogicalError {
-				ret0 = recoveredError
-
-				newState = object
-				err = serializeResults()
-				if err == nil {
-					newState = object
-				}
-			} else {
-				err = recoveredError
-			}
-		}
-	}()
-
-	ret0 = self.Burn(args0, args1, args2)
-
-	needRecover = false
-
-	if ph.GetSystemError() != nil {
-		return nil, nil, ph.GetSystemError()
-	}
-
-	err = ph.Serialize(self, &newState)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ret0 = ph.MakeErrorSerializable(ret0)
-
-	err = serializeResults()
-	if err != nil {
-		return
-	}
-
-	return
-}
-
 func INSCONSTRUCTOR_New(ref insolar.Reference, data []byte) (state []byte, result []byte, err error) {
 	ph := common.CurrentProxyCtx
 	ph.SetSystemError(nil)
@@ -587,7 +501,6 @@ func Initialize() insolar.ContractWrapper {
 			"Transfer":            INSMETHOD_Transfer,
 			"IncreaseBalance":     INSMETHOD_IncreaseBalance,
 			"ReallocateToDeposit": INSMETHOD_ReallocateToDeposit,
-			"Burn":                INSMETHOD_Burn,
 
 			"GetCode":      INSMETHOD_GetCode,
 			"GetPrototype": INSMETHOD_GetPrototype,

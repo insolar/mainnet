@@ -176,38 +176,3 @@ func (a *Account) ReallocateToDeposit(
 	a.Balance = balance.String()
 	return errors.Wrap(err, "failed to transfer amount")
 }
-
-// Burn transfers money to burn account.
-func (a *Account) Burn(
-	amountStr string,
-	fromMember insolar.Reference,
-	request insolar.Reference,
-) error {
-	amount, ok := new(big.Int).SetString(amountStr, 10)
-	if !ok {
-		return errors.New("can't parse input amount")
-	}
-	balance, ok := new(big.Int).SetString(a.Balance, 10)
-	if !ok {
-		return errors.New("can't parse account balance")
-	}
-	if balance.Sign() <= 0 {
-		return errors.New("not enough balance to burn")
-	}
-	newBalance, err := safemath.Sub(balance, amount)
-	if err != nil {
-		return errors.Wrap(err, "not enough balance to burn")
-	}
-	a.Balance = newBalance.String()
-	destination := member.GetObject(appfoundation.GetMigrationAdminMember())
-	acceptBurnErr := destination.AcceptBurn(appfoundation.SagaAcceptInfo{
-		Amount:     amountStr,
-		FromMember: fromMember,
-		Request:    request,
-	})
-	if acceptBurnErr == nil {
-		return nil
-	}
-	a.Balance = balance.String()
-	return errors.Wrap(acceptBurnErr, "failed to burn amount")
-}

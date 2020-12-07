@@ -33,6 +33,7 @@ jobs:
           docker cp $id:/usr/local/bin/insolard bin/
           docker cp $id:/usr/local/bin/keeperd bin/
           docker cp $id:/usr/local/bin/pulsard bin/
+          docker cp $id:/usr/local/bin/pulsewatcher bin/
       - name: create GH release
         id: create_release
         uses: actions/create-release@becafb2
@@ -79,3 +80,31 @@ jobs:
           asset_path: ./bin/pulsard
           asset_name: pulsard
           asset_content_type: application/octet-stream
+      - name: build rpm
+        run: |
+          mkdir -p scripts/rpm/content/usr/local/bin scripts/rpm/content/etc/insolar
+          cp bin/{insolar,insolard,keeperd,pulsard,pulsewatcher} scripts/rpm/content/usr/local/bin/
+          cp application/api/spec/{api-exported.yaml,api-exported-internal.yaml} scripts/rpm/content/etc/insolar/
+
+          docker run \
+            --rm \
+            -v $(pwd)/scripts/rpm:/src \
+            ruby:2.7-alpine \
+            sh -c "apk -u add rpm libc-dev make gcc; \
+                   gem install fpm; \
+                   fpm -s dir -t rpm -C /src/content -p /src \
+                     --replaces insolar \
+                     -n insolar-mainnet \
+                     -v ${{ steps.info.outputs.build_version }} \
+                     --after-install /src/after-install.sh \
+                     --after-upgrade /src/after-upgrade.sh \
+                     --after-remove /src/after-remove.sh \
+                     --before-install /src/before-install.sh \
+                     --before-upgrade /src/before-upgrade.sh \
+                     --before-remove /src/before-remove.sh"
+      - name: push rpm to repo
+        run: |
+          curl \
+            -u ${{ secrets.RPM_REPO_USER }}:${{ secrets.RPM_REPO_PASSWORD }} \
+            --upload-file scripts/rpm/*.rpm \
+            ${{ secrets.RPM_REPO_URL }}

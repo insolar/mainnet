@@ -19,9 +19,8 @@ type CreateResponse struct {
 	Reference string `json:"reference"`
 }
 type GetBalanceResponse struct {
-	Balance       string        `json:"balance"`
-	Deposits      []interface{} `json:"deposits"`
-	BurnedBalance string        `json:"burnedBalance"`
+	Balance  string        `json:"balance"`
+	Deposits []interface{} `json:"deposits"`
 }
 type GetResponse struct {
 	Reference        string `json:"reference"`
@@ -521,29 +520,6 @@ func (r *Member) Accept(arg appfoundation.SagaAcceptInfo) error {
 	}
 
 	_, err = common.CurrentProxyCtx.RouteCall(r.Reference, false, true, "Accept", argsSerialized, *PrototypeReference)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// AcceptBurn is proxy generated method
-func (r *Member) AcceptBurn(arg appfoundation.SagaAcceptInfo) error {
-	var args [1]interface{}
-	args[0] = arg
-
-	var argsSerialized []byte
-
-	ret := make([]interface{}, 1)
-	var ret0 *foundation.Error
-	ret[0] = &ret0
-
-	err := common.CurrentProxyCtx.Serialize(args, &argsSerialized)
-	if err != nil {
-		return err
-	}
-
-	_, err = common.CurrentProxyCtx.RouteCall(r.Reference, false, true, "AcceptBurn", argsSerialized, *PrototypeReference)
 	if err != nil {
 		return err
 	}
