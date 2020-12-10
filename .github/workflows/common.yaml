@@ -33,7 +33,7 @@ jobs:
       - name: test_prepare
         run: |
           go mod download
-          make vendor pre-build build
+          make pre-build build
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
       - name: test_unit
         run: make test_unit
@@ -63,7 +63,7 @@ jobs:
       - name: test_prepare
         run: |
           go mod download
-          make vendor pre-build build
+          make pre-build build
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
       - name: test_slow
         run: make test_slow
@@ -87,7 +87,6 @@ jobs:
       - name: codegen
         run: |
           go clean -modcache
-          make vendor
           make install-deps
           make pre-build
           git diff --exit-code
@@ -110,7 +109,7 @@ jobs:
         run: echo "::add-path::${{env.GOPATH}}/bin"
       - name: generate codecov
         run: |
-          make vendor test-with-coverage
+          make test-with-coverage
           content=`cat coverage.txt | ./scripts/dev/cover-filter.sh`
           echo "$content" | tee $GITHUB_WORKSPACE/coverage.txt
           cat ./coverage.txt | wc
@@ -148,7 +147,6 @@ jobs:
       - name: test_func
         working-directory: ${{env.GOPATH}}/src/github.com/insolar/mainnet
         run: |
-          make vendor
           make submodule
           make build
           make functest
@@ -191,7 +189,6 @@ jobs:
         env:
           POSTGRES_ENABLE: 1
         run: |
-          make vendor
           make submodule
           make build
           make functest

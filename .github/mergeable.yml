@@ -36,5 +36,3 @@ mergeable:
                   reviewers: ["shayenblue"]
               - required:
                   reviewers: ["LinnikD"]
-              - required:
-                  reviewers: ["pavlushev"]
