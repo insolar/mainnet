@@ -15,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
-	"github.com/insolar/mainnet/application"
+	"github.com/insolar/mainnet/application/genesis"
 	"github.com/insolar/mainnet/application/sdk"
 )
 
@@ -23,10 +23,10 @@ const insolarRootMemberKeys = "root_member_keys.json"
 const insolarMigrationAdminMemberKeys = "migration_admin_member_keys.json"
 const insolarFeeMemberKeys = "fee_member_keys.json"
 
-var ApplicationIncentives [application.GenesisAmountApplicationIncentivesMembers]*AppUser
-var NetworkIncentives [application.GenesisAmountNetworkIncentivesMembers]*AppUser
-var Enterprise [application.GenesisAmountEnterpriseMembers]*AppUser
-var Foundation [application.GenesisAmountFoundationMembers]*AppUser
+var ApplicationIncentives [genesis.GenesisAmountApplicationIncentivesMembers]*AppUser
+var NetworkIncentives [genesis.GenesisAmountNetworkIncentivesMembers]*AppUser
+var Enterprise [genesis.GenesisAmountEnterpriseMembers]*AppUser
+var Foundation [genesis.GenesisAmountFoundationMembers]*AppUser
 
 var AppPath = []string{"insolar", "mainnet"}
 
@@ -34,7 +34,7 @@ var info *sdk.InfoResponse
 var Root AppUser
 var MigrationAdmin AppUser
 var FeeMember AppUser
-var MigrationDaemons [application.GenesisAmountMigrationDaemonMembers]*AppUser
+var MigrationDaemons [genesis.GenesisAmountMigrationDaemonMembers]*AppUser
 
 type AppUser struct {
 	Ref              string
@@ -136,7 +136,7 @@ func LoadAllMembersKeys() error {
 		MigrationDaemons[i] = &md
 	}
 
-	for i := 0; i < application.GenesisAmountApplicationIncentivesMembers; i++ {
+	for i := 0; i < genesis.GenesisAmountApplicationIncentivesMembers; i++ {
 		path, err := launchnet.LaunchnetPath(AppPath, "configs", "application_incentives_"+strconv.Itoa(i)+"_member_keys.json")
 		if err != nil {
 			return err
@@ -149,7 +149,7 @@ func LoadAllMembersKeys() error {
 		ApplicationIncentives[i] = &md
 	}
 
-	for i := 0; i < application.GenesisAmountNetworkIncentivesMembers; i++ {
+	for i := 0; i < genesis.GenesisAmountNetworkIncentivesMembers; i++ {
 		path, err := launchnet.LaunchnetPath(AppPath, "configs", "network_incentives_"+strconv.Itoa(i)+"_member_keys.json")
 		if err != nil {
 			return err
@@ -162,7 +162,7 @@ func LoadAllMembersKeys() error {
 		NetworkIncentives[i] = &md
 	}
 
-	for i := 0; i < application.GenesisAmountFoundationMembers; i++ {
+	for i := 0; i < genesis.GenesisAmountFoundationMembers; i++ {
 		path, err := launchnet.LaunchnetPath(AppPath, "configs", "foundation_"+strconv.Itoa(i)+"_member_keys.json")
 		if err != nil {
 			return err
@@ -175,7 +175,7 @@ func LoadAllMembersKeys() error {
 		Foundation[i] = &md
 	}
 
-	for i := 0; i < application.GenesisAmountEnterpriseMembers; i++ {
+	for i := 0; i < genesis.GenesisAmountEnterpriseMembers; i++ {
 		path, err := launchnet.LaunchnetPath(AppPath, "configs", "enterprise_"+strconv.Itoa(i)+"_member_keys.json")
 		if err != nil {
 			return err

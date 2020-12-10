@@ -22,7 +22,7 @@ import (
 	"github.com/insolar/mainnet/application/builtin/proxy/member"
 	"github.com/insolar/mainnet/application/builtin/proxy/migrationdaemon"
 	"github.com/insolar/mainnet/application/builtin/proxy/wallet"
-	"github.com/insolar/mainnet/application/genesisrefs"
+	"github.com/insolar/mainnet/application/genesis"
 )
 
 const (
@@ -144,14 +144,14 @@ func (d *Deposit) Itself() (interface{}, error) {
 	return &DepositOut{
 		Balance:                 d.Balance,
 		HoldStartDate:           holdStartDate,
-		PulseDepositUnHold:      pulseDepositUnHold,
+		PulseDepositUnHold:      holdStartDate,
 		MigrationDaemonConfirms: daemonConfirms,
 		Amount:                  d.Amount,
 		TxHash:                  d.TxHash,
 		VestingType:             d.VestingType,
-		Lockup:                  d.Lockup,
-		Vesting:                 d.Vesting,
-		VestingStep:             d.VestingStep,
+		Lockup:                  0,
+		Vesting:                 0,
+		VestingStep:             0,
 	}, nil
 }
 
@@ -204,7 +204,7 @@ func (d *Deposit) Confirm(
 			if err != nil {
 				return errors.Wrap(err, "failed to get wallet")
 			}
-			ok, maDeposit, _ := wallet.GetObject(*walletRef).FindDeposit(genesisrefs.FundsDepositName)
+			ok, maDeposit, _ := wallet.GetObject(*walletRef).FindDeposit(genesis.FundsDepositName)
 			if !ok {
 				return fmt.Errorf("failed to find source deposit - %s", walletRef.String())
 			}
@@ -332,45 +332,12 @@ func (d *Deposit) availableAmount() (*big.Int, error) {
 		return nil, errors.New("number of confirms is less then 2")
 	}
 
-	currentPulse, err := foundation.GetPulseNumber()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get pulse number")
-	}
-	if currentPulse < d.PulseDepositUnHold {
-		return nil, errors.New("hold period didn't end")
-	}
-
-	amount, ok := new(big.Int).SetString(d.Amount, 10)
-	if !ok {
-		return nil, errors.New("can't parse deposit amount")
-	}
 	balance, ok := new(big.Int).SetString(d.Balance, 10)
 	if !ok {
 		return nil, errors.New("can't parse deposit balance")
 	}
 
-	// Allow to transfer whole balance if vesting period has already finished
-	if currentPulse >= d.PulseDepositUnHold+insolar.PulseNumber(d.Vesting) {
-		return balance, nil
-	}
-
-	// Total number of vesting steps in vesting period
-	totalSteps := uint64(d.Vesting / d.VestingStep)
-	// Vesting steps already passed by now
-	passedSteps := uint64(int64(currentPulse-d.PulseDepositUnHold) / d.VestingStep)
-	// Amount that has been vested by now
-	vestedByNow := VestedByNow(amount, passedSteps, totalSteps)
-	// Amount that is still locked on deposit
-	onHold := new(big.Int).Sub(amount, vestedByNow)
-	// Amount that is now available for withdrawal
-	availableNow := new(big.Int).Sub(balance, onHold)
-
-	// availableNow can become negative when balance is 0 and vesting has already started
-	if availableNow.Cmp(big.NewInt(0)) == -1 {
-		return big.NewInt(0), nil
-	}
-
-	return availableNow, nil
+	return balance, nil
 }
 
 func (d *Deposit) canTransfer(transferAmount *big.Int) error {

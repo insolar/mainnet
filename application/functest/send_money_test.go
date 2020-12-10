@@ -19,7 +19,7 @@ import (
 	"github.com/insolar/insolar/applicationbase/testutils/testrequest"
 	"github.com/insolar/insolar/insolar/gen"
 
-	"github.com/insolar/mainnet/application/genesisrefs"
+	"github.com/insolar/mainnet/application/genesis"
 )
 
 const times = 5
@@ -290,10 +290,10 @@ func TestTransferMoneyFromNotMemberRef(t *testing.T) {
 	firstMember := createMember(t)
 	secondMember := createMember(t)
 	// Broke member to request object with prototype with no 'Call' method
-	firstMember.Ref = genesisrefs.ContractCostCenter.String()
+	firstMember.Ref = genesis.ContractCostCenter.String()
 	amountStr := "10"
 	_, _, err := testrequest.MakeSignedRequest(launchnet.TestRPCUrlPublic, firstMember, "member.transfer",
-		map[string]interface{}{"amount": amountStr, "toMemberReference":  secondMember.Ref})
+		map[string]interface{}{"amount": amountStr, "toMemberReference": secondMember.Ref})
 	data := checkConvertRequesterError(t, err).Data
 	require.Contains(t, data.Trace, "failed to find contracts method")
 }

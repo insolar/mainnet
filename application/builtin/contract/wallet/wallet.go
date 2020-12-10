@@ -10,14 +10,17 @@ import (
 
 	"github.com/insolar/insolar/insolar"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
+	"github.com/pkg/errors"
 
 	depositContract "github.com/insolar/mainnet/application/builtin/contract/deposit"
 	"github.com/insolar/mainnet/application/builtin/proxy/account"
+	"github.com/insolar/mainnet/application/builtin/proxy/burnedaccount"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
 )
 
 const (
-	XNS = "XNS"
+	XNS    = "XNS"
+	Burned = "Burned"
 )
 
 // Wallet - basic wallet contract.
@@ -142,5 +145,19 @@ func (w *Wallet) CreateFund(lockupEndDate int64) (*insolar.Reference, error) {
 
 	ref := fund.GetReference()
 	w.Deposits[depositContract.PublicAllocation2DepositName] = ref.String()
+	return &ref, nil
+}
+
+// CreateBurnedAccount creates new BurnedAccount.
+func (w *Wallet) CreateBurnedAccount() (*insolar.Reference, error) {
+	const zeroBalance = "0"
+	accountHolder := burnedaccount.New(zeroBalance)
+	acc, err := accountHolder.AsChild(w.GetReference())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to save burnedaccount as child")
+	}
+
+	ref := acc.GetReference()
+	w.Accounts[Burned] = ref.String()
 	return &ref, nil
 }

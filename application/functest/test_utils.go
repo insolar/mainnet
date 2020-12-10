@@ -17,15 +17,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/insolar/insolar/api/requester"
+	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
 	"github.com/insolar/insolar/applicationbase/testutils/testrequest"
 	"github.com/insolar/insolar/applicationbase/testutils/testresponse"
 	"github.com/insolar/insolar/insolar/secrets"
 	"github.com/insolar/insolar/logicrunner/builtin/foundation"
-	"github.com/insolar/mainnet/application/genesisrefs"
-
-	"github.com/insolar/insolar/api/requester"
-	"github.com/insolar/insolar/applicationbase/testutils/launchnet"
-
+	"github.com/insolar/mainnet/application/genesis"
 	"github.com/stretchr/testify/require"
 
 	"github.com/pkg/errors"
@@ -95,7 +93,7 @@ func getBalanceNoErr(t *testing.T, caller *AppUser, reference string) *big.Int {
 
 func getAdminDepositBalance(t *testing.T, caller *AppUser, reference string) (*big.Int, error) {
 	_, deposits := getBalanceAndDepositsNoErr(t, caller, reference)
-	mapd, ok := deposits[genesisrefs.FundsDepositName].(map[string]interface{})
+	mapd, ok := deposits[genesis.FundsDepositName].(map[string]interface{})
 	if !ok {
 		return nil, fmt.Errorf("can't parse deposit")
 	}

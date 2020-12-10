@@ -44,7 +44,7 @@ LDFLAGS += -X github.com/insolar/insolar/version.GitHash=${BUILD_HASH}
 INSGOCC=./bin/insgocc
 
 .PHONY: all
-all: submodule clean pre-build build ## cleanup, install deps, (re)generate all code and build all binaries
+all: vendor submodule clean pre-build build ## cleanup, install deps, (re)generate all code and build all binaries
 
 .PHONY: submodule
 submodule: ## init git submodule
@@ -96,7 +96,7 @@ $(BIN_DIR):
 
 .PHONY: $(INSOLARD)
 $(INSOLARD):
-	$(GOBUILD) -o $(BIN_DIR)/$(INSOLARD) ${BUILD_TAGS} -ldflags "${LDFLAGS}" cmd/insolard/*.go
+	$(GOBUILD) -o $(BIN_DIR)/$(INSOLARD) ${BUILD_TAGS} -ldflags "${LDFLAGS}" application/cmd/insolard/*.go
 
 .PHONY: $(INSOLAR)
 $(INSOLAR):

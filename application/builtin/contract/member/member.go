@@ -20,13 +20,14 @@ import (
 	depositContract "github.com/insolar/mainnet/application/builtin/contract/deposit"
 	walletContract "github.com/insolar/mainnet/application/builtin/contract/wallet"
 	"github.com/insolar/mainnet/application/builtin/proxy/account"
+	"github.com/insolar/mainnet/application/builtin/proxy/burnedaccount"
 	"github.com/insolar/mainnet/application/builtin/proxy/deposit"
 	"github.com/insolar/mainnet/application/builtin/proxy/member"
 	"github.com/insolar/mainnet/application/builtin/proxy/migrationadmin"
 	"github.com/insolar/mainnet/application/builtin/proxy/migrationdaemon"
 	"github.com/insolar/mainnet/application/builtin/proxy/rootdomain"
 	"github.com/insolar/mainnet/application/builtin/proxy/wallet"
-	"github.com/insolar/mainnet/application/genesisrefs"
+	"github.com/insolar/mainnet/application/genesis"
 )
 
 const (
@@ -164,6 +165,9 @@ func (m *Member) Call(signedRequest []byte) (interface{}, error) {
 	// account.*
 	case "account.transferToDeposit":
 		return m.accountTransferToDepositCall(params)
+	// coin.*
+	case "coin.burn":
+		return m.coinBurnCall(params)
 	}
 	return nil, fmt.Errorf("unknown method '%s'", request.Params.CallSite)
 }
@@ -198,8 +202,9 @@ func (m *Member) registerNodeCall(params map[string]interface{}) (interface{}, e
 }
 
 type GetBalanceResponse struct {
-	Balance  string        `json:"balance"`
-	Deposits []interface{} `json:"deposits"`
+	Balance       string        `json:"balance"`
+	Deposits      []interface{} `json:"deposits"`
+	BurnedBalance string        `json:"burnedBalance"`
 }
 
 func (m *Member) getBalanceCall(params map[string]interface{}) (interface{}, error) {
@@ -236,7 +241,16 @@ func (m *Member) getBalanceCall(params map[string]interface{}) (interface{}, err
 		return nil, fmt.Errorf("failed to get deposits: %s", err.Error())
 	}
 
-	return GetBalanceResponse{Balance: b, Deposits: d}, nil
+	burnedBalance := "0"
+	accRef, err := m.GetAccount(walletContract.Burned)
+	if err == nil && accRef != nil {
+		burnedBalance, err = burnedaccount.GetObject(*accRef).GetBalance()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get burned balance")
+		}
+	}
+
+	return GetBalanceResponse{Balance: b, Deposits: d, BurnedBalance: burnedBalance}, nil
 }
 
 type TransferResponse struct {
@@ -439,9 +453,29 @@ func (m *Member) accountTransferToDepositCall(params map[string]interface{}) (in
 	return nil, acc.ReallocateToDeposit(amountStr, *toDepositRef, m.GetReference(), *request)
 }
 
+func (m *Member) coinBurnCall(params map[string]interface{}) (interface{}, error) {
+	amountStr, ok := params["amount"].(string)
+	if !ok {
+		return nil, errors.New("failed to get 'amount' param")
+	}
+
+	request, err := foundation.GetRequestReference()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get request reference")
+	}
+
+	accountRef, err := m.GetAccount(walletContract.XNS)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get account reference")
+	}
+	acc := account.GetObject(*accountRef)
+
+	return nil, acc.Burn(amountStr, m.GetReference(), *request)
+}
+
 // Platform methods.
 func (m *Member) registerNode(public string, role string) (interface{}, error) {
-	root := genesisrefs.ContractRootMember
+	root := genesis.ContractRootMember
 	if m.GetReference() != root {
 		return "", fmt.Errorf("only root member can register node")
 	}
@@ -506,7 +540,7 @@ func (m *Member) contractCreateMemberCall(key string) (*CreateResponse, error) {
 
 func (m *Member) contractCreateMember(key string, migrationAddress string) (*member.Member, error) {
 
-	rootDomain := rootdomain.GetObject(appfoundation.GetRootDomain())
+	rootDomain := rootdomain.GetObject(genesis.GetRootDomain())
 
 	created, err := m.createMember(key, migrationAddress)
 	if err != nil {
@@ -526,19 +560,19 @@ func (m *Member) createMember(key string, migrationAddress string) (*member.Memb
 	}
 
 	aHolder := account.New(ACCOUNT_START_VALUE)
-	accountRef, err := aHolder.AsChild(appfoundation.GetRootDomain())
+	accountRef, err := aHolder.AsChild(genesis.GetRootDomain())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create account for member: %s", err.Error())
 	}
 
 	wHolder := wallet.New(accountRef.Reference)
-	walletRef, err := wHolder.AsChild(appfoundation.GetRootDomain())
+	walletRef, err := wHolder.AsChild(genesis.GetRootDomain())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create wallet for member: %s", err.Error())
 	}
 
 	memberHolder := member.New(key, migrationAddress, walletRef.Reference)
-	created, err := memberHolder.AsChild(appfoundation.GetRootDomain())
+	created, err := memberHolder.AsChild(genesis.GetRootDomain())
 	if err != nil {
 		return nil, fmt.Errorf("failed to save as child: %s", err.Error())
 	}
@@ -557,7 +591,7 @@ type GetResponse struct {
 }
 
 func (m *Member) memberGet(publicKey string) (interface{}, error) {
-	rootDomain := rootdomain.GetObject(appfoundation.GetRootDomain())
+	rootDomain := rootdomain.GetObject(genesis.GetRootDomain())
 	ref, err := rootDomain.GetMemberByPublicKey(publicKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get reference by public key: %s", err.Error())
@@ -613,4 +647,20 @@ func (m *Member) getDepositReferenceByName(depositName string, memberRef insolar
 		return nil, fmt.Errorf("can't find deposit")
 	}
 	return depositRef, nil
+}
+
+// AcceptBurn accepts coins to burn.
+// FromMember and Request not used, but needed by observer, do not remove
+//ins:saga(INS_FLAG_NO_ROLLBACK_METHOD)
+func (m *Member) AcceptBurn(arg appfoundation.SagaAcceptInfo) error {
+	accountRef, err := m.GetAccount(walletContract.Burned)
+	if err != nil {
+		accountRef, err = wallet.GetObject(m.Wallet).CreateBurnedAccount()
+	}
+	acc := burnedaccount.GetObject(*accountRef)
+	err = acc.IncreaseBalance(arg.Amount)
+	if err != nil {
+		return errors.Wrap(err, "failed to increase burned balance")
+	}
+	return nil
 }

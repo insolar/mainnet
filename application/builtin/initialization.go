@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	account "github.com/insolar/mainnet/application/builtin/contract/account"
+	burnedaccount "github.com/insolar/mainnet/application/builtin/contract/burnedaccount"
 	costcenter "github.com/insolar/mainnet/application/builtin/contract/costcenter"
 	deposit "github.com/insolar/mainnet/application/builtin/contract/deposit"
 	member "github.com/insolar/mainnet/application/builtin/contract/member"
@@ -29,6 +30,7 @@ import (
 func InitializeContractMethods() map[string]XXX_insolar.ContractWrapper {
 	return map[string]XXX_insolar.ContractWrapper{
 		"account":         account.Initialize(),
+		"burnedaccount":   burnedaccount.Initialize(),
 		"costcenter":      costcenter.Initialize(),
 		"deposit":         deposit.Initialize(),
 		"member":          member.Initialize(),
@@ -50,9 +52,10 @@ func shouldLoadRef(strRef string) XXX_insolar.Reference {
 }
 
 func InitializeCodeRefs() map[XXX_insolar.Reference]string {
-	rv := make(map[XXX_insolar.Reference]string, 10)
+	rv := make(map[XXX_insolar.Reference]string, 11)
 
 	rv[shouldLoadRef("insolar:0AAABAtrxlP_Iiq10drn2FuNMs2VppatXni7MP5Iy47g.record")] = "account"
+	rv[shouldLoadRef("insolar:0AAABAuNepNx9zIuCenvJgYb_R3Y7CmlmigBWBMNT2GE.record")] = "burnedaccount"
 	rv[shouldLoadRef("insolar:0AAABAt3ka4Zhm241MIue3ibjyPHXE0GONYHMDtJEMEs.record")] = "costcenter"
 	rv[shouldLoadRef("insolar:0AAABApWJDvbGfjDx2Qe8L-XfyFUZ1Ak-xcE6ViTULWw.record")] = "deposit"
 	rv[shouldLoadRef("insolar:0AAABAoppTQrrSQt5rQ883tMp-IoLRJ-LwDloc-_WiFs.record")] = "member"
@@ -67,9 +70,10 @@ func InitializeCodeRefs() map[XXX_insolar.Reference]string {
 }
 
 func InitializePrototypeRefs() map[XXX_insolar.Reference]string {
-	rv := make(map[XXX_insolar.Reference]string, 10)
+	rv := make(map[XXX_insolar.Reference]string, 11)
 
 	rv[shouldLoadRef("insolar:0AAABAijqpfzqLqOhivOFDQOK5OO_gW78OzTTniCChIU")] = "account"
+	rv[shouldLoadRef("insolar:0AAABAjH5ZGIj4bkQEcf6KU4nDakIgzfJhTLRsbG2Sog")] = "burnedaccount"
 	rv[shouldLoadRef("insolar:0AAABAiiIlRbDnHuBzCCo8E9V-kCUpb22kUkU2ebIsa8")] = "costcenter"
 	rv[shouldLoadRef("insolar:0AAABAsPCPoB0_7TDBh7dydzcQcqFqlbDu0bDPGr27oY")] = "deposit"
 	rv[shouldLoadRef("insolar:0AAABArZDDJnAoTN3EvlpVIvuANsDK7eBid_XU-qbZSU")] = "member"
@@ -84,13 +88,19 @@ func InitializePrototypeRefs() map[XXX_insolar.Reference]string {
 }
 
 func InitializeCodeDescriptors() []XXX_artifacts.CodeDescriptor {
-	rv := make([]XXX_artifacts.CodeDescriptor, 0, 10)
+	rv := make([]XXX_artifacts.CodeDescriptor, 0, 11)
 
 	// account
 	rv = append(rv, XXX_artifacts.NewCodeDescriptor(
 		/* code:        */ nil,
 		/* machineType: */ XXX_insolar.MachineTypeBuiltin,
 		/* ref:         */ shouldLoadRef("insolar:0AAABAtrxlP_Iiq10drn2FuNMs2VppatXni7MP5Iy47g.record"),
+	))
+	// burnedaccount
+	rv = append(rv, XXX_artifacts.NewCodeDescriptor(
+		/* code:        */ nil,
+		/* machineType: */ XXX_insolar.MachineTypeBuiltin,
+		/* ref:         */ shouldLoadRef("insolar:0AAABAuNepNx9zIuCenvJgYb_R3Y7CmlmigBWBMNT2GE.record"),
 	))
 	// costcenter
 	rv = append(rv, XXX_artifacts.NewCodeDescriptor(
@@ -151,11 +161,21 @@ func InitializeCodeDescriptors() []XXX_artifacts.CodeDescriptor {
 }
 
 func InitializePrototypeDescriptors() []XXX_artifacts.PrototypeDescriptor {
-	rv := make([]XXX_artifacts.PrototypeDescriptor, 0, 10)
+	rv := make([]XXX_artifacts.PrototypeDescriptor, 0, 11)
 
 	{ // account
 		pRef := shouldLoadRef("insolar:0AAABAijqpfzqLqOhivOFDQOK5OO_gW78OzTTniCChIU")
 		cRef := shouldLoadRef("insolar:0AAABAtrxlP_Iiq10drn2FuNMs2VppatXni7MP5Iy47g.record")
+		rv = append(rv, XXX_artifacts.NewPrototypeDescriptor(
+			/* head:         */ pRef,
+			/* state:        */ *pRef.GetLocal(),
+			/* code:         */ cRef,
+		))
+	}
+
+	{ // burnedaccount
+		pRef := shouldLoadRef("insolar:0AAABAjH5ZGIj4bkQEcf6KU4nDakIgzfJhTLRsbG2Sog")
+		cRef := shouldLoadRef("insolar:0AAABAuNepNx9zIuCenvJgYb_R3Y7CmlmigBWBMNT2GE.record")
 		rv = append(rv, XXX_artifacts.NewPrototypeDescriptor(
 			/* head:         */ pRef,
 			/* state:        */ *pRef.GetLocal(),

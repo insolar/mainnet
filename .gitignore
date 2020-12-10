@@ -38,3 +38,4 @@ coverage.txt
 # Local doc build directory
 /docs/build
 
+vendor/
