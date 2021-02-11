@@ -1,6 +1,6 @@
 export GO111MODULE ?= on
 export GOSUMDB ?= sum.golang.org
-export GOFLAGS ?= -mod=vendor
+# export GOFLAGS ?= -mod=vendor
 export GOBIN = ${PWD}/bin
 
 BIN_DIR ?= bin
@@ -68,7 +68,7 @@ clean: ## run all cleanup tasks
 
 .PHONY: install-build-tools
 install-build-tools: ## install insolar tools for platform
-	./scripts/build/ls-tools.go | xargs -tI % GO111MODULE=on go install -v %
+	./scripts/build/ls-tools.go | xargs -tI % go get -v %
 
 .PHONY: install-deps
 install-deps: install-build-tools ## install dep and codegen tools
