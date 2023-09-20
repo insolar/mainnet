@@ -1,8 +1,3 @@
-// Copyright 2020 Insolar Network Ltd.
-// All rights reserved.
-// This material is licensed under the Insolar License version 1.0,
-// available at https://github.com/insolar/mainnet/blob/master/LICENSE.md.
-
 package member
 
 import (
@@ -612,6 +607,7 @@ func (m *Member) memberGet(publicKey string) (interface{}, error) {
 
 // Accept accepts transfer to balance.
 // FromMember and Request not used, but needed by observer, do not remove
+//
 //ins:saga(INS_FLAG_NO_ROLLBACK_METHOD)
 func (m *Member) Accept(arg appfoundation.SagaAcceptInfo) error {
 	accountRef, err := m.GetAccount(walletContract.XNS)
@@ -651,6 +647,7 @@ func (m *Member) getDepositReferenceByName(depositName string, memberRef insolar
 
 // AcceptBurn accepts coins to burn.
 // FromMember and Request not used, but needed by observer, do not remove
+//
 //ins:saga(INS_FLAG_NO_ROLLBACK_METHOD)
 func (m *Member) AcceptBurn(arg appfoundation.SagaAcceptInfo) error {
 	accountRef, err := m.GetAccount(walletContract.Burned)
